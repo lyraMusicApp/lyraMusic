@@ -23,6 +23,12 @@ Current release asset:
 
 [Lyra-Music.apk](https://github.com/shnwazdeveloper/lyra-music/releases/download/lyra-v3.0.1/Lyra-Music.apk)
 
+Verified release APK:
+
+- Signed release build, not debug.
+- Package name: `com.Arturo254.opentune`
+- Verified with APK Signature Scheme v2 and v3.
+
 ## Features
 
 - Search songs, videos, albums, and playlists.
@@ -41,16 +47,16 @@ Requirements:
 - Android SDK
 - JDK 21
 
-Build the universal debug APK:
+Build the universal release APK:
 
 ```powershell
-.\gradlew.bat :app:assembleUniversalDebug
+.\gradlew.bat :app:packageUniversalRelease
 ```
 
 The generated APK is created under:
 
 ```text
-app/build/outputs/apk/universal/debug/
+app/build/outputs/apk/universal/release/
 ```
 
 ## Repository Links
