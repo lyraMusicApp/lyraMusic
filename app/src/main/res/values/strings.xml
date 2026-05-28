@@ -674,7 +674,7 @@ Lyra Music will only extract your token, and everything else is stored locally.<
     <string name="latest_version_format">Latest: %s</string>
     <string name="notification_settings">Notification</string>
     <string name="enable_update_notification">Enable Update Notification</string>
-    <string name="enable_update_notification_desc">Get notified when a new stable version is released</string>
+    <string name="enable_update_notification_desc">Get notified when a new Lyra Music update is released</string>
     <string name="update_channel">Update Channel</string>
     <string name="channel_stable">Stable</string>
     <string name="channel_nightly">Nightly</string>

@@ -35,8 +35,6 @@ import com.arturo254.opentune.R
 import com.arturo254.opentune.constants.EnableUpdateNotificationKey
 import com.arturo254.opentune.constants.LastNotifiedVersionKey
 import com.arturo254.opentune.constants.LastUpdateCheckKey
-import com.arturo254.opentune.constants.UpdateChannel
-import com.arturo254.opentune.constants.UpdateChannelKey
 import java.util.concurrent.TimeUnit
 
 object UpdateNotificationManager {
@@ -89,21 +87,13 @@ object UpdateNotificationManager {
             try {
                 val dataStore = context.dataStore
 
-                val isEnabled = dataStore.data.map { it[EnableUpdateNotificationKey] ?: false }.first()
+                val isEnabled = dataStore.data.map { it[EnableUpdateNotificationKey] ?: true }.first()
                 if (!isEnabled) {
                     cancelPeriodicUpdateCheck(context)
                     return@launch
                 }
 
                 schedulePeriodicUpdateCheck(context)
-
-                val updateChannel = dataStore.data.map { 
-                    it[UpdateChannelKey]?.let { value -> 
-                        try { UpdateChannel.valueOf(value) } catch (e: Exception) { UpdateChannel.STABLE }
-                    } ?: UpdateChannel.STABLE
-                }.first()
-
-                if (updateChannel == UpdateChannel.NIGHTLY) return@launch
 
                 val lastCheck = dataStore.data.map { it[LastUpdateCheckKey] ?: 0L }.first()
                 val now = System.currentTimeMillis()

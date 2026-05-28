@@ -53,7 +53,7 @@ data class NightlyInfo(
  *
  * @param tagName        Tag del release en GitHub (ej. "v1.4.2")
  * @param versionName    Versión normalizada sin prefijo "v" (ej. "1.4.2")
- * @param downloadUrl    URL directa a `app-universal-release.apk` del release
+ * @param downloadUrl    URL directa al APK del release
  * @param releasePageUrl URL de la página HTML del release en GitHub
  * @param releaseNotes   Changelog / body del release (puede ser null)
  * @param publishedAt    Fecha de publicación en ISO 8601
@@ -67,8 +67,11 @@ data class UpdateInfo(
     val publishedAt: String,
 )
 
-private const val APK_ASSET_NAME = "app-universal-release.apk"
-private const val NIGHTLY_JSON_URL = "https://pub-2218e6bbd5b948e1b5d882cf4d92086d.r2.dev/update.json"
+private const val LYRA_REPOSITORY = "shnwazdeveloper/lyra-music"
+private const val USER_AGENT = "LyraMusic"
+private const val STABLE_APK_ASSET_NAME = "Lyra-Music.apk"
+private const val NIGHTLY_TAG_NAME = "nightly"
+private const val NIGHTLY_APK_ASSET_NAME = "app-universal.apk"
 
 private data class ReleasesNetworkResult(
     val status: HttpStatusCode,
@@ -240,10 +243,10 @@ object Updater {
         cachedEtag: String?,
     ): ReleasesNetworkResult {
         val response: HttpResponse =
-            client.get("https://api.github.com/repos/Arturo254/OpenTune/releases?per_page=$perPage") {
+            client.get("https://api.github.com/repos/$LYRA_REPOSITORY/releases?per_page=$perPage") {
                 headers {
                     append("Accept", "application/vnd.github+json")
-                    append("User-Agent", "OpenTune")
+                    append("User-Agent", USER_AGENT)
                     if (!cachedEtag.isNullOrBlank()) {
                         append("If-None-Match", cachedEtag)
                     }
@@ -274,29 +277,38 @@ object Updater {
     }
 
     private suspend fun fetchNightlyJson(): Result<NightlyInfo> = runCatching {
-        val response = client.get(NIGHTLY_JSON_URL) {
+        val response = client.get("https://api.github.com/repos/$LYRA_REPOSITORY/releases/tags/$NIGHTLY_TAG_NAME") {
             headers {
-                append("Accept", "application/json")
-                append("User-Agent", "OpenTune")
+                append("Accept", "application/vnd.github+json")
+                append("User-Agent", USER_AGENT)
             }
         }.bodyAsText()
         val json = JSONObject(response)
-
-        // El JSON está en /nightly/update.json pero el APK debe servirse sin /nightly/
-        val rawApkUrl = json.optString("apkUrl", "")
-        val fixedApkUrl = rawApkUrl.replace(
-            "https://pub-2218e6bbd5b948e1b5d882cf4d92086d.r2.dev/",
-            "https://pub-2218e6bbd5b948e1b5d882cf4d92086d.r2.dev/"
-        )
+        val assets = json.optJSONArray("assets")
+        var apkUrl = ""
+        var assetUpdatedAt = json.optString("published_at", "")
+        if (assets != null) {
+            for (i in 0 until assets.length()) {
+                val asset = assets.getJSONObject(i)
+                if (asset.optString("name").equals(NIGHTLY_APK_ASSET_NAME, ignoreCase = true)) {
+                    apkUrl = asset.optString("browser_download_url", "")
+                    assetUpdatedAt = asset.optString("updated_at", assetUpdatedAt)
+                    break
+                }
+            }
+        }
+        if (apkUrl.isBlank()) {
+            apkUrl = "https://github.com/$LYRA_REPOSITORY/releases/download/$NIGHTLY_TAG_NAME/$NIGHTLY_APK_ASSET_NAME"
+        }
+        val versionName = assetUpdatedAt.takeIf { it.isNotBlank() }?.let { "nightly-$it" } ?: NIGHTLY_TAG_NAME
 
         NightlyInfo(
-            versionName = json.optString("versionName", "unknown"),
-            apkUrl = fixedApkUrl.ifEmpty {
-                "https://pub-2218e6bbd5b948e1b5d882cf4d92086d.r2.dev/app-universal-release.apk"
-            },
-            changelog = json.optString("changelog", "").takeIf { it.isNotEmpty() },
-            publishedAt = json.optString("publishedAt", "")
+            versionName = versionName,
+            apkUrl = apkUrl,
+            changelog = json.optString("body", "").takeIf { it.isNotBlank() },
+            publishedAt = assetUpdatedAt
         )
+
     }
 
     // ─── Funciones públicas (compatibilidad obligatoria) ───────────────────────
@@ -359,7 +371,7 @@ object Updater {
      *
      * - Detecta el canal activo automáticamente.
      * - STABLE: Reutiliza la caché existente (ETag / DataStore).
-     * - NIGHTLY: Consulta el JSON remoto de Cloudflare R2.
+     * - NIGHTLY: Consulta el release `nightly` de GitHub.
      * - Devuelve `null` dentro del [Result] cuando ya se tiene la versión más
      *   reciente instalada.
      */
@@ -410,20 +422,20 @@ object Updater {
 
     /**
      * Consulta los assets del release [tagName] y devuelve la URL de descarga
-     * de `app-universal-release.apk`. Si la llamada falla o el asset no está listado,
+     * de `Lyra-Music.apk`. Si la llamada falla o el asset no está listado,
      * usa la URL canónica de GitHub como fallback.
      */
     private suspend fun resolveApkDownloadUrl(tagName: String): String {
         val fallback =
-            "https://github.com/Arturo254/OpenTune/releases/download/$tagName/$APK_ASSET_NAME"
+            "https://github.com/$LYRA_REPOSITORY/releases/download/$tagName/$STABLE_APK_ASSET_NAME"
 
         return runCatching {
             val response = client.get(
-                "https://api.github.com/repos/Arturo254/OpenTune/releases/tags/$tagName"
+                "https://api.github.com/repos/$LYRA_REPOSITORY/releases/tags/$tagName"
             ) {
                 headers {
                     append("Accept", "application/vnd.github+json")
-                    append("User-Agent", "OpenTune")
+                    append("User-Agent", USER_AGENT)
                 }
             }.bodyAsText()
 
@@ -431,7 +443,7 @@ object Updater {
 
             for (i in 0 until assets.length()) {
                 val asset = assets.getJSONObject(i)
-                if (asset.optString("name").equals(APK_ASSET_NAME, ignoreCase = true)) {
+                if (asset.optString("name").equals(STABLE_APK_ASSET_NAME, ignoreCase = true)) {
                     return@runCatching asset.optString("browser_download_url", fallback)
                 }
             }
@@ -444,10 +456,10 @@ object Updater {
     suspend fun getCommitHistory(count: Int = 20, branch: String = "master"): Result<List<GitCommit>> =
         runCatching {
             val response =
-                client.get("https://api.github.com/repos/Arturo254/OpenTune/commits?sha=$branch&per_page=$count") {
+                client.get("https://api.github.com/repos/$LYRA_REPOSITORY/commits?sha=$branch&per_page=$count") {
                     headers {
                         append("Accept", "application/vnd.github+json")
-                        append("User-Agent", "OpenTune")
+                        append("User-Agent", USER_AGENT)
                     }
                 }.bodyAsText()
             val jsonArray = JSONArray(response)
@@ -475,11 +487,11 @@ object Updater {
         }
         return when (channel) {
             UpdateChannel.STABLE -> {
-                "https://github.com/Arturo254/OpenTune/releases/latest/download/$APK_ASSET_NAME"
+                "https://github.com/$LYRA_REPOSITORY/releases/latest/download/$STABLE_APK_ASSET_NAME"
             }
             UpdateChannel.NIGHTLY -> {
                 cachedNightlyInfo?.apkUrl
-                    ?: "https://pub-2218e6bbd5b948e1b5d882cf4d92086d.r2.dev/app-universal-release.apk"
+                    ?: "https://github.com/$LYRA_REPOSITORY/releases/download/$NIGHTLY_TAG_NAME/$NIGHTLY_APK_ASSET_NAME"
             }
         }
     }

@@ -118,11 +118,11 @@ fun UpdateScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var nightlyInstallUrl by remember {
-        mutableStateOf("https://github.com/Arturo254/OpenTune/releases/download/latest/app-universal-release.apk")
+        mutableStateOf("https://github.com/shnwazdeveloper/lyra-music/releases/download/nightly/app-universal.apk")
     }
 
     val (enableUpdateNotification, onEnableUpdateNotificationChange) = rememberPreference(
-        EnableUpdateNotificationKey, defaultValue = false
+        EnableUpdateNotificationKey, defaultValue = true
     )
     val (updateChannel, onUpdateChannelChange) = rememberEnumPreference(
         UpdateChannelKey, defaultValue = UpdateChannel.STABLE
@@ -231,7 +231,7 @@ fun UpdateScreen(
                 }
             }
         } else {
-            nightlyInstallUrl = "https://github.com/Arturo254/OpenTune/releases/download/latest/app-universal-release.apk"
+            nightlyInstallUrl = "https://github.com/shnwazdeveloper/lyra-music/releases/latest/download/Lyra-Music.apk"
         }
     }
 
@@ -601,7 +601,7 @@ private fun BuildChannelInfoDialog(
         title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Text("OpenTune provides two download channels for builds:", style = MaterialTheme.typography.bodyMedium)
+                Text("Lyra Music provides two download channels for builds:", style = MaterialTheme.typography.bodyMedium)
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("• Stable builds", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                     Text("Distributed via official GitHub Releases.", style = MaterialTheme.typography.bodySmall)
@@ -609,7 +609,7 @@ private fun BuildChannelInfoDialog(
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("• Nightly builds", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                    Text("Automatically generated development builds hosted via nightly.link.", style = MaterialTheme.typography.bodySmall)
+                    Text("Automatically generated development builds hosted on GitHub Releases.", style = MaterialTheme.typography.bodySmall)
                     Text("Nightly builds may include experimental features, unfinished changes, or temporary regressions.", style = MaterialTheme.typography.bodySmall)
                 }
                 Text("By continuing, you acknowledge that nightly builds may be unstable and use them at your own risk.", style = MaterialTheme.typography.bodySmall)
