@@ -259,7 +259,7 @@ fun AppearanceSettings(
 
     val (liquidGlassNavBar, onLiquidGlassNavBarChange) = rememberPreference(
         LiquidGlassNavBarKey,
-        defaultValue = false
+        defaultValue = true
     )
 
     val isSystemInDarkTheme = isSystemInDarkTheme()

@@ -82,7 +82,7 @@ object UpdateNotificationManager {
         WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
     }
 
-    fun checkForUpdates(context: Context) {
+    fun checkForUpdates(context: Context, force: Boolean = false) {
         scope.launch {
             try {
                 val dataStore = context.dataStore
@@ -98,11 +98,11 @@ object UpdateNotificationManager {
                 val lastCheck = dataStore.data.map { it[LastUpdateCheckKey] ?: 0L }.first()
                 val now = System.currentTimeMillis()
 
-                if (now - lastCheck < CHECK_INTERVAL_MS) return@launch
+                if (!force && now - lastCheck < CHECK_INTERVAL_MS) return@launch
 
                 dataStore.edit { it[LastUpdateCheckKey] = now }
 
-                Updater.getLatestVersionName().onSuccess { latestVersion ->
+                Updater.getLatestVersionName(forceRefresh = force).onSuccess { latestVersion ->
                     if (!Updater.isSameVersion(latestVersion, BuildConfig.VERSION_NAME)) {
                         notifyIfNewVersion(context, latestVersion)
                     }
@@ -131,7 +131,7 @@ object UpdateNotificationManager {
         createNotificationChannel(context)
 
         val openAppIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra("navigate_to", "settings/update")
         }
         val openAppPendingIntent = PendingIntent.getActivity(

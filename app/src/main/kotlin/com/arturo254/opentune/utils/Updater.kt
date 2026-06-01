@@ -322,10 +322,10 @@ object Updater {
             ?: emptyList()
     }
 
-    suspend fun getLatestVersionName(): Result<String> = runCatching {
+    suspend fun getLatestVersionName(forceRefresh: Boolean = false): Result<String> = runCatching {
         when (getCurrentUpdateChannel()) {
             UpdateChannel.STABLE -> {
-                val latest = getLatestReleaseInfo().getOrThrow()
+                val latest = getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow()
                 preferredReleaseVersionNameOrNull(latest) ?: latest.name.ifBlank { latest.tagName }
             }
             UpdateChannel.NIGHTLY -> {
@@ -334,17 +334,17 @@ object Updater {
         }
     }
 
-    suspend fun getLatestReleaseNotes(): Result<String?> = runCatching {
+    suspend fun getLatestReleaseNotes(forceRefresh: Boolean = false): Result<String?> = runCatching {
         when (getCurrentUpdateChannel()) {
-            UpdateChannel.STABLE -> getLatestReleaseInfo().getOrThrow().body
+            UpdateChannel.STABLE -> getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow().body
             UpdateChannel.NIGHTLY -> fetchNightlyJson().getOrThrow().changelog
         }
     }
 
-    suspend fun getLatestReleaseInfo(): Result<ReleaseInfo> = runCatching {
+    suspend fun getLatestReleaseInfo(forceRefresh: Boolean = false): Result<ReleaseInfo> = runCatching {
         when (getCurrentUpdateChannel()) {
             UpdateChannel.STABLE -> {
-                val releases = getAllReleases().getOrThrow()
+                val releases = getAllReleases(forceRefresh = forceRefresh).getOrThrow()
                 val latest = findLatestRelease(releases)
                     ?: throw IllegalStateException("No releases found")
                 lastCheckTime = System.currentTimeMillis()
@@ -375,16 +375,22 @@ object Updater {
      * - Devuelve `null` dentro del [Result] cuando ya se tiene la versión más
      *   reciente instalada.
      */
-    suspend fun checkForUpdate(currentVersionName: String): Result<UpdateInfo?> =
+    suspend fun checkForUpdate(
+        currentVersionName: String,
+        forceRefresh: Boolean = false,
+    ): Result<UpdateInfo?> =
         runCatching {
             when (getCurrentUpdateChannel()) {
-                UpdateChannel.STABLE -> checkForUpdateStable(currentVersionName)
+                UpdateChannel.STABLE -> checkForUpdateStable(currentVersionName, forceRefresh)
                 UpdateChannel.NIGHTLY -> checkForUpdateNightly(currentVersionName)
             }
         }
 
-    private suspend fun checkForUpdateStable(currentVersionName: String): UpdateInfo? {
-        val latest = getLatestReleaseInfo().getOrThrow()
+    private suspend fun checkForUpdateStable(
+        currentVersionName: String,
+        forceRefresh: Boolean,
+    ): UpdateInfo? {
+        val latest = getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow()
         val latestVersionName =
             preferredReleaseVersionNameOrNull(latest)
                 ?: latest.name.ifBlank { latest.tagName }

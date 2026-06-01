@@ -28,7 +28,7 @@ class UpdateCheckWorker(
             val isEnabled = dataStore.data.map { it[EnableUpdateNotificationKey] ?: true }.first()
             if (!isEnabled) return Result.success()
 
-            Updater.getLatestVersionName().onSuccess { latestVersion ->
+            Updater.getLatestVersionName(forceRefresh = true).onSuccess { latestVersion ->
                 if (!Updater.isSameVersion(latestVersion, BuildConfig.VERSION_NAME)) {
                     UpdateNotificationManager.notifyIfNewVersion(applicationContext, latestVersion)
                 }

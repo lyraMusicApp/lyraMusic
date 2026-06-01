@@ -450,6 +450,7 @@ class MainActivity : ComponentActivity() {
                 rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                     if (isGranted) {
                         playerConnection?.service?.refreshPlaybackNotification()
+                        UpdateNotificationManager.checkForUpdates(this@MainActivity, force = true)
                     }
                 }
 
@@ -464,11 +465,11 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (System.currentTimeMillis() - Updater.lastCheckTime > 1.days.inWholeMilliseconds) {
-                    Updater.getLatestVersionName().onSuccess {
+                    Updater.getLatestVersionName(forceRefresh = true).onSuccess {
                         latestVersionName = it
                     }
                 }
-                UpdateNotificationManager.checkForUpdates(this@MainActivity)
+                UpdateNotificationManager.checkForUpdates(this@MainActivity, force = true)
             }
 
             // Use remembered instances so the same state object is used everywhere
@@ -476,7 +477,7 @@ class MainActivity : ComponentActivity() {
             // instances in different composition scopes which caused the update
             // bottom sheet to not appear and overlay interactions to be blocked).
             val bottomSheetPageState = remember { BottomSheetPageState() }
-            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = false)
+            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = true)
             val menuState = remember { MenuState() }
             val uriHandler = LocalUriHandler.current
             val releaseNotesState = remember { mutableStateOf<String?>(null) }
@@ -539,7 +540,7 @@ class MainActivity : ComponentActivity() {
             // fetch release notes and show sheet when a new version is detected
             LaunchedEffect(latestVersionName) {
                 if (!Updater.isSameVersion(latestVersionName, BuildConfig.VERSION_NAME)) {
-                    Updater.getLatestReleaseNotes().onSuccess {
+                    Updater.getLatestReleaseNotes(forceRefresh = true).onSuccess {
                         releaseNotesState.value = it
                     }.onFailure {
                         releaseNotesState.value = null
@@ -1722,6 +1723,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleDeepLinkIntent(intent: Intent, navController: NavHostController) {
+        intent.getStringExtra("navigate_to")?.takeIf { it.isNotBlank() }?.let { route ->
+            navController.navigate(route) {
+                launchSingleTop = true
+            }
+            intent.removeExtra("navigate_to")
+            return
+        }
+
         val uri = intent.data ?: intent.extras?.getString(Intent.EXTRA_TEXT)?.toUri() ?: return
         val coroutineScope = lifecycleScope
 

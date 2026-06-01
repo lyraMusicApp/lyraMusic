@@ -163,7 +163,7 @@ fun UpdateScreen(
         if (updateCheckState == UpdateCheckState.Loading) return
         coroutineScope.launch {
             updateCheckState = UpdateCheckState.Loading
-            Updater.checkForUpdate(BuildConfig.VERSION_NAME)
+            Updater.checkForUpdate(BuildConfig.VERSION_NAME, forceRefresh = true)
                 .onSuccess { info ->
                     if (info == null) {
                         updateCheckState = UpdateCheckState.UpToDate
@@ -217,7 +217,7 @@ fun UpdateScreen(
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            Updater.getLatestVersionName().onSuccess { latestVersion = it }
+            Updater.getLatestVersionName(forceRefresh = true).onSuccess { latestVersion = it }
             Updater.getCommitHistory(30).onSuccess { commits = it }.onFailure { commits = emptyList() }
             isLoadingCommits = false
         }
