@@ -477,7 +477,7 @@ class MainActivity : ComponentActivity() {
             // instances in different composition scopes which caused the update
             // bottom sheet to not appear and overlay interactions to be blocked).
             val bottomSheetPageState = remember { BottomSheetPageState() }
-            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = true)
+            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = false)
             val menuState = remember { MenuState() }
             val uriHandler = LocalUriHandler.current
             val releaseNotesState = remember { mutableStateOf<String?>(null) }

@@ -105,7 +105,6 @@ import com.arturo254.opentune.innertube.utils.completed
 import com.arturo254.opentune.innertube.utils.parseCookieString
 import com.arturo254.opentune.ui.component.InfoLabel
 import com.arturo254.opentune.ui.component.TextFieldDialog
-import com.arturo254.opentune.ui.component.AvatarSelector
 import com.arturo254.opentune.ui.screens.buildLoginRoute
 import com.arturo254.opentune.utils.Updater
 import com.arturo254.opentune.utils.dataStore
@@ -176,8 +175,6 @@ fun AccountSettings(
                     forgetAccount(context)
                 }
             )
-
-            AvatarSelector()
 
             // Token Editor Dialog
             if (showTokenEditor) {

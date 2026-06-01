@@ -57,7 +57,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -93,13 +92,9 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import me.saket.squiggles.SquigglySlider
 import com.arturo254.opentune.R
-import com.arturo254.opentune.constants.DefaultPlayPauseButtonShape
-import com.arturo254.opentune.constants.DefaultSmallButtonsShape
-import com.arturo254.opentune.constants.PlayPauseButtonShapeKey
 import com.arturo254.opentune.constants.PlayerBackgroundStyle
 import com.arturo254.opentune.constants.PlayerDesignStyle
 import com.arturo254.opentune.constants.PlayerHorizontalPadding
-import com.arturo254.opentune.constants.SmallButtonsShapeKey
 import com.arturo254.opentune.constants.SliderStyle
 import com.arturo254.opentune.db.entities.FormatEntity
 import com.arturo254.opentune.extensions.togglePlayPause
@@ -117,8 +112,6 @@ import com.arturo254.opentune.ui.component.PlayerSliderColors
 import com.arturo254.opentune.ui.utils.ShowMediaInfo
 import com.arturo254.opentune.ui.utils.highQualityThumbnailUrlOrNull
 import com.arturo254.opentune.utils.makeTimeString
-import com.arturo254.opentune.utils.getPlayerControlShape
-import com.arturo254.opentune.utils.rememberPreference
 
 @Composable
 fun PlayerTitleSection(
@@ -878,11 +871,6 @@ fun PlayerPlaybackControls(
     currentSongLiked: Boolean
 ) {
     val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsState()
-    val smallButtonsShapeState = rememberPreference(SmallButtonsShapeKey, DefaultSmallButtonsShape)
-    val playPauseShapeState = rememberPreference(PlayPauseButtonShapeKey, DefaultPlayPauseButtonShape)
-    val smallButtonShape = getPlayerControlShape(smallButtonsShapeState.value).toShape()
-    val playPauseShape = getPlayerControlShape(playPauseShapeState.value).toShape()
-    val activePlayPauseShape = if (isPlaying) playPauseShape else RoundedCornerShape(playPauseRoundness)
 
     when (playerDesignStyle) {
         PlayerDesignStyle.V2 -> {
@@ -910,7 +898,7 @@ fun PlayerPlaybackControls(
                         ),
                         modifier = Modifier
                             .size(width = sideButtonWidth, height = sideButtonHeight)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(32.dp))
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.skip_previous),
@@ -936,7 +924,7 @@ fun PlayerPlaybackControls(
                         ),
                         modifier = Modifier
                             .size(width = playButtonWidth, height = playButtonHeight)
-                            .clip(activePlayPauseShape)
+                            .clip(RoundedCornerShape(32.dp))
                     ) {
                         if (isLoading) {
                             CircularWavyProgressIndicator(
@@ -969,7 +957,7 @@ fun PlayerPlaybackControls(
                         ),
                         modifier = Modifier
                             .size(width = sideButtonWidth, height = sideButtonHeight)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(32.dp))
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.skip_next),
@@ -996,7 +984,7 @@ fun PlayerPlaybackControls(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(10.dp))
                             .clickable {
                                 playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled
                             },
@@ -1015,7 +1003,7 @@ fun PlayerPlaybackControls(
                     Box(
                         modifier = Modifier
                             .size(52.dp)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(textBackgroundColor.copy(alpha = 0.08f))
                             .clickable(enabled = canSkipPrevious) {
                                 playerConnection.seekToPrevious()
@@ -1033,7 +1021,7 @@ fun PlayerPlaybackControls(
                     Box(
                         modifier = Modifier
                             .size(70.dp)
-                            .clip(activePlayPauseShape)
+                            .clip(RoundedCornerShape(50))
                             .background(textBackgroundColor)
                             .clickable {
                                 if (playbackState == STATE_ENDED) {
@@ -1069,7 +1057,7 @@ fun PlayerPlaybackControls(
                     Box(
                         modifier = Modifier
                             .size(52.dp)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(textBackgroundColor.copy(alpha = 0.08f))
                             .clickable(enabled = canSkipNext) {
                                 playerConnection.seekToNext()
@@ -1087,7 +1075,7 @@ fun PlayerPlaybackControls(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(smallButtonShape)
+                            .clip(RoundedCornerShape(10.dp))
                             .clickable { playerConnection.player.toggleRepeatMode() },
                         contentAlignment = Alignment.Center
                     ) {
@@ -1149,7 +1137,7 @@ fun PlayerPlaybackControls(
                             onClick = {
                                 playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled
                             },
-                            shape = smallButtonShape,
+                            shape = RoundedCornerShape(smallRadius),
                             color = textBackgroundColor.copy(
                                 alpha = if (shuffleModeEnabled) 0.2f else 0.08f
                             ),
@@ -1175,7 +1163,7 @@ fun PlayerPlaybackControls(
                         Surface(
                             onClick = { playerConnection.seekToPrevious() },
                             enabled = canSkipPrevious,
-                            shape = smallButtonShape,
+                            shape = RoundedCornerShape(largeRadius),
                             color = textBackgroundColor.copy(alpha = 0.15f),
                             modifier = Modifier.size(large)
                         ) {
@@ -1204,7 +1192,7 @@ fun PlayerPlaybackControls(
                                 playerConnection.player.togglePlayPause()
                             }
                         },
-                        shape = activePlayPauseShape,
+                        shape = RoundedCornerShape(28.dp),
                         color = textButtonColor,
                         modifier = Modifier
                             .padding(horizontal = 20.dp)
@@ -1243,7 +1231,7 @@ fun PlayerPlaybackControls(
                         Surface(
                             onClick = { playerConnection.seekToNext() },
                             enabled = canSkipNext,
-                            shape = smallButtonShape,
+                            shape = RoundedCornerShape(largeRadius),
                             color = textBackgroundColor.copy(alpha = 0.15f),
                             modifier = Modifier.size(large)
                         ) {
@@ -1266,7 +1254,7 @@ fun PlayerPlaybackControls(
 
                         Surface(
                             onClick = { playerConnection.player.toggleRepeatMode() },
-                            shape = smallButtonShape,
+                            shape = RoundedCornerShape(smallRadius),
                             color = textBackgroundColor.copy(
                                 alpha = if (repeatMode != Player.REPEAT_MODE_OFF) 0.2f else 0.08f
                             ),
@@ -1342,7 +1330,7 @@ fun PlayerPlaybackControls(
                     modifier =
                         Modifier
                             .size(72.dp)
-                            .clip(activePlayPauseShape)
+                            .clip(RoundedCornerShape(playPauseRoundness))
                             .background(textButtonColor)
                             .clickable {
                                 if (playbackState == STATE_ENDED) {

@@ -430,12 +430,6 @@ val HistoryDuration = floatPreferencesKey("historyDuration")
 
 val PlayerButtonsStyleKey = stringPreferencesKey("player_buttons_style")
 val PlayerBackgroundStyleKey = stringPreferencesKey("playerBackgroundStyle")
-val SmallButtonsShapeKey = stringPreferencesKey("small_buttons_shape")
-const val DefaultSmallButtonsShape = "Pill"
-val PlayPauseButtonShapeKey = stringPreferencesKey("playPauseButtonShape")
-const val DefaultPlayPauseButtonShape = "Cookie9Sided"
-val MiniPlayerThumbnailShapeKey = stringPreferencesKey("miniPlayerThumbnailShape")
-const val DefaultMiniPlayerThumbnailShape = "Circle"
 val ShowLyricsKey = booleanPreferencesKey("showLyrics")
 val LyricsTextPositionKey = stringPreferencesKey("lyricsTextPosition")
 val LyricsClickKey = booleanPreferencesKey("lyricsClick")
