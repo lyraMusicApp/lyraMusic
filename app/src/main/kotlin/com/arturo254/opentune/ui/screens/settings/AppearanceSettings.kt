@@ -89,7 +89,13 @@ import com.arturo254.opentune.constants.OpenTuneCanvasKey
 import com.arturo254.opentune.constants.ThumbnailCornerRadiusKey
 import com.arturo254.opentune.constants.CropThumbnailToSquareKey
 import com.arturo254.opentune.constants.DisableBlurKey
+import com.arturo254.opentune.constants.DefaultMiniPlayerThumbnailShape
+import com.arturo254.opentune.constants.DefaultPlayPauseButtonShape
+import com.arturo254.opentune.constants.DefaultSmallButtonsShape
 import com.arturo254.opentune.constants.LiquidGlassNavBarKey
+import com.arturo254.opentune.constants.MiniPlayerThumbnailShapeKey
+import com.arturo254.opentune.constants.PlayPauseButtonShapeKey
+import com.arturo254.opentune.constants.SmallButtonsShapeKey
 import com.arturo254.opentune.constants.UseLyricsV2Key
 import com.arturo254.opentune.ui.component.DefaultDialog
 import com.arturo254.opentune.ui.component.EnumListPreference
@@ -99,6 +105,7 @@ import com.arturo254.opentune.ui.component.PreferenceEntry
 import com.arturo254.opentune.ui.component.PreferenceGroupTitle
 import com.arturo254.opentune.ui.component.SwitchPreference
 import com.arturo254.opentune.ui.component.ThumbnailCornerRadiusSelectorButton
+import com.arturo254.opentune.ui.component.UnifiedShapeSelectorButton
 import com.arturo254.opentune.ui.player.StyledPlaybackSlider
 import com.arturo254.opentune.ui.utils.backToMain
 import com.arturo254.opentune.utils.rememberEnumPreference
@@ -147,6 +154,18 @@ fun AppearanceSettings(
     val (thumbnailCornerRadius, onThumbnailCornerRadiusChange) = rememberPreference(
         key = ThumbnailCornerRadiusKey,
         defaultValue = 16f // default dp
+    )
+    val smallButtonsShapeState = rememberPreference(
+        key = SmallButtonsShapeKey,
+        defaultValue = DefaultSmallButtonsShape
+    )
+    val playPauseShapeState = rememberPreference(
+        key = PlayPauseButtonShapeKey,
+        defaultValue = DefaultPlayPauseButtonShape
+    )
+    val miniPlayerThumbnailShapeState = rememberPreference(
+        key = MiniPlayerThumbnailShapeKey,
+        defaultValue = DefaultMiniPlayerThumbnailShape
     )
     val (cropThumbnailToSquare, onCropThumbnailToSquareChange) = rememberPreference(
         CropThumbnailToSquareKey,
@@ -469,6 +488,16 @@ fun AppearanceSettings(
             onRadiusSelected = { selectedRadius ->
                 Timber.tag("Thumbnail").d("Radius Selector: $selectedRadius")
             }
+        )
+
+        UnifiedShapeSelectorButton(
+            smallButtonsShape = smallButtonsShapeState.value,
+            playPauseShape = playPauseShapeState.value,
+            miniPlayerShape = miniPlayerThumbnailShapeState.value,
+            onSmallButtonsShapeSelected = { smallButtonsShapeState.value = it },
+            onPlayPauseShapeSelected = { playPauseShapeState.value = it },
+            onMiniPlayerShapeSelected = { miniPlayerThumbnailShapeState.value = it },
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         SwitchPreference(

@@ -40,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -76,8 +77,11 @@ import com.arturo254.opentune.constants.SwipeSensitivityKey
 import com.arturo254.opentune.constants.ThumbnailCornerRadius
 import com.arturo254.opentune.constants.UseNewMiniPlayerDesignKey
 import com.arturo254.opentune.constants.CropThumbnailToSquareKey
+import com.arturo254.opentune.constants.DefaultMiniPlayerThumbnailShape
+import com.arturo254.opentune.constants.MiniPlayerThumbnailShapeKey
 import com.arturo254.opentune.extensions.togglePlayPause
 import com.arturo254.opentune.models.MediaMetadata
+import com.arturo254.opentune.utils.getPlayerControlShape
 import com.arturo254.opentune.utils.rememberPreference
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -111,6 +115,8 @@ private fun NewMiniPlayer(
     val coroutineScope = rememberCoroutineScope()
     val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
     val swipeThumbnail by rememberPreference(com.arturo254.opentune.constants.SwipeThumbnailKey, true)
+    val miniPlayerShapeState = rememberPreference(MiniPlayerThumbnailShapeKey, DefaultMiniPlayerThumbnailShape)
+    val miniPlayerShape = getPlayerControlShape(miniPlayerShapeState.value).toShape()
 
     SwipeableMiniPlayerBox(
         modifier = modifier,
@@ -127,7 +133,7 @@ private fun NewMiniPlayer(
                 .fillMaxWidth()
                 .height(64.dp)
                 .offset { IntOffset(offsetX.roundToInt(), 0) }
-                .clip(RoundedCornerShape(32.dp))
+                .clip(miniPlayerShape)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainer
                 )

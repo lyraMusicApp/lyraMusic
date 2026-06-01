@@ -814,5 +814,11 @@ Lyra Music will only extract your token, and everything else is stored locally.<
     <string name="paste">Paste</string>
     <string name="player_design_v7">Immersive</string>
     <string name="liquid_glass_navbar">Liquid Glass Navbar</string>
+    <string name="avatar_selection">Avatar selection</string>
+    <string name="choose_predefined_avatar">Choose a predefined avatar</string>
+    <string name="custom_avatar">Custom avatar</string>
+    <string name="default_avatar">Default avatar</string>
+    <string name="restore_default_avatar">Restore default avatar</string>
+    <string name="error_saving_image">Could not save the selected image</string>
 
 </resources>

@@ -2267,7 +2267,7 @@ class MusicService :
                                     )
                             }
                         }
-                        kotlinx.coroutines.delay(750)
+                        kotlinx.coroutines.delay(350)
                     }
                 }
         }
@@ -2428,7 +2428,7 @@ class MusicService :
                                     )
                             }
                         }
-                        kotlinx.coroutines.delay(750)
+                        kotlinx.coroutines.delay(350)
                     }
                 }
         }
@@ -3006,7 +3006,7 @@ class MusicService :
 
                 is com.arturo254.opentune.together.ControlAction.SeekTo -> {
                     player.seekTo(action.positionMs.coerceAtLeast(0L))
-                    player.prepare()
+                    if (player.playbackState == Player.STATE_IDLE) player.prepare()
                 }
 
                 com.arturo254.opentune.together.ControlAction.SkipNext -> {
@@ -3035,7 +3035,7 @@ class MusicService :
                             }
                         if (idx >= 0 && idx < player.mediaItemCount) {
                             player.seekTo(idx, action.positionMs.coerceAtLeast(0L))
-                            player.prepare()
+                            if (player.playbackState == Player.STATE_IDLE) player.prepare()
                         }
                     }
                 }
@@ -3044,7 +3044,7 @@ class MusicService :
                     val idx = action.index.coerceAtLeast(0)
                     if (idx < player.mediaItemCount) {
                         player.seekTo(idx, action.positionMs.coerceAtLeast(0L))
-                        player.prepare()
+                        if (player.playbackState == Player.STATE_IDLE) player.prepare()
                     }
                 }
 
@@ -3140,10 +3140,9 @@ class MusicService :
         val sentAt = state.sentAtElapsedRealtimeMs
         if (sentAt > 0L && lastSentAt > 0L && sentAt <= lastSentAt) return
 
-        val offset = if (togetherIsOnlineSession) 0L else (togetherClock?.snapshot()?.estimatedOffsetMs ?: 0L)
+        val offset = togetherClock?.snapshot()?.estimatedOffsetMs ?: 0L
         val correctedSentAt = sentAt + offset
-        val estimatedOnlineLatency = if (togetherIsOnlineSession) 1200L else 0L
-        val delta = if (togetherIsOnlineSession) estimatedOnlineLatency else (now - correctedSentAt).coerceAtLeast(0L)
+        val delta = if (sentAt > 0L) (now - correctedSentAt).coerceIn(0L, 6_000L) else 0L
         val targetPos =
             if (state.isPlaying) (state.positionMs + delta).coerceAtLeast(0L) else state.positionMs.coerceAtLeast(0L)
 
@@ -3191,7 +3190,7 @@ class MusicService :
 
                     if (indexChanged) {
                         player.seekTo(index.coerceAtMost(player.mediaItemCount - 1), targetPos)
-                        player.prepare()
+                        if (player.playbackState == Player.STATE_IDLE) player.prepare()
                         player.playWhenReady = state.isPlaying
                     } else if (stateChanged) {
                         if (player.repeatMode != state.repeatMode) player.repeatMode = state.repeatMode
@@ -3201,17 +3200,17 @@ class MusicService :
                             val drift = kotlin.math.abs(player.currentPosition - targetPos)
                             if (drift > 100) {
                                 player.seekTo(targetPos)
-                                player.prepare()
+                                if (player.playbackState == Player.STATE_IDLE) player.prepare()
                             }
                         }
                     } else {
                         val drift = kotlin.math.abs(player.currentPosition - targetPos)
-                        val seekThreshold = if (togetherIsOnlineSession) 4000L else 2000L
+                        val seekThreshold = if (togetherIsOnlineSession) 1200L else 600L
                         val threshold = if (state.isPlaying) seekThreshold else 200L
                         
                         if (drift > threshold) {
                             player.seekTo(targetPos)
-                            player.prepare()
+                            if (player.playbackState == Player.STATE_IDLE) player.prepare()
                         }
                     }
                     togetherLastRemoteAppliedIndex = index
