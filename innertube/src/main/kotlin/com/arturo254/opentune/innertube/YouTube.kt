@@ -460,6 +460,12 @@ object YouTube {
             ?: throw IllegalStateException("PLAYLIST_PRIVATE")
 
         val editable = base?.musicEditablePlaylistDetailHeaderRenderer != null
+        val playlistSectionList = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
+        val playlistShelf = playlistSectionList
+            ?.contents
+            ?.asSequence()
+            ?.mapNotNull { it.musicPlaylistShelfRenderer }
+            ?.firstOrNull { !it.contents.isNullOrEmpty() }
 
         PlaylistPage(
             playlist = PlaylistItem(
@@ -480,14 +486,11 @@ object YouTube {
                 }?.menuNavigationItemRenderer?.navigationEndpoint?.watchPlaylistEndpoint,
                 isEditable = editable
             ),
-            songs = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                ?.contents?.firstOrNull()?.musicPlaylistShelfRenderer?.contents?.getItems()?.mapNotNull {
+            songs = playlistShelf?.contents?.getItems()?.mapNotNull {
                     PlaylistPage.fromMusicResponsiveListItemRenderer(it)
                 } ?: emptyList(),
-            songsContinuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                ?.contents?.firstOrNull()?.musicPlaylistShelfRenderer?.contents?.getContinuation(),
-            continuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                ?.continuations?.getContinuation()
+            songsContinuation = playlistShelf?.contents?.getContinuation(),
+            continuation = playlistSectionList?.continuations?.getContinuation()
         )
     }
 

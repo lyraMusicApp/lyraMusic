@@ -518,7 +518,7 @@ class MusicService :
 
                 NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.drawable.opentune_monochrome)
-                    .setContentTitle(getString(R.string.music_player))
+                    .setContentTitle(getString(R.string.app_name))
                     .setContentText(getString(R.string.app_name))
                     .setContentIntent(contentIntent)
                     .setCategory(Notification.CATEGORY_SERVICE)
@@ -655,7 +655,7 @@ class MusicService :
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OpenTune:Playback")
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "LyraMusic:Playback")
             .also { it.setReferenceCounted(false) }
         setupAudioFocusRequest()
 
@@ -667,6 +667,7 @@ class MusicService :
         mediaSession =
             MediaLibrarySession
                 .Builder(this, player, mediaLibrarySessionCallback)
+                .setId(getString(R.string.app_name))
                 .setSessionActivity(
                     PendingIntent.getActivity(
                         this,
@@ -681,7 +682,7 @@ class MusicService :
                 this,
                 { NOTIFICATION_ID },
                 CHANNEL_ID,
-                R.string.music_player
+                R.string.app_name
             ).apply {
                 setSmallIcon(R.drawable.opentune)
             }

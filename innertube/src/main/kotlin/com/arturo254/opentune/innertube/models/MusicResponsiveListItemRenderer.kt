@@ -35,6 +35,28 @@ data class MusicResponsiveListItemRenderer(
     val overlay: Overlay?,
     val navigationEndpoint: NavigationEndpoint?,
 ) {
+    val playableEndpoint: WatchEndpoint?
+        get() =
+            navigationEndpoint?.anyWatchEndpoint
+                ?: overlay
+                    ?.musicItemThumbnailOverlayRenderer
+                    ?.content
+                    ?.musicPlayButtonRenderer
+                    ?.playNavigationEndpoint
+                    ?.anyWatchEndpoint
+                ?: playlistItemData?.let {
+                    WatchEndpoint(
+                        videoId = it.videoId,
+                        playlistSetVideoId = it.playlistSetVideoId,
+                    )
+                }
+                ?: menuQueueVideoId?.let { WatchEndpoint(videoId = it) }
+    val playableVideoId: String?
+        get() = playlistItemData?.videoId
+            ?: playableEndpoint?.videoId
+            ?: menuQueueVideoId
+    val playableSetVideoId: String?
+        get() = playlistItemData?.playlistSetVideoId ?: playableEndpoint?.playlistSetVideoId
     val isSong: Boolean
         get() = navigationEndpoint == null || navigationEndpoint.watchEndpoint != null || navigationEndpoint.watchPlaylistEndpoint != null
     val isPlaylist: Boolean
@@ -45,6 +67,21 @@ data class MusicResponsiveListItemRenderer(
     val isArtist: Boolean
         get() = navigationEndpoint?.browseEndpoint?.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType == MUSIC_PAGE_TYPE_ARTIST
                 || navigationEndpoint?.browseEndpoint?.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType == MUSIC_PAGE_TYPE_LIBRARY_ARTIST
+
+    private val menuQueueVideoId: String?
+        get() =
+            menu
+                ?.menuRenderer
+                ?.items
+                ?.asSequence()
+                ?.mapNotNull {
+                    it.menuServiceItemRenderer
+                        ?.serviceEndpoint
+                        ?.queueAddEndpoint
+                        ?.queueTarget
+                        ?.videoId
+                }
+                ?.firstOrNull()
 
     @Serializable
     data class FlexColumn(

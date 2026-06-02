@@ -117,7 +117,7 @@ private fun NewMiniPlayer(
     val coroutineScope = rememberCoroutineScope()
     val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
     val swipeThumbnail by rememberPreference(com.arturo254.opentune.constants.SwipeThumbnailKey, true)
-    val liquidGlass by rememberPreference(LiquidGlassNavBarKey, defaultValue = false)
+    val liquidGlass by rememberPreference(LiquidGlassNavBarKey, defaultValue = true)
     val miniPlayerShape = RoundedCornerShape(32.dp)
     val miniPlayerContainerColor =
         when {

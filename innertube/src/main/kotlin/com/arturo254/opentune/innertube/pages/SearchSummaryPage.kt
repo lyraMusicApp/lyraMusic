@@ -217,7 +217,7 @@ data class SearchSummaryPage(
             return when {
                 renderer.isSong -> {
                     SongItem(
-                        id = renderer.playlistItemData?.videoId ?: return null,
+                        id = renderer.playableVideoId ?: return null,
                         title =
                             renderer.flexColumns
                                 .firstOrNull()
@@ -249,6 +249,7 @@ data class SearchSummaryPage(
                             renderer.badges?.find {
                                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
                             } != null,
+                        endpoint = renderer.playableEndpoint,
                     )
                 }
 
