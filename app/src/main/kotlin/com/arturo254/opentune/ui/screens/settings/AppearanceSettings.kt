@@ -856,7 +856,8 @@ fun AppearanceSettings(
 
         SwitchPreference(
             title = { Text(stringResource(R.string.liquid_glass_navbar)) },
-            icon = { Icon(painterResource(R.drawable.blur_on), null) },
+            description = stringResource(R.string.liquid_glass_navbar_desc),
+            icon = { Icon(painterResource(R.drawable.palette), null) },
             checked = liquidGlassNavBar,
             onCheckedChange = onLiquidGlassNavBarChange,
         )

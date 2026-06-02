@@ -556,7 +556,8 @@ class MainActivity : ComponentActivity() {
             val useSystemFont by rememberPreference(UseSystemFontKey, defaultValue = false)
             val isSystemInDarkTheme = isSystemInDarkTheme()
             val useDarkTheme =
-                remember(darkTheme, isSystemInDarkTheme) {
+                remember(darkTheme, isSystemInDarkTheme, liquidGlassNavBar) {
+                    if (liquidGlassNavBar) return@remember true
                     if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
                 }
             LaunchedEffect(useDarkTheme) {

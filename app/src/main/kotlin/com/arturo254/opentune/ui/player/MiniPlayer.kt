@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -51,7 +52,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,6 +76,7 @@ import androidx.media3.common.Player.STATE_BUFFERING
 import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
+import com.arturo254.opentune.constants.LiquidGlassNavBarKey
 import com.arturo254.opentune.constants.MiniPlayerHeight
 import com.arturo254.opentune.constants.SwipeSensitivityKey
 import com.arturo254.opentune.constants.ThumbnailCornerRadius
@@ -111,6 +117,46 @@ private fun NewMiniPlayer(
     val coroutineScope = rememberCoroutineScope()
     val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
     val swipeThumbnail by rememberPreference(com.arturo254.opentune.constants.SwipeThumbnailKey, true)
+    val liquidGlass by rememberPreference(LiquidGlassNavBarKey, defaultValue = false)
+    val miniPlayerShape = RoundedCornerShape(32.dp)
+    val miniPlayerContainerColor =
+        when {
+            liquidGlass && pureBlack -> Color.Black.copy(alpha = 0.70f)
+            liquidGlass -> MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.78f)
+            else -> MaterialTheme.colorScheme.surfaceContainer
+        }
+    val glassModifier =
+        if (liquidGlass) {
+            Modifier
+                .border(
+                    width = 0.8.dp,
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            Color.White.copy(alpha = if (pureBlack) 0.22f else 0.38f),
+                            Color.White.copy(alpha = if (pureBlack) 0.04f else 0.08f),
+                        )
+                    ),
+                    shape = miniPlayerShape,
+                )
+                .drawWithContent {
+                    drawContent()
+                    drawRoundRect(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = if (pureBlack) 0.10f else 0.18f),
+                                Color.Transparent,
+                            ),
+                            start = Offset.Zero,
+                            end = Offset(size.width, 0f),
+                        ),
+                        size = size.copy(height = size.height * 0.42f),
+                        cornerRadius = CornerRadius(size.height / 2f, size.height / 2f),
+                    )
+                }
+        } else {
+            Modifier
+        }
 
     SwipeableMiniPlayerBox(
         modifier = modifier,
@@ -127,10 +173,9 @@ private fun NewMiniPlayer(
                 .fillMaxWidth()
                 .height(64.dp)
                 .offset { IntOffset(offsetX.roundToInt(), 0) }
-                .clip(RoundedCornerShape(32.dp))
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainer
-                )
+                .clip(miniPlayerShape)
+                .background(color = miniPlayerContainerColor)
+                .then(glassModifier)
         ) {
             NewMiniPlayerContent(
                 pureBlack = pureBlack,
