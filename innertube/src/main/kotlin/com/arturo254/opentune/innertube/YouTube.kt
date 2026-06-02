@@ -301,16 +301,28 @@ object YouTube {
 
     suspend fun albumSongs(playlistId: String, album: AlbumItem? = null): Result<List<SongItem>> = runCatching {
         var response = innerTube.browse(WEB_REMIX, "VL$playlistId").body<BrowseResponse>()
-        val songs = response.contents?.twoColumnBrowseResultsRenderer
-            ?.secondaryContents?.sectionListRenderer
-            ?.contents?.firstOrNull()
-            ?.musicPlaylistShelfRenderer?.contents?.getItems()
-            ?.mapNotNull {
-                AlbumPage.getSong(it, album)
-            }!!
-            .toMutableList()
-        var continuation = response.contents.twoColumnBrowseResultsRenderer.secondaryContents.sectionListRenderer
-            .contents.firstOrNull()?.musicPlaylistShelfRenderer?.contents?.getContinuation()
+        val shelfRenderers = response.contents?.twoColumnBrowseResultsRenderer
+            ?.secondaryContents
+            ?.sectionListRenderer
+            ?.contents
+        val playlistShelf = shelfRenderers
+            ?.asSequence()
+            ?.mapNotNull { it.musicPlaylistShelfRenderer }
+            ?.firstOrNull { it.contents.isNotEmpty() }
+        val musicShelf = shelfRenderers
+            ?.asSequence()
+            ?.mapNotNull { it.musicShelfRenderer }
+            ?.firstOrNull { !it.contents.isNullOrEmpty() }
+        val shelfContents = playlistShelf?.contents ?: musicShelf?.contents
+        val songs = shelfContents
+            ?.getItems()
+            ?.mapNotNull { AlbumPage.getSong(it, album) }
+            ?.toMutableList()
+            ?: mutableListOf()
+        var continuation = playlistShelf?.contents?.getContinuation()
+            ?: playlistShelf?.continuations?.getContinuation()
+            ?: musicShelf?.contents?.getContinuation()
+            ?: musicShelf?.continuations?.getContinuation()
         val seenContinuations = mutableSetOf<String>()
         var requestCount = 0
         val maxRequests = 50 // Prevent excessive API calls
@@ -328,9 +340,18 @@ object YouTube {
                 continuation = continuation,
             ).body<BrowseResponse>()
             
-            val newSongs = response.onResponseReceivedActions?.firstOrNull()?.appendContinuationItemsAction?.continuationItems?.getItems()?.mapNotNull {
-                AlbumPage.getSong(it, album)
-            }.orEmpty()
+            val continuationItems =
+                response.onResponseReceivedActions
+                    ?.firstOrNull()
+                    ?.appendContinuationItemsAction
+                    ?.continuationItems
+                    ?: response.continuationContents
+                        ?.musicPlaylistShelfContinuation
+                        ?.contents
+            val newSongs = continuationItems
+                ?.getItems()
+                ?.mapNotNull { AlbumPage.getSong(it, album) }
+                .orEmpty()
             
             if (newSongs.isEmpty()) {
                 consecutiveEmptyResponses++
@@ -341,6 +362,7 @@ object YouTube {
             }
             
             continuation = response.continuationContents?.musicPlaylistShelfContinuation?.continuations?.getContinuation()
+                ?: continuationItems?.getContinuation()
         }
         songs
     }

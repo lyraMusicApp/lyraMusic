@@ -477,7 +477,7 @@ class MainActivity : ComponentActivity() {
             // instances in different composition scopes which caused the update
             // bottom sheet to not appear and overlay interactions to be blocked).
             val bottomSheetPageState = remember { BottomSheetPageState() }
-            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = true)
+            val (liquidGlassNavBar) = rememberPreference(LiquidGlassNavBarKey, defaultValue = false)
             val menuState = remember { MenuState() }
             val uriHandler = LocalUriHandler.current
             val releaseNotesState = remember { mutableStateOf<String?>(null) }
@@ -642,7 +642,6 @@ class MainActivity : ComponentActivity() {
             OpenTuneTheme(
                 darkTheme = useDarkTheme,
                 pureBlack = pureBlack,
-                liquidGlass = liquidGlassNavBar,
                 themeColor = themeColor,
                 seedPalette = if (!enableDynamicTheme) customThemeSeedPalette else null,
                 useSystemFont = useSystemFont,
@@ -652,21 +651,7 @@ class MainActivity : ComponentActivity() {
                         Modifier
                             .fillMaxSize()
                             .background(
-                                Brush.verticalGradient(
-                                    colors =
-                                        if (liquidGlassNavBar) {
-                                            listOf(
-                                                if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface,
-                                                MaterialTheme.colorScheme.surfaceContainerLowest,
-                                                MaterialTheme.colorScheme.surface,
-                                            )
-                                        } else {
-                                            listOf(
-                                                if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface,
-                                                if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface,
-                                            )
-                                        }
-                                )
+                                if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface
                             )
                 ) {
                     val focusManager = LocalFocusManager.current

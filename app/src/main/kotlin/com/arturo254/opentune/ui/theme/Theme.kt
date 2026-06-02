@@ -56,7 +56,6 @@ data class ThemeSeedPalette(
 fun OpenTuneTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     pureBlack: Boolean = false,
-    liquidGlass: Boolean = false,
     themeColor: Color = DefaultThemeColor,
     seedPalette: ThemeSeedPalette? = null,
     useSystemFont: Boolean = false,
@@ -93,9 +92,8 @@ fun OpenTuneTheme(
             appColorScheme
         }
 
-    val colorScheme = remember(baseColorScheme, pureBlack, darkTheme, liquidGlass) {
-        val scheme = if (darkTheme && pureBlack) baseColorScheme.pureBlack(true) else baseColorScheme
-        if (liquidGlass && darkTheme) scheme.liquidGlass(true) else scheme
+    val colorScheme = remember(baseColorScheme, pureBlack, darkTheme) {
+        if (darkTheme && pureBlack) baseColorScheme.pureBlack(true) else baseColorScheme
     }
 
     val animatedColorScheme = animateColorScheme(colorScheme)
@@ -339,18 +337,6 @@ fun ColorScheme.pureBlack(apply: Boolean) =
     if (apply) copy(
         surface = Color.Black,
         background = Color.Black
-    ) else this
-
-fun ColorScheme.liquidGlass(apply: Boolean) =
-    if (apply) copy(
-        surfaceContainerLowest = surfaceContainerLowest.copy(alpha = 0.54f),
-        surfaceContainerLow = surfaceContainerLow.copy(alpha = 0.64f),
-        surfaceContainer = surfaceContainer.copy(alpha = 0.74f),
-        surfaceContainerHigh = surfaceContainerHigh.copy(alpha = 0.80f),
-        surfaceContainerHighest = surfaceContainerHighest.copy(alpha = 0.86f),
-        primaryContainer = primaryContainer.copy(alpha = 0.74f),
-        secondaryContainer = secondaryContainer.copy(alpha = 0.72f),
-        tertiaryContainer = tertiaryContainer.copy(alpha = 0.72f),
     ) else this
 
 val ColorSaver = object : Saver<Color, Int> {

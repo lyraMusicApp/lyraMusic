@@ -814,6 +814,6 @@ Lyra Music will only extract your token, and everything else is stored locally.<
     <string name="paste">Paste</string>
     <string name="player_design_v7">Immersive</string>
     <string name="liquid_glass_navbar">Enable Liquid Glass</string>
-    <string name="liquid_glass_navbar_desc">Apply frosted glass blur and vibrancy across Lyra Music surfaces, navigation, miniplayer, menus, and sheets. Automatically forces dark theme.</string>
+    <string name="liquid_glass_navbar_desc">Apply frosted glass blur and vibrancy to the bottom navigation and miniplayer. Automatically forces dark theme.</string>
 
 </resources>
