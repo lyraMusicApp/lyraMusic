@@ -20,11 +20,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.Arturo254.opentune"
+        applicationId = "com.shnwazdeveloper.lyramusic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 133
-        versionName = "3.0.6"
+        versionCode = 134
+        versionName = "3.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
