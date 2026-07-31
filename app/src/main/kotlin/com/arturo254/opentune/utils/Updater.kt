@@ -1,0 +1,590 @@
+/*
+ * OpenTune Project Original (2026)
+ * Arturo254 (github.com/Arturo254)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ */
+
+package com.arturo254.opentune.utils
+
+import androidx.datastore.preferences.core.edit
+import com.arturo254.opentune.BuildConfig
+import com.arturo254.opentune.App
+import com.arturo254.opentune.constants.GitHubReleasesEtagKey
+import com.arturo254.opentune.constants.GitHubReleasesFingerprintKey
+import com.arturo254.opentune.constants.GitHubReleasesJsonKey
+import com.arturo254.opentune.constants.GitHubReleasesLastCheckedAtKey
+import com.arturo254.opentune.constants.UpdateChannel
+import com.arturo254.opentune.constants.UpdateChannelKey
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
+import org.json.JSONObject
+
+data class GitCommit(
+    val sha: String,
+    val message: String,
+    val author: String,
+    val date: String,
+    val url: String
+)
+
+data class ReleaseInfo(
+    val tagName: String,
+    val name: String,
+    val body: String?,
+    val publishedAt: String,
+    val htmlUrl: String
+)
+
+data class NightlyInfo(
+    val versionName: String,
+    val apkUrl: String,
+    val changelog: String?,
+    val publishedAt: String
+)
+
+/**
+ * Resultado de [Updater.checkForUpdate].
+ *
+ * @param tagName        Tag del release en GitHub (ej. "v1.4.2")
+ * @param versionName    Versión normalizada sin prefijo "v" (ej. "1.4.2")
+ * @param downloadUrl    URL directa al APK del release
+ * @param releasePageUrl URL de la página HTML del release en GitHub
+ * @param releaseNotes   Changelog / body del release (puede ser null)
+ * @param publishedAt    Fecha de publicación en ISO 8601
+ */
+data class UpdateInfo(
+    val tagName: String,
+    val versionName: String,
+    val downloadUrl: String,
+    val releasePageUrl: String,
+    val releaseNotes: String?,
+    val publishedAt: String,
+)
+
+private const val LYRA_REPOSITORY = "shnwazdeveloper/lyra-music"
+private const val USER_AGENT = "LyraMusic"
+private const val STABLE_APK_ASSET_NAME = "Lyra-Music.apk"
+private const val NIGHTLY_TAG_NAME = "nightly"
+private const val NIGHTLY_APK_ASSET_NAME = "app-universal.apk"
+
+private data class ReleasesNetworkResult(
+    val status: HttpStatusCode,
+    val body: String?,
+    val etag: String?,
+)
+
+object Updater {
+    private val client = HttpClient()
+    private const val ReleaseCacheCheckIntervalMs: Long = 6 * 60 * 60 * 1000L
+    var lastCheckTime = -1L
+        private set
+
+    private var cachedNightlyInfo: NightlyInfo? = null
+
+    private data class SemVer(
+        val major: Int,
+        val minor: Int,
+        val patch: Int,
+        val preRelease: List<PreReleaseIdentifier>,
+    ) : Comparable<SemVer> {
+        override fun compareTo(other: SemVer): Int {
+            val majorCompare = major.compareTo(other.major)
+            if (majorCompare != 0) return majorCompare
+            val minorCompare = minor.compareTo(other.minor)
+            if (minorCompare != 0) return minorCompare
+            val patchCompare = patch.compareTo(other.patch)
+            if (patchCompare != 0) return patchCompare
+
+            val thisIsStable = preRelease.isEmpty()
+            val otherIsStable = other.preRelease.isEmpty()
+            if (thisIsStable && !otherIsStable) return 1
+            if (!thisIsStable && otherIsStable) return -1
+
+            val maxIndex = minOf(preRelease.size, other.preRelease.size)
+            for (i in 0 until maxIndex) {
+                val c = preRelease[i].compareTo(other.preRelease[i])
+                if (c != 0) return c
+            }
+            return preRelease.size.compareTo(other.preRelease.size)
+        }
+
+        fun normalizedName(): String =
+            if (preRelease.isEmpty()) {
+                "$major.$minor.$patch"
+            } else {
+                "$major.$minor.$patch-" + preRelease.joinToString(".") { it.raw }
+            }
+    }
+
+    private sealed interface PreReleaseIdentifier : Comparable<PreReleaseIdentifier> {
+        val raw: String
+    }
+
+    private data class NumericIdentifier(
+        override val raw: String,
+        val value: Long,
+    ) : PreReleaseIdentifier {
+        override fun compareTo(other: PreReleaseIdentifier): Int =
+            when (other) {
+                is NumericIdentifier -> value.compareTo(other.value)
+                is AlphaIdentifier -> -1
+            }
+    }
+
+    private data class AlphaIdentifier(
+        override val raw: String,
+    ) : PreReleaseIdentifier {
+        override fun compareTo(other: PreReleaseIdentifier): Int =
+            when (other) {
+                is NumericIdentifier -> 1
+                is AlphaIdentifier -> raw.compareTo(other.raw)
+            }
+    }
+
+    private val semVerRegex =
+        Regex("""(?i)\bv?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?\b""")
+
+    private fun parseSemVerOrNull(text: String): SemVer? {
+        val match = semVerRegex.find(text) ?: return null
+        val major = match.groupValues.getOrNull(1)?.toIntOrNull() ?: return null
+        val minor = match.groupValues.getOrNull(2)?.toIntOrNull() ?: return null
+        val patch = match.groupValues.getOrNull(3)?.toIntOrNull() ?: return null
+        val preReleaseText = match.groupValues.getOrNull(4)?.takeIf { it.isNotBlank() }
+        val preRelease =
+            preReleaseText
+                ?.split('.')
+                ?.filter { it.isNotBlank() }
+                ?.map { identifier ->
+                    if (identifier.all { it.isDigit() }) {
+                        NumericIdentifier(raw = identifier, value = identifier.toLong())
+                    } else {
+                        AlphaIdentifier(raw = identifier)
+                    }
+                }
+                ?: emptyList()
+        return SemVer(
+            major = major,
+            minor = minor,
+            patch = patch,
+            preRelease = preRelease,
+        )
+    }
+
+    private fun parseReleaseSemVerOrNull(release: ReleaseInfo): SemVer? =
+        parseSemVerOrNull(release.tagName) ?: parseSemVerOrNull(release.name)
+
+    internal fun isSameVersion(a: String, b: String): Boolean {
+        val aSemVer = parseSemVerOrNull(a)
+        val bSemVer = parseSemVerOrNull(b)
+        return if (aSemVer != null && bSemVer != null) {
+            aSemVer.major == bSemVer.major &&
+                    aSemVer.minor == bSemVer.minor &&
+                    aSemVer.patch == bSemVer.patch &&
+                    aSemVer.preRelease == bSemVer.preRelease
+        } else {
+            a.trim() == b.trim()
+        }
+    }
+
+    internal fun findLatestRelease(releases: List<ReleaseInfo>): ReleaseInfo? {
+        if (releases.isEmpty()) return null
+        val parsed =
+            releases.mapNotNull { release ->
+                parseReleaseSemVerOrNull(release)?.let { version -> version to release }
+            }
+
+        if (parsed.isEmpty()) return releases.firstOrNull()
+
+        val stable = parsed.filter { it.first.preRelease.isEmpty() }
+        val candidates = stable.ifEmpty { parsed }
+        return candidates.maxWithOrNull(compareBy({ it.first }, { it.second.publishedAt }))?.second
+    }
+
+    private fun preferredReleaseVersionNameOrNull(release: ReleaseInfo): String? =
+        parseReleaseSemVerOrNull(release)?.normalizedName()
+
+    private fun parseReleasesJson(json: String): List<ReleaseInfo> {
+        val jsonArray = JSONArray(json)
+        val releases = ArrayList<ReleaseInfo>(jsonArray.length())
+        for (i in 0 until jsonArray.length()) {
+            val item = jsonArray.getJSONObject(i)
+            releases.add(
+                ReleaseInfo(
+                    tagName = item.optString("tag_name", ""),
+                    name = item.optString("name", ""),
+                    body = if (item.has("body")) item.optString("body") else null,
+                    publishedAt = item.optString("published_at", ""),
+                    htmlUrl = item.optString("html_url", "")
+                )
+            )
+        }
+        return releases
+    }
+
+    private fun getTopReleaseFingerprint(releases: List<ReleaseInfo>): String {
+        val latest = findLatestRelease(releases) ?: return ""
+        return listOf(
+            latest.tagName,
+            latest.name,
+            latest.publishedAt,
+            latest.body.orEmpty(),
+            latest.htmlUrl,
+        ).joinToString("||")
+    }
+
+    private suspend fun fetchReleasesNetwork(
+        perPage: Int,
+        cachedEtag: String?,
+    ): ReleasesNetworkResult {
+        val response: HttpResponse =
+            client.get("https://api.github.com/repos/$LYRA_REPOSITORY/releases?per_page=$perPage") {
+                headers {
+                    append("Accept", "application/vnd.github+json")
+                    append("User-Agent", USER_AGENT)
+                    if (!cachedEtag.isNullOrBlank()) {
+                        append("If-None-Match", cachedEtag)
+                    }
+                }
+            }
+        val etag = response.headers["ETag"]
+        return when (response.status) {
+            HttpStatusCode.NotModified ->
+                ReleasesNetworkResult(
+                    status = response.status,
+                    body = null,
+                    etag = cachedEtag ?: etag,
+                )
+            else ->
+                ReleasesNetworkResult(
+                    status = response.status,
+                    body = response.bodyAsText(),
+                    etag = etag,
+                )
+        }
+    }
+
+    // ─── Canal helpers ─────────────────────────────────────────────────────────
+
+    private suspend fun getCurrentUpdateChannel(): UpdateChannel {
+        val channelName = App.instance.dataStore.getAsync(UpdateChannelKey) ?: UpdateChannel.STABLE.name
+        return runCatching { UpdateChannel.valueOf(channelName) }.getOrDefault(UpdateChannel.STABLE)
+    }
+
+    private suspend fun fetchNightlyJson(): Result<NightlyInfo> = runCatching {
+        val response = client.get("https://api.github.com/repos/$LYRA_REPOSITORY/releases/tags/$NIGHTLY_TAG_NAME") {
+            headers {
+                append("Accept", "application/vnd.github+json")
+                append("User-Agent", USER_AGENT)
+            }
+        }.bodyAsText()
+        val json = JSONObject(response)
+        val assets = json.optJSONArray("assets")
+        var apkUrl = ""
+        var assetUpdatedAt = json.optString("published_at", "")
+        if (assets != null) {
+            for (i in 0 until assets.length()) {
+                val asset = assets.getJSONObject(i)
+                if (asset.optString("name").equals(NIGHTLY_APK_ASSET_NAME, ignoreCase = true)) {
+                    apkUrl = asset.optString("browser_download_url", "")
+                    assetUpdatedAt = asset.optString("updated_at", assetUpdatedAt)
+                    break
+                }
+            }
+        }
+        if (apkUrl.isBlank()) {
+            apkUrl = "https://github.com/$LYRA_REPOSITORY/releases/download/$NIGHTLY_TAG_NAME/$NIGHTLY_APK_ASSET_NAME"
+        }
+        val versionName = assetUpdatedAt.takeIf { it.isNotBlank() }?.let { "nightly-$it" } ?: NIGHTLY_TAG_NAME
+
+        NightlyInfo(
+            versionName = versionName,
+            apkUrl = apkUrl,
+            changelog = json.optString("body", "").takeIf { it.isNotBlank() },
+            publishedAt = assetUpdatedAt
+        )
+
+    }
+
+    // ─── Funciones públicas (compatibilidad obligatoria) ───────────────────────
+
+    suspend fun getCachedReleases(): List<ReleaseInfo> {
+        if (getCurrentUpdateChannel() == UpdateChannel.NIGHTLY) return emptyList()
+        val cachedJson = App.instance.dataStore.getAsync(GitHubReleasesJsonKey)
+        return cachedJson
+            ?.takeIf { it.isNotBlank() }
+            ?.let { runCatching { parseReleasesJson(it) }.getOrNull() }
+            ?: emptyList()
+    }
+
+    suspend fun getLatestVersionName(forceRefresh: Boolean = false): Result<String> = runCatching {
+        when (getCurrentUpdateChannel()) {
+            UpdateChannel.STABLE -> {
+                val latest = getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow()
+                preferredReleaseVersionNameOrNull(latest) ?: latest.name.ifBlank { latest.tagName }
+            }
+            UpdateChannel.NIGHTLY -> {
+                fetchNightlyJson().getOrThrow().versionName
+            }
+        }
+    }
+
+    suspend fun getLatestReleaseNotes(forceRefresh: Boolean = false): Result<String?> = runCatching {
+        when (getCurrentUpdateChannel()) {
+            UpdateChannel.STABLE -> getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow().body
+            UpdateChannel.NIGHTLY -> fetchNightlyJson().getOrThrow().changelog
+        }
+    }
+
+    suspend fun getLatestReleaseInfo(forceRefresh: Boolean = false): Result<ReleaseInfo> = runCatching {
+        when (getCurrentUpdateChannel()) {
+            UpdateChannel.STABLE -> {
+                val releases = getAllReleases(forceRefresh = forceRefresh).getOrThrow()
+                val latest = findLatestRelease(releases)
+                    ?: throw IllegalStateException("No releases found")
+                lastCheckTime = System.currentTimeMillis()
+                latest
+            }
+            UpdateChannel.NIGHTLY -> {
+                val nightly = fetchNightlyJson().getOrThrow()
+                cachedNightlyInfo = nightly
+                ReleaseInfo(
+                    tagName = nightly.versionName,
+                    name = nightly.versionName,
+                    body = nightly.changelog,
+                    publishedAt = nightly.publishedAt,
+                    htmlUrl = nightly.apkUrl
+                )
+            }
+        }
+    }
+
+    // ─── Comprobación de actualización ─────────────────────────────────────────
+
+    /**
+     * Comprueba si hay una versión más reciente que [currentVersionName].
+     *
+     * - Detecta el canal activo automáticamente.
+     * - STABLE: Reutiliza la caché existente (ETag / DataStore).
+     * - NIGHTLY: Consulta el release `nightly` de GitHub.
+     * - Devuelve `null` dentro del [Result] cuando ya se tiene la versión más
+     *   reciente instalada.
+     */
+    suspend fun checkForUpdate(
+        currentVersionName: String,
+        forceRefresh: Boolean = false,
+    ): Result<UpdateInfo?> =
+        runCatching {
+            when (getCurrentUpdateChannel()) {
+                UpdateChannel.STABLE -> checkForUpdateStable(currentVersionName, forceRefresh)
+                UpdateChannel.NIGHTLY -> checkForUpdateNightly(currentVersionName)
+            }
+        }
+
+    private suspend fun checkForUpdateStable(
+        currentVersionName: String,
+        forceRefresh: Boolean,
+    ): UpdateInfo? {
+        val latest = getLatestReleaseInfo(forceRefresh = forceRefresh).getOrThrow()
+        val latestVersionName =
+            preferredReleaseVersionNameOrNull(latest)
+                ?: latest.name.ifBlank { latest.tagName }
+
+        if (isSameVersion(latestVersionName, currentVersionName)) return null
+
+        val downloadUrl = resolveApkDownloadUrl(latest.tagName)
+
+        return UpdateInfo(
+            tagName        = latest.tagName,
+            versionName    = latestVersionName,
+            downloadUrl    = downloadUrl,
+            releasePageUrl = latest.htmlUrl,
+            releaseNotes   = latest.body,
+            publishedAt    = latest.publishedAt,
+        )
+    }
+
+    private suspend fun checkForUpdateNightly(currentVersionName: String): UpdateInfo? {
+        val nightly = fetchNightlyJson().getOrThrow()
+        return if (isSameVersion(nightly.versionName, currentVersionName)) {
+            null
+        } else {
+            cachedNightlyInfo = nightly
+            UpdateInfo(
+                tagName        = nightly.versionName,
+                versionName    = nightly.versionName,
+                downloadUrl    = nightly.apkUrl,
+                releasePageUrl = nightly.apkUrl,
+                releaseNotes   = nightly.changelog,
+                publishedAt    = nightly.publishedAt,
+            )
+        }
+    }
+
+    /**
+     * Consulta los assets del release [tagName] y devuelve la URL de descarga
+     * de `Lyra-Music.apk`. Si la llamada falla o el asset no está listado,
+     * usa la URL canónica de GitHub como fallback.
+     */
+    private suspend fun resolveApkDownloadUrl(tagName: String): String {
+        val fallback =
+            "https://github.com/$LYRA_REPOSITORY/releases/download/$tagName/$STABLE_APK_ASSET_NAME"
+
+        return runCatching {
+            val response = client.get(
+                "https://api.github.com/repos/$LYRA_REPOSITORY/releases/tags/$tagName"
+            ) {
+                headers {
+                    append("Accept", "application/vnd.github+json")
+                    append("User-Agent", USER_AGENT)
+                }
+            }.bodyAsText()
+
+            val assets = JSONObject(response).optJSONArray("assets") ?: return@runCatching fallback
+
+            for (i in 0 until assets.length()) {
+                val asset = assets.getJSONObject(i)
+                if (asset.optString("name").equals(STABLE_APK_ASSET_NAME, ignoreCase = true)) {
+                    return@runCatching asset.optString("browser_download_url", fallback)
+                }
+            }
+            fallback
+        }.getOrDefault(fallback)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    suspend fun getCommitHistory(count: Int = 20, branch: String = "master"): Result<List<GitCommit>> =
+        runCatching {
+            val response =
+                client.get("https://api.github.com/repos/$LYRA_REPOSITORY/commits?sha=$branch&per_page=$count") {
+                    headers {
+                        append("Accept", "application/vnd.github+json")
+                        append("User-Agent", USER_AGENT)
+                    }
+                }.bodyAsText()
+            val jsonArray = JSONArray(response)
+            val commits = mutableListOf<GitCommit>()
+            for (i in 0 until jsonArray.length()) {
+                val commitObj = jsonArray.getJSONObject(i)
+                val commit = commitObj.getJSONObject("commit")
+                val authorObj = commit.optJSONObject("author")
+                commits.add(
+                    GitCommit(
+                        sha = commitObj.optString("sha", "").take(7),
+                        message = commit.optString("message", "").lines().firstOrNull() ?: "",
+                        author = authorObj?.optString("name", "Unknown") ?: "Unknown",
+                        date = authorObj?.optString("date", "") ?: "",
+                        url = commitObj.optString("html_url", "")
+                    )
+                )
+            }
+            commits
+        }
+
+    fun getLatestDownloadUrl(): String {
+        val channel = runBlocking {
+            kotlin.runCatching { getCurrentUpdateChannel() }.getOrDefault(UpdateChannel.STABLE)
+        }
+        return when (channel) {
+            UpdateChannel.STABLE -> {
+                "https://github.com/$LYRA_REPOSITORY/releases/latest/download/$STABLE_APK_ASSET_NAME"
+            }
+            UpdateChannel.NIGHTLY -> {
+                cachedNightlyInfo?.apkUrl
+                    ?: "https://github.com/$LYRA_REPOSITORY/releases/download/$NIGHTLY_TAG_NAME/$NIGHTLY_APK_ASSET_NAME"
+            }
+        }
+    }
+
+    suspend fun getAllReleases(
+        perPage: Int = 30,
+        forceRefresh: Boolean = false,
+    ): Result<List<ReleaseInfo>> =
+        runCatching {
+            if (getCurrentUpdateChannel() == UpdateChannel.NIGHTLY) {
+                return@runCatching emptyList()
+            }
+
+            val now = System.currentTimeMillis()
+            val cachedJson = App.instance.dataStore.getAsync(GitHubReleasesJsonKey)
+            val cachedEtag = App.instance.dataStore.getAsync(GitHubReleasesEtagKey)
+            val lastCheckedAt = App.instance.dataStore.getAsync(GitHubReleasesLastCheckedAtKey, 0L)
+            val cachedFingerprint = App.instance.dataStore.getAsync(GitHubReleasesFingerprintKey)
+
+            val cachedReleases =
+                cachedJson
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { runCatching { parseReleasesJson(it) }.getOrNull() }
+
+            val shouldCheckNetwork =
+                forceRefresh || cachedJson.isNullOrBlank() || (now - lastCheckedAt) >= ReleaseCacheCheckIntervalMs
+
+            if (!shouldCheckNetwork) {
+                lastCheckTime = now
+                return@runCatching cachedReleases ?: emptyList()
+            }
+
+            val networkResult = runCatching {
+                fetchReleasesNetwork(perPage = perPage, cachedEtag = cachedEtag)
+            }.getOrNull()
+
+            if (networkResult == null) {
+                val fallback = cachedReleases
+                if (fallback != null) {
+                    lastCheckTime = now
+                    return@runCatching fallback
+                }
+                throw IllegalStateException("Failed to fetch releases")
+            }
+
+            when {
+                networkResult.status == HttpStatusCode.NotModified -> {
+                    App.instance.dataStore.edit { settings ->
+                        settings[GitHubReleasesLastCheckedAtKey] = now
+                        networkResult.etag?.let { settings[GitHubReleasesEtagKey] = it }
+                    }
+                    val fallback = cachedReleases
+                    if (fallback != null) {
+                        lastCheckTime = now
+                        return@runCatching fallback
+                    }
+                    throw IllegalStateException("Release cache is empty")
+                }
+
+                networkResult.status.value in 200..299 && !networkResult.body.isNullOrBlank() -> {
+                    val networkBody = networkResult.body
+                    val releases = parseReleasesJson(networkBody)
+                    val newFingerprint = getTopReleaseFingerprint(releases)
+                    val hasPayloadChanged = cachedJson != networkBody
+                    val hasTopReleaseChanged = cachedFingerprint != newFingerprint
+
+                    App.instance.dataStore.edit { settings ->
+                        settings[GitHubReleasesLastCheckedAtKey] = now
+                        networkResult.etag?.let { settings[GitHubReleasesEtagKey] = it }
+                        if (hasPayloadChanged || hasTopReleaseChanged || cachedJson.isNullOrBlank()) {
+                            settings[GitHubReleasesJsonKey] = networkBody
+                            settings[GitHubReleasesFingerprintKey] = newFingerprint
+                        }
+                    }
+                    lastCheckTime = now
+                    releases
+                }
+
+                else -> {
+                    val fallback = cachedReleases
+                    if (fallback != null) {
+                        lastCheckTime = now
+                        fallback
+                    } else {
+                        throw IllegalStateException("Failed to fetch releases: HTTP ${networkResult.status.value}")
+                    }
+                }
+            }
+        }
+}

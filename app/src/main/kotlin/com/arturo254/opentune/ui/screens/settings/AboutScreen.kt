@@ -1,0 +1,486 @@
+/*
+ * OpenTune Project Original (2026)
+ * Arturo254 (github.com/Arturo254)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ */
+
+package com.arturo254.opentune.ui.screens.settings
+
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import com.arturo254.opentune.BuildConfig
+import com.arturo254.opentune.LocalPlayerAwareWindowInsets
+import com.arturo254.opentune.R
+import com.arturo254.opentune.ui.component.IconButton
+import com.arturo254.opentune.ui.utils.backToMain
+
+// ── Shimmer brush (reused from original, kept as-is) ──────────────────────
+
+@Composable
+fun shimmerEffect(): Brush {
+    val shimmerColors = listOf(
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.0f),
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.0f),
+    )
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val translateAnim by transition.animateFloat(
+        initialValue = -300f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "shimmerX",
+    )
+    return Brush.linearGradient(
+        colors = shimmerColors,
+        start = Offset(x = translateAnim, y = 0f),
+        end = Offset(x = translateAnim + 300f, y = 0f),
+    )
+}
+
+// ── Data ───────────────────────────────────────────────────────────────────
+
+private data class SocialLink(
+    val iconRes: Int,
+    val url: String,
+    val label: String,
+)
+
+// ── Main screen ────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AboutScreen(
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    val uriHandler = LocalUriHandler.current
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        stringResource(R.string.about),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = navController::navigateUp,
+                        onLongClick = navController::backToMain,
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.arrow_back),
+                            contentDescription = null,
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+    ) { innerPadding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .padding(innerPadding)
+                .windowInsetsPadding(
+                    LocalPlayerAwareWindowInsets.current.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                    )
+                ),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp,
+            ),
+        ) {
+
+            // ── Hero card ─────────────────────────────────────────────────
+            item {
+                HeroCard(shimmerBrush = shimmerEffect())
+            }
+
+            // ── Social card ───────────────────────────────────────────────
+            item {
+                SocialCard(
+                    links = listOf(
+                        SocialLink(R.drawable.github, "https://github.com/shnwazdeveloper", "GitHub"),
+                        SocialLink(R.drawable.telegram, "https://t.me/sexyafraid", "Telegram"),
+                        SocialLink(R.drawable.instagram, "https://www.instagram.com/sexyafraid/", "Instagram"),
+                    ),
+                    onLinkClick = { uriHandler.openUri(it) },
+                )
+            }
+
+            item {
+                LicenseFooter(
+                    onLicenseClick = {
+                        uriHandler.openUri("https://github.com/shnwazdeveloper/lyra-music/blob/master/LICENSE")
+                    }
+                )
+            }
+        }
+    }
+}
+
+// ── Hero card ──────────────────────────────────────────────────────────────
+
+@Composable
+private fun HeroCard(shimmerBrush: Brush) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(30.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // App icon with shimmer
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(80.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(R.drawable.opentune_monochrome),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(
+                            MaterialTheme.colorScheme.onPrimaryContainer,
+                            BlendMode.SrcIn,
+                        ),
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                    // Shimmer overlay
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(shimmerBrush),
+                    )
+                }
+            }
+
+            // App name
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            // Version + build badges
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                VersionBadge(
+                    text = "v${BuildConfig.VERSION_NAME}",
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                VersionBadge(
+                    text = "#${BuildConfig.VERSION_CODE}",
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                if (BuildConfig.DEBUG) {
+                    VersionBadge(
+                        text = "DEBUG",
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 4.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+            )
+
+            // Dev credit row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                ) {
+                    AsyncImage(
+                        model = "https://github.com/shnwazdeveloper.png",
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape),
+                    )
+                }
+                Column {
+                    Text(
+                        text = "Dev by shnwaz",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = "GPL-3.0 License",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ── Social card ────────────────────────────────────────────────────────────
+
+@Composable
+private fun SocialCard(
+    links: List<SocialLink>,
+    onLinkClick: (String) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // Section header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                ) {
+                    Box(
+                        modifier = Modifier.size(40.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.link),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.social_links),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+
+            // Social icons grid — two rows of 3
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                links.chunked(3).forEach { rowLinks ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        rowLinks.forEach { link ->
+                            SocialPill(
+                                iconRes = link.iconRes,
+                                label = link.label,
+                                onClick = { onLinkClick(link.url) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        // Fill remaining cells if row is incomplete
+                        repeat(3 - rowLinks.size) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── License footer ─────────────────────────────────────────────────────────
+
+@Composable
+private fun LicenseFooter(onLicenseClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = onLicenseClick,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+            ) {
+                Box(
+                    modifier = Modifier.size(36.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.policy),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "GNU General Public License v3.0",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.view_license),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Icon(
+                painter = painterResource(R.drawable.arrow_forward),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    }
+}
+
+// ── Small helpers ──────────────────────────────────────────────────────────
+
+@Composable
+private fun VersionBadge(
+    text: String,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
+) {
+    Surface(
+        shape = RoundedCornerShape(50.dp),
+        color = containerColor,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        )
+    }
+}
+
+@Composable
+private fun SocialPill(
+    iconRes: Int,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+        modifier = modifier.height(48.dp),
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = label,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
