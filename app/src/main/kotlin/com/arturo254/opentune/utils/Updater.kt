@@ -67,11 +67,11 @@ data class UpdateInfo(
     val publishedAt: String,
 )
 
-private const val LYRA_REPOSITORY = "shnwazdeveloper/lyra-music"
+private const val LYRA_REPOSITORY = "shnwazdeveloper/lyraMusic"
 private const val USER_AGENT = "LyraMusic"
-private const val STABLE_APK_ASSET_NAME = "Lyra-Music.apk"
+private const val STABLE_APK_ASSET_NAME = "LyraMusic.apk"
 private const val NIGHTLY_TAG_NAME = "nightly"
-private const val NIGHTLY_APK_ASSET_NAME = "app-universal.apk"
+private const val NIGHTLY_APK_ASSET_NAME = "LyraMusic.apk"
 
 private data class ReleasesNetworkResult(
     val status: HttpStatusCode,
@@ -449,7 +449,10 @@ object Updater {
 
             for (i in 0 until assets.length()) {
                 val asset = assets.getJSONObject(i)
-                if (asset.optString("name").equals(STABLE_APK_ASSET_NAME, ignoreCase = true)) {
+                val assetName = asset.optString("name", "")
+                if (assetName.equals(STABLE_APK_ASSET_NAME, ignoreCase = true) ||
+                    assetName.equals("app-universal-release.apk", ignoreCase = true) ||
+                    assetName.endsWith(".apk", ignoreCase = true)) {
                     return@runCatching asset.optString("browser_download_url", fallback)
                 }
             }
