@@ -28,6 +28,7 @@ val GridItemsSizeKey = stringPreferencesKey("gridItemSize")
 val SliderStyleKey = stringPreferencesKey("sliderStyle")
 val SwipeToSongKey = booleanPreferencesKey("SwipeToSong")
 val PlayerDesignStyleKey = stringPreferencesKey("playerDesignStyle")
+val PlayerScreenStyleKey = stringPreferencesKey("playerScreenStyle")
 val UseNewLibraryDesignKey = booleanPreferencesKey("useNewLibraryDesign")
 val UseNewMiniPlayerDesignKey = booleanPreferencesKey("useNewMiniPlayerDesign")
 val HidePlayerThumbnailKey = booleanPreferencesKey("hidePlayerThumbnail")
@@ -45,6 +46,19 @@ enum class SliderStyle {
     Thick,
     Circular,
     Simple,
+}
+
+enum class PlayerScreenStyle {
+    PAPER,
+    CLASSIC,
+    MODERN,
+    SPOTIFY,
+    CLOUDGLOW,
+    FOLD,
+    POPSY,
+    MINIMAL,
+    COLOURFULL,
+    APPLE
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"

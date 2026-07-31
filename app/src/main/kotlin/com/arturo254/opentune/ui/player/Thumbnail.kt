@@ -1,4 +1,4 @@
-/*
+﻿/*
  * OpenTune Project Original (2026)
  * Arturo254 (github.com/Arturo254)
  * Licensed Under GPL-3.0 | see git history for contributors
@@ -925,7 +925,7 @@ private fun normalizeCanvasArtistName(raw: String): String {
         raw
             .split(
                 Regex(
-                    "(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
+                    "(?:\\s*,\\s*|\\s*&\\s*|\\s+Ã—\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
                     RegexOption.IGNORE_CASE,
                 ),
                 limit = 2,
