@@ -58,38 +58,100 @@ Lyra Music now includes Spotify playlist import inside **Settings > Backup & Res
 
 See [RELEASE_NOTES.md](RELEASE_NOTES.md) for the latest release notes.
 
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=2&color=gradient&customColorList=6,11,20,24,30" alt="section divider">
+</div>
+
 ## Build From Source
 
-Requirements:
+<div align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Kaushan&size=26&duration=2600&pause=700&color=38BDF8&center=true&vCenter=true&width=760&lines=Build+Lyra+Music+from+source;Compile+a+signed+release+APK;Powered+by+Kotlin+and+Jetpack+Compose" alt="Build from source animated heading">
 
-- Android Studio
-- Android SDK 36
-- JDK 21
+  <p>
+    <img src="https://skillicons.dev/icons?i=kotlin,androidstudio,gradle,github&theme=dark" alt="Build stack icons">
+  </p>
+</div>
 
-Build the signed release APK:
+| Step | Command |
+| --- | --- |
+| Install tools | Android Studio, Android SDK 36, JDK 21 |
+| Open project | Clone the repo and open the root folder in Android Studio |
+| Build release | `.\gradlew.bat :app:assembleRelease` |
+| Find APK | `app/build/outputs/apk/release/app-release.apk` |
 
 ```powershell
 .\gradlew.bat :app:assembleRelease
 ```
 
-Generated APK:
+<div align="center">
+  <img src="https://img.shields.io/badge/Build-Release%20APK-22C55E?style=for-the-badge&logo=gradle&logoColor=white" alt="Release APK build">
+  <img src="https://img.shields.io/badge/JDK-21-F97316?style=for-the-badge&logo=openjdk&logoColor=white" alt="JDK 21">
+  <img src="https://img.shields.io/badge/SDK-Android%2036-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android SDK 36">
+</div>
 
-```text
-app/build/outputs/apk/release/app-release.apk
-```
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=2&color=gradient&customColorList=24,20,11,6" alt="section divider">
+</div>
 
 ## Repository
 
-- Releases: [github.com/shnwazdeveloper/lyraMusic/releases](https://github.com/shnwazdeveloper/lyraMusic/releases)
-- Issues: [github.com/shnwazdeveloper/lyraMusic/issues](https://github.com/shnwazdeveloper/lyraMusic/issues)
-- Source: [github.com/shnwazdeveloper/lyraMusic](https://github.com/shnwazdeveloper/lyraMusic)
+<div align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Kaushan&size=26&duration=2600&pause=700&color=A78BFA&center=true&vCenter=true&width=760&lines=Source%2C+issues%2C+and+releases;Follow+Lyra+Music+updates;Download+the+latest+signed+APK" alt="Repository animated heading">
+
+  <p>
+    <a href="https://github.com/shnwazdeveloper/lyraMusic">
+      <img src="https://img.shields.io/badge/Source-lyraMusic-111827?style=for-the-badge&logo=github&logoColor=white" alt="Source repository">
+    </a>
+    <a href="https://github.com/shnwazdeveloper/lyraMusic/releases">
+      <img src="https://img.shields.io/badge/Releases-latest-8B5CF6?style=for-the-badge&logo=githubactions&logoColor=white" alt="Releases">
+    </a>
+    <a href="https://github.com/shnwazdeveloper/lyraMusic/issues">
+      <img src="https://img.shields.io/badge/Issues-report-0EA5E9?style=for-the-badge&logo=github&logoColor=white" alt="Issues">
+    </a>
+  </p>
+</div>
+
+| Link | Purpose |
+| --- | --- |
+| [Source](https://github.com/shnwazdeveloper/lyraMusic) | Main Lyra Music codebase |
+| [Releases](https://github.com/shnwazdeveloper/lyraMusic/releases) | Signed APK downloads and update notes |
+| [Issues](https://github.com/shnwazdeveloper/lyraMusic/issues) | Bug reports, ideas, and support |
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=2&color=gradient&customColorList=6,11,20,24,30" alt="section divider">
+</div>
 
 ## Credits
 
-Lyra Music is based on the open-source OpenTune project by Arturo254.
+<div align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Kaushan&size=26&duration=2600&pause=700&color=F472B6&center=true&vCenter=true&width=760&lines=Built+with+open-source+music+love;Based+on+OpenTune;Crafted+for+Lyra+Music+users" alt="Credits animated heading">
 
-Original project: [Arturo254/OpenTune](https://github.com/Arturo254/OpenTune)
+  <p>
+    <a href="https://github.com/Arturo254/OpenTune">
+      <img src="https://img.shields.io/badge/Base-OpenTune-F472B6?style=for-the-badge&logo=github&logoColor=white" alt="OpenTune credit">
+    </a>
+    <a href="https://github.com/shnwazdeveloper/lyraMusic">
+      <img src="https://img.shields.io/badge/Project-Lyra%20Music-8B5CF6?style=for-the-badge&logo=android&logoColor=white" alt="Lyra Music project">
+    </a>
+  </p>
+</div>
+
+Lyra Music is based on the open-source [OpenTune](https://github.com/Arturo254/OpenTune) project by Arturo254, with Lyra-specific branding, release packaging, and playlist import work.
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=2&color=gradient&customColorList=30,24,20,11,6" alt="section divider">
+</div>
 
 ## License
+
+<div align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Kaushan&size=26&duration=2600&pause=700&color=22C55E&center=true&vCenter=true&width=760&lines=Free+and+open-source;Licensed+under+GPL-3.0;See+LICENSE+for+details" alt="License animated heading">
+
+  <p>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/github/license/shnwazdeveloper/lyraMusic?style=for-the-badge&color=22C55E" alt="GPL-3.0 license">
+    </a>
+  </p>
+</div>
 
 This project is licensed under the GPL-3.0 license. See [LICENSE](LICENSE) for details.
