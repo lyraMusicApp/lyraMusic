@@ -47,14 +47,17 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.jsoup.Jsoup
 import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.PushbackReader
 import java.io.Reader
 import java.io.StringReader
+import java.util.Base64
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import javax.inject.Inject
@@ -69,9 +72,103 @@ data class BackupRestoreProgressUi(
     val indeterminate: Boolean,
 )
 
+data class SpotifyPlaylistImportResult(
+    val title: String,
+    val songs: List<Song>,
+    val totalCount: Int,
+)
+
 
 // Clave para DataStore
 private val CLOUD_BACKUP_ENABLED_KEY = booleanPreferencesKey("cloud_backup_enabled")
+
+private val SPOTIFY_PLAYLIST_URL_REGEX =
+    Regex("""open\.spotify\.com/(?:intl-[a-z]{2}/)?playlist/([A-Za-z0-9]{22})""")
+private val SPOTIFY_PLAYLIST_URI_REGEX =
+    Regex("""spotify:playlist:([A-Za-z0-9]{22})""")
+
+private fun extractSpotifyPlaylistId(url: String): String? =
+    SPOTIFY_PLAYLIST_URL_REGEX.find(url)?.groupValues?.getOrNull(1)
+        ?: SPOTIFY_PLAYLIST_URI_REGEX.find(url)?.groupValues?.getOrNull(1)
+
+private fun parseSpotifyPlaylistHtml(
+    playlistId: String,
+    html: String,
+): SpotifyPlaylistImportResult {
+    val encodedState =
+        Jsoup.parse(html)
+            .selectFirst("script#initialState")
+            ?.data()
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: throw IllegalArgumentException("Spotify playlist data was not found")
+
+    val stateJson = String(Base64.getDecoder().decode(encodedState), Charsets.UTF_8)
+    val entities = JSONObject(stateJson).optJSONObject("entities")
+    val items = entities?.optJSONObject("items")
+    val playlistKey =
+        "spotify:playlist:$playlistId".takeIf { items?.has(it) == true }
+            ?: items?.keys()?.asSequence()?.firstOrNull { it.startsWith("spotify:playlist:") }
+            ?: throw IllegalArgumentException("Spotify playlist details were not found")
+    val playlist = items?.getJSONObject(playlistKey)
+        ?: throw IllegalArgumentException("Spotify playlist details were not found")
+    val content = playlist.optJSONObject("content")
+    val trackItems = content?.optJSONArray("items")
+    val songs = ArrayList<Song>()
+
+    if (trackItems != null) {
+        for (index in 0 until trackItems.length()) {
+            val track =
+                trackItems
+                    .optJSONObject(index)
+                    ?.optJSONObject("itemV2")
+                    ?.optJSONObject("data")
+                    ?: continue
+            val title = track.optString("name").trim()
+            if (title.isEmpty()) continue
+
+            val artistItems = track.optJSONObject("artists")?.optJSONArray("items")
+            val artists = ArrayList<ArtistEntity>()
+            if (artistItems != null) {
+                for (artistIndex in 0 until artistItems.length()) {
+                    val artist = artistItems.optJSONObject(artistIndex) ?: continue
+                    val artistName =
+                        artist
+                            .optJSONObject("profile")
+                            ?.optString("name")
+                            ?.trim()
+                            ?.takeIf { it.isNotEmpty() }
+                            ?: artist.optString("name").trim()
+                    if (artistName.isNotEmpty()) {
+                        artists.add(ArtistEntity(id = "", name = artistName))
+                    }
+                }
+            }
+
+            val durationSeconds =
+                track
+                    .optJSONObject("duration")
+                    ?.optLong("totalMilliseconds", -1L)
+                    ?.takeIf { it > 0L }
+                    ?.div(1000L)
+                    ?.toInt()
+                    ?: -1
+
+            songs.add(
+                Song(
+                    song = SongEntity(id = "", title = title, duration = durationSeconds),
+                    artists = artists.ifEmpty { listOf(ArtistEntity("", "")) },
+                )
+            )
+        }
+    }
+
+    return SpotifyPlaylistImportResult(
+        title = playlist.optString("name").ifBlank { "Spotify playlist" },
+        songs = songs,
+        totalCount = content?.optInt("totalCount", songs.size) ?: songs.size,
+    )
+}
 
 internal fun readCsvRecords(reader: Reader): Sequence<List<String>> =
     sequence {
@@ -612,6 +709,51 @@ class BackupRestoreViewModel @Inject constructor(
         return songs
     }
 
+    suspend fun importSpotifyPlaylist(
+        context: Context,
+        url: String,
+    ): SpotifyPlaylistImportResult {
+        val result =
+            withContext(Dispatchers.IO) {
+                val playlistId =
+                    extractSpotifyPlaylistId(url)
+                        ?: throw IllegalArgumentException(context.getString(R.string.spotify_playlist_invalid_url))
+                val spotifyUrl = "https://open.spotify.com/playlist/$playlistId?offset=0"
+                val request =
+                    Request.Builder()
+                        .url(spotifyUrl)
+                        .header("User-Agent", "Mozilla/5.0 LyraMusic")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml")
+                        .build()
+
+                val html =
+                    OkHttpClient.Builder()
+                        .callTimeout(30, TimeUnit.SECONDS)
+                        .followRedirects(true)
+                        .build()
+                        .newCall(request)
+                        .execute()
+                        .use { response ->
+                            if (!response.isSuccessful) {
+                                throw IOException("Spotify returned HTTP ${response.code}")
+                            }
+                            response.body?.string().orEmpty()
+                        }
+
+                parseSpotifyPlaylistHtml(playlistId, html)
+            }
+
+        if (result.songs.isEmpty()) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.spotify_playlist_no_public_songs),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        return result
+    }
+
     suspend fun loadM3UOnline(
         context: Context,
         uri: Uri,
@@ -880,16 +1022,6 @@ class BackupRestoreViewModel @Inject constructor(
             client.dispatcher.executorService.shutdown()
             client.connectionPool.evictAll()
         }
-    }
-
-    suspend fun importSpotifyPlaylist(
-        context: Context,
-        url: String,
-        onProgress: (current: Int, total: Int) -> Unit = { _, _ -> },
-    ): Pair<String, ArrayList<Song>> = withContext(Dispatchers.IO) {
-        val parsed = com.arturo254.opentune.utils.SpotifyImporter.fetchSpotifyPlaylist(url)
-        val songs = com.arturo254.opentune.utils.SpotifyImporter.resolveSpotifyTracksToSongs(parsed.tracks, onProgress)
-        Pair(parsed.title, songs)
     }
 
     companion object {

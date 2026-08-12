@@ -23,8 +23,8 @@ android {
         applicationId = "com.shnwazdeveloper.lyramusic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 134
-        versionName = "3.0.7"
+        versionCode = 135
+        versionName = "3.0.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -64,7 +64,7 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

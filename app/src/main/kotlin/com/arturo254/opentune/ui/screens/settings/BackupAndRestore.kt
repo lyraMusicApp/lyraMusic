@@ -72,6 +72,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -85,7 +86,6 @@ import com.arturo254.opentune.ui.component.Material3SettingsItem
 import com.arturo254.opentune.ui.component.NewActionButton
 import com.arturo254.opentune.ui.component.IconButton
 import com.arturo254.opentune.ui.component.TextFieldDialog
-import androidx.compose.ui.text.input.TextFieldValue
 import com.arturo254.opentune.ui.menu.AddToPlaylistDialogOnline
 import com.arturo254.opentune.ui.menu.LoadingScreen
 import com.arturo254.opentune.ui.utils.backToMain
@@ -123,10 +123,11 @@ fun BackupAndRestore(
     var importedTitle by remember { mutableStateOf("") }
     val importedSongs = remember { mutableStateListOf<Song>() }
     var showChoosePlaylistDialogOnline by rememberSaveable { mutableStateOf(false) }
-    var showSpotifyImportDialog by rememberSaveable { mutableStateOf(false) }
     var isProgressStarted by rememberSaveable { mutableStateOf(false) }
     var progressStatus by remember { mutableStateOf("") }
     var progressPercentage by rememberSaveable { mutableIntStateOf(0) }
+    var showSpotifyImportDialog by rememberSaveable { mutableStateOf(false) }
+    var spotifyPlaylistUrl by rememberSaveable { mutableStateOf("") }
 
     // ── Troubleshooter state ──────────────────────────────────────────────────
     var showTroubleshooterDialog by rememberSaveable { mutableStateOf(false) }
@@ -148,6 +149,7 @@ fun BackupAndRestore(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val clipboardManager = LocalClipboardManager.current
+    val spotifyImportingStatus = stringResource(R.string.spotify_import_loading)
 
     // Cargar estado inicial del switch
     LaunchedEffect(Unit) {
@@ -179,6 +181,7 @@ fun BackupAndRestore(
             if (uri == null) return@rememberLauncherForActivityResult
             coroutineScope.launch {
                 val result = viewModel.importPlaylistFromCsv(context, uri)
+                importedTitle = ""
                 importedSongs.clear()
                 importedSongs.addAll(result)
                 if (importedSongs.isNotEmpty()) showChoosePlaylistDialogOnline = true
@@ -190,6 +193,7 @@ fun BackupAndRestore(
             if (uri == null) return@rememberLauncherForActivityResult
             coroutineScope.launch {
                 val result = viewModel.loadM3UOnline(context, uri)
+                importedTitle = ""
                 importedSongs.clear()
                 importedSongs.addAll(result)
                 if (importedSongs.isNotEmpty()) showChoosePlaylistDialogOnline = true
@@ -197,6 +201,45 @@ fun BackupAndRestore(
         }
 
     // ── Troubleshooter confirmation dialog ────────────────────────────────────
+    if (showSpotifyImportDialog) {
+        TextFieldDialog(
+            icon = { Icon(painter = painterResource(R.drawable.playlist_add), contentDescription = null) },
+            title = { Text(text = stringResource(R.string.import_spotify_playlist)) },
+            initialTextFieldValue = TextFieldValue(spotifyPlaylistUrl),
+            placeholder = { Text(text = stringResource(R.string.spotify_playlist_url)) },
+            isInputValid = { value ->
+                value.contains("open.spotify.com", ignoreCase = true) ||
+                    value.startsWith("spotify:playlist:", ignoreCase = true)
+            },
+            onDone = { url ->
+                spotifyPlaylistUrl = url.trim()
+                coroutineScope.launch {
+                    try {
+                        isProgressStarted = true
+                        progressPercentage = 0
+                        progressStatus = spotifyImportingStatus
+                        val result = viewModel.importSpotifyPlaylist(context, spotifyPlaylistUrl)
+                        importedTitle = result.title
+                        importedSongs.clear()
+                        importedSongs.addAll(result.songs)
+                        if (importedSongs.isNotEmpty()) showChoosePlaylistDialogOnline = true
+                    } catch (e: Exception) {
+                        android.widget.Toast.makeText(
+                            context,
+                            context.getString(R.string.import_failed) + ": ${e.message ?: "Unknown error"}",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    } finally {
+                        isProgressStarted = false
+                        progressPercentage = 0
+                        progressStatus = ""
+                    }
+                }
+            },
+            onDismiss = { showSpotifyImportDialog = false },
+        )
+    }
+
     if (showTroubleshooterDialog) {
         AlertDialog(
             onDismissRequest = { showTroubleshooterDialog = false },
@@ -612,13 +655,13 @@ fun BackupAndRestore(
                             icon = painterResource(R.drawable.playlist_add),
                             title = {
                                 Text(
-                                    text = "Import Spotify Playlist (Unlimited)",
+                                    text = stringResource(R.string.import_spotify_playlist),
                                     style = MaterialTheme.typography.titleMedium,
                                 )
                             },
                             description = {
                                 Text(
-                                    text = "https://open.spotify.com/playlist/...",
+                                    text = stringResource(R.string.spotify_playlist_url),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -833,43 +876,6 @@ fun BackupAndRestore(
             }
             // ─────────────────────────────────────────────────────────────────
         }
-    }
-
-    if (showSpotifyImportDialog) {
-        TextFieldDialog(
-            icon = { Icon(painter = painterResource(R.drawable.playlist_add), contentDescription = null) },
-            title = { Text(text = "Import Spotify Playlist") },
-            initialTextFieldValue = TextFieldValue(""),
-            onDismiss = { showSpotifyImportDialog = false },
-            onDone = { spotifyUrl ->
-                showSpotifyImportDialog = false
-                if (spotifyUrl.isNotBlank()) {
-                    isProgressStarted = true
-                    progressStatus = "Fetching Spotify playlist tracks..."
-                    progressPercentage = 10
-                    coroutineScope.launch {
-                        try {
-                            val result = viewModel.importSpotifyPlaylist(context, spotifyUrl) { current, total ->
-                                progressStatus = "Resolving song $current of $total from YouTube Music..."
-                                progressPercentage = (10 + (current * 85 / total.coerceAtLeast(1))).coerceIn(10, 95)
-                            }
-                            importedSongs.clear()
-                            importedSongs.addAll(result.second)
-                            importedTitle = result.first
-                            isProgressStarted = false
-                            if (importedSongs.isNotEmpty()) {
-                                showChoosePlaylistDialogOnline = true
-                            } else {
-                                android.widget.Toast.makeText(context, "No matching songs found on YouTube Music.", android.widget.Toast.LENGTH_LONG).show()
-                            }
-                        } catch (e: Exception) {
-                            isProgressStarted = false
-                            android.widget.Toast.makeText(context, "Spotify Import Error: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-            }
-        )
     }
 
     AddToPlaylistDialogOnline(
