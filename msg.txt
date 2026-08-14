@@ -1,0 +1,1 @@
+Fix 1s fast audio buffering and integrate AirBeats player design styles  

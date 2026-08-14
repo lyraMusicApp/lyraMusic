@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="100%">
+  <defs>
+    <!-- Dark Space Gradient Background -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0d19"/>
+      <stop offset="50%" stop-color="#141829"/>
+      <stop offset="100%" stop-color="#0d0f1d"/>
+    </linearGradient>
+
+    <!-- Lyra Vibrant Aurora Gradient -->
+    <linearGradient id="lyra-aurora" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7B2CBF"/>
+      <stop offset="35%" stop-color="#9D4EDD"/>
+      <stop offset="70%" stop-color="#00F5D4"/>
+      <stop offset="100%" stop-color="#7B2CBF"/>
+    </linearGradient>
+
+    <!-- Glowing Cyan/Teal Gradient -->
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4"/>
+      <stop offset="100%" stop-color="#00BBF9"/>
+    </linearGradient>
+
+    <!-- Security Shield Gradient -->
+    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4"/>
+      <stop offset="100%" stop-color="#7B2CBF"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="soft-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="400" rx="16" fill="url(#bg-gradient)"/>
+  
+  <!-- Subtle Grid Lines for Tech Texture -->
+  <g opacity="0.05" stroke="#FFFFFF" stroke-width="1">
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40"/>
+    </pattern>
+    <rect width="1200" height="400" fill="url(#grid)"/>
+  </g>
+
+  <!-- Glowing Soundwave Waves in Background -->
+  <g opacity="0.25">
+    <path d="M 0 260 Q 300 180 600 270 T 1200 220" fill="none" stroke="url(#lyra-aurora)" stroke-width="4" filter="url(#glow)"/>
+    <path d="M 0 290 Q 350 200 700 300 T 1200 250" fill="none" stroke="url(#cyan-glow)" stroke-width="2" filter="url(#soft-glow)"/>
+    <path d="M 0 230 Q 250 310 550 220 T 1200 280" fill="none" stroke="#9D4EDD" stroke-width="2"/>
+  </g>
+
+  <!-- Decorative Constellation / Stars (Lyra Constellation Theme) -->
+  <g fill="#FFFFFF" opacity="0.8">
+    <circle cx="150" cy="80" r="2.5"/>
+    <circle cx="280" cy="120" r="1.5"/>
+    <circle cx="400" cy="60" r="2"/>
+    <circle cx="850" cy="90" r="2"/>
+    <circle cx="1020" cy="70" r="3" filter="url(#soft-glow)"/>
+    <circle cx="1100" cy="140" r="1.5"/>
+    <circle cx="90" cy="320" r="2"/>
+    <circle cx="1120" cy="330" r="2"/>
+  </g>
+
+  <!-- Left Side: Celestial Lyre + Music Note Symbol (Icon Graphic) -->
+  <g transform="translate(90, 80)">
+    <!-- Outer Glowing Circle Base -->
+    <circle cx="120" cy="120" r="105" fill="#181c33" stroke="url(#lyra-aurora)" stroke-width="3.5" filter="url(#soft-glow)"/>
+    <circle cx="120" cy="120" r="92" fill="#0f1224" opacity="0.9"/>
+    
+    <!-- Stylized Modern Lyre String Curves -->
+    <path d="M 75 70 C 75 140 100 175 120 175 C 140 175 165 140 165 70" fill="none" stroke="url(#cyan-glow)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 90 70 C 90 130 108 160 120 160 C 132 160 150 130 150 70" fill="none" stroke="#9D4EDD" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 105 70 C 105 120 114 145 120 145 C 126 145 135 120 135 70" fill="none" stroke="#00F5D4" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Lyre Crossbar -->
+    <path d="M 60 70 L 180 70" stroke="url(#lyra-aurora)" stroke-width="6" stroke-linecap="round" filter="url(#soft-glow)"/>
+    
+    <!-- Music Note Accent Overlay -->
+    <path d="M 135 90 L 135 135 A 16 16 0 1 1 119 119 L 135 119 Z" fill="url(#cyan-glow)" filter="url(#soft-glow)"/>
+  </g>
+
+  <!-- Right Side / Center Content: Title, Subtitle, Badges -->
+  <g transform="translate(370, 0)">
+    <!-- Main Branding Title -->
+    <text x="0" y="150" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="64" fill="#FFFFFF" letter-spacing="3">
+      LYRA<tspan fill="url(#cyan-glow)">MUSIC</tspan>
+    </text>
+
+    <!-- Subtitle / Tagline -->
+    <text x="0" y="195" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="500" font-size="22" fill="#C4C9E2" letter-spacing="0.5">
+      The Open-Source, Privacy-First Android Music Experience
+    </text>
+
+    <!-- Feature Pill Badges -->
+    <g transform="translate(0, 230)">
+      <!-- Badge 1: Material You -->
+      <g transform="translate(0, 0)">
+        <rect width="160" height="36" rx="18" fill="#1e233d" stroke="#7B2CBF" stroke-width="1.5"/>
+        <circle cx="20" cy="18" r="6" fill="#9D4EDD"/>
+        <text x="35" y="24" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="13" fill="#E2E8F0">Material You</text>
+      </g>
+
+      <!-- Badge 2: Privacy Hardened -->
+      <g transform="translate(175, 0)">
+        <rect width="180" height="36" rx="18" fill="#1e233d" stroke="#00F5D4" stroke-width="1.5"/>
+        <!-- Shield SVG Mini -->
+        <path d="M 18 10 L 25 13 V 19 C 25 23 20 26 18 27 C 16 26 11 23 11 19 V 13 Z" fill="url(#cyan-glow)"/>
+        <text x="34" y="24" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="13" fill="#E2E8F0">Security Protected</text>
+      </g>
+
+      <!-- Badge 3: High-Fi & Sync Lyrics -->
+      <g transform="translate(370, 0)">
+        <rect width="165" height="36" rx="18" fill="#1e233d" stroke="#00BBF9" stroke-width="1.5"/>
+        <circle cx="20" cy="18" r="6" fill="#00BBF9"/>
+        <text x="35" y="24" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="13" fill="#E2E8F0">Synced Lyrics</text>
+      </g>
+
+      <!-- Badge 4: Open Source GPL-3.0 -->
+      <g transform="translate(550, 0)">
+        <rect width="170" height="36" rx="18" fill="#1e233d" stroke="#F15BB5" stroke-width="1.5"/>
+        <circle cx="20" cy="18" r="6" fill="#F15BB5"/>
+        <text x="35" y="24" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="13" fill="#E2E8F0">GPL-3.0 License</text>
+      </g>
+    </g>
+
+    <!-- Org Banner Footer Tag -->
+    <text x="0" y="325" font-family="'Segoe UI', sans-serif" font-weight="600" font-size="15" fill="#7E87AC">
+      Official Repository Organization: <tspan fill="#00F5D4">github.com/lyraMusicApp</tspan>
+    </text>
+  </g>
+
+  <!-- Top Right Glassmorphism Security Shield Badge Overlay -->
+  <g transform="translate(1060, 45)">
+    <rect width="90" height="100" rx="16" fill="#14182b" fill-opacity="0.8" stroke="url(#shield-grad)" stroke-width="2" filter="url(#soft-glow)"/>
+    <!-- Security Shield Big -->
+    <path d="M 45 25 L 70 36 V 55 C 70 70 55 80 45 83 C 35 80 20 70 20 55 V 36 Z" fill="url(#shield-grad)"/>
+    <path d="M 40 52 L 33 45 L 30 48 L 40 58 L 60 38 L 57 35 Z" fill="#0b0d19"/>
+  </g>
+</svg>

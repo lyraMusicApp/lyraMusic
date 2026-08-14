@@ -1,0 +1,57 @@
+name: 🐛 Bug Report
+description: Create a report to help us reproduce and fix a bug in Lyra Music
+title: "[BUG] Concise summary of the bug"
+labels: ["bug"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Clear explanation of what went wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the issue.
+      placeholder: |
+        1. Open Lyra Music app
+        2. Play song...
+        3. Observe crash/error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs Actual Behavior
+      placeholder: Describe what should happen and what happened instead...
+    validations:
+      required: true
+
+  - type: input
+    id: system-info
+    attributes:
+      label: App & Device System Information
+      placeholder: e.g., Lyra Music v3.0.7 | Android 14 | Samsung Galaxy S23 (arm64-v8a)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logcat / Logs (Optional)
+      placeholder: Paste logcat or crash output here...
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Safety & Verification Checklist
+      options:
+        - label: I have tested on the latest release of Lyra Music.
+          required: true
+        - label: I searched existing GitHub issues before creating this report.
+          required: true

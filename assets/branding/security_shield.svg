@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sec-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5D4"/>
+      <stop offset="50%" stop-color="#00BBF9"/>
+      <stop offset="100%" stop-color="#7B2CBF"/>
+    </linearGradient>
+    <filter id="sec-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <rect width="256" height="256" rx="50" fill="#0c0e1a"/>
+  
+  <g transform="translate(128, 128)" filter="url(#sec-glow)">
+    <!-- Outer Shield Frame -->
+    <path d="M 0 -80 L 65 -45 V 10 C 65 55 25 80 0 90 C -25 80 -65 55 -65 10 V -45 Z" fill="none" stroke="url(#sec-grad)" stroke-width="10"/>
+    <!-- Inner Shield Solid -->
+    <path d="M 0 -70 L 55 -38 V 8 C 55 46 20 68 0 76 C -20 68 -55 46 -55 8 V -38 Z" fill="url(#sec-grad)" opacity="0.25"/>
+    
+    <!-- Lock Body & Shackle -->
+    <rect x="-20" y="-5" width="40" height="32" rx="6" fill="url(#sec-grad)"/>
+    <path d="M -12 -5 V -18 C -12 -28 12 -28 12 -18 V -5" fill="none" stroke="url(#sec-grad)" stroke-width="6" stroke-linecap="round"/>
+    
+    <!-- Checkmark Overlay -->
+    <path d="M -8 10 L -2 16 L 10 4" fill="none" stroke="#0c0e1a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

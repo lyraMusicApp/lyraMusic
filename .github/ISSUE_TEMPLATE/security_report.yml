@@ -1,0 +1,65 @@
+name: 🛡️ Security Vulnerability Report
+description: Report a security defect, privacy vulnerability, or safety risk in Lyra Music
+title: "[SECURITY] Summary of security vulnerability"
+labels: ["security", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### ⚠️ Important Notice
+        If this vulnerability poses an immediate safety risk to active users, please consider submitting via [GitHub Private Vulnerability Reporting](https://github.com/lyraMusicApp/lyra-music/security/advisories/new) or contacting maintainers privately.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Vulnerability Severity Level
+      description: What is the estimated impact level of this security finding?
+      options:
+        - Critical (Remote Code Execution, Data Loss, Account Hijacking)
+        - High (Unauthorized Data Leak, API Secret Exposure)
+        - Medium (Insecure Local Storage, Information Disclosure)
+        - Low (Minor Privacy Concern, Hardening Opportunity)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability Description
+      description: Provide a clear and detailed explanation of the security issue.
+      placeholder: Describe what security assumption is broken or what risk exists...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce / Proof of Concept
+      description: Steps or commands to demonstrate the security vulnerability.
+      placeholder: |
+        1. Install Lyra Music v...
+        2. Execute step...
+        3. Observe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact & Mitigation Suggestion
+      description: Who is affected and how can this issue be resolved safely?
+      placeholder: Explain potential consequences and suggested fix...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Safety & Disclosure Acknowledgment
+      options:
+        - label: I have verified that this report contains no malicious code or active exploit payloads against production users.
+          required: true
+        - label: I agree to follow coordinated disclosure practices outlined in SECURITY.md.
+          required: true

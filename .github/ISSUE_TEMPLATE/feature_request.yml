@@ -1,0 +1,35 @@
+name: ✨ Feature Request
+description: Suggest an idea or enhancement for Lyra Music
+title: "[FEATURE] Concise title for feature proposal"
+labels: ["enhancement"]
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Feature Motivation / Problem Statement
+      description: What problem does this feature solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution / UI Flow
+      description: Describe how the feature should work in the app.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions Considered
+      description: Any alternative ideas or workarounds?
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy & Safety Check
+      options:
+        - label: This feature maintains Lyra Music's zero-tracking and privacy-first commitment.
+          required: true

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="100%" height="100%">
+  <defs>
+    <linearGradient id="icon-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181534"/>
+      <stop offset="100%" stop-color="#090a14"/>
+    </linearGradient>
+    <linearGradient id="icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9d4edd"/>
+      <stop offset="50%" stop-color="#00f5d4"/>
+      <stop offset="100%" stop-color="#00bbf9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="192" height="192" rx="42" fill="url(#icon-bg)"/>
+  
+  <g transform="translate(96, 96)">
+    <!-- Lyra Harp String Vector Icon -->
+    <path d="M -36 -45 C -45 10 -20 48 0 48 C 20 48 45 10 36 -45" fill="none" stroke="url(#icon-grad)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M -18 -45 C -22 0 -10 32 0 32 C 10 32 22 0 18 -45" fill="none" stroke="#00f5d4" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -48 -45 L 48 -45" stroke="url(#icon-grad)" stroke-width="10" stroke-linecap="round"/>
+    
+    <!-- Central Note -->
+    <circle cx="-5" cy="18" r="14" fill="#9d4edd"/>
+    <path d="M 9 -20 L 9 18 L -5 18 L -5 10 L 9 10 Z" fill="#00f5d4"/>
+  </g>
+</svg>

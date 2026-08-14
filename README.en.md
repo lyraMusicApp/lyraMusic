@@ -1,25 +1,9 @@
-# Lyra Music
+# Lyra Music (`lyraMusicApp`)
 
-This English README mirrors the main project README.
+Please see our primary [README.md](README.md) for full project details, SVG hero banners, release verification instructions, and security guidelines.
 
-Lyra Music is a Material You Android music app based on OpenTune. It includes search, playback, library features, lyrics, downloads, and a modern Jetpack Compose interface.
-
-## Download
-
-[Download the latest APK](https://github.com/shnwazdeveloper/lyra-music/releases/latest)
-
-## Build
-
-```powershell
-.\gradlew.bat :app:assembleUniversalDebug
-```
-
-## Links
-
-- Repository: https://github.com/shnwazdeveloper/lyra-music
-- Releases: https://github.com/shnwazdeveloper/lyra-music/releases
-- Original project: https://github.com/Arturo254/OpenTune
-
-## License
-
-GPL-3.0. See [LICENSE](LICENSE).
+- **GitHub Organization**: [https://github.com/lyraMusicApp](https://github.com/lyraMusicApp)
+- **Latest Releases**: [https://github.com/lyraMusicApp/lyra-music/releases](https://github.com/lyraMusicApp/lyra-music/releases)
+- **Security Policy**: [SECURITY.md](SECURITY.md)
+- **Code of Conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="bg-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <!-- Lyra Accent Gradient -->
+    <linearGradient id="lyra-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+
+    <!-- Inner Metallic Light -->
+    <linearGradient id="cyan-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Drop Shadow & Glow Filters -->
+    <filter id="main-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base Canvas -->
+  <rect width="512" height="512" rx="110" fill="url(#bg-glow)"/>
+  
+  <!-- Outer Neon Ring -->
+  <circle cx="256" cy="256" r="215" fill="none" stroke="url(#lyra-grad)" stroke-width="6" opacity="0.6" filter="url(#main-glow)"/>
+  <circle cx="256" cy="256" r="195" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="8 8"/>
+
+  <!-- Lyra Celestial Instrument Body -->
+  <g transform="translate(0, 0)">
+    <!-- Lyra Frame Wings -->
+    <path d="M 160 140 C 140 280 200 380 256 380 C 312 380 372 280 352 140" fill="none" stroke="url(#lyra-grad)" stroke-width="22" stroke-linecap="round" filter="url(#main-glow)"/>
+    
+    <!-- Inner Core Strings -->
+    <path d="M 200 140 C 190 260 230 340 256 340 C 282 340 322 260 312 140" fill="none" stroke="url(#cyan-light)" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+    <path d="M 228 140 C 220 240 244 315 256 315 C 268 315 292 240 284 140" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Top Horizontal Crossbar Header -->
+    <path d="M 130 140 L 382 140" stroke="url(#lyra-grad)" stroke-width="20" stroke-linecap="round" filter="url(#main-glow)"/>
+
+    <!-- Central Glowing Musical Note Emblem -->
+    <g transform="translate(256, 240)" filter="url(#main-glow)">
+      <!-- Note Stem and Head -->
+      <path d="M 16 -50 L 16 20 A 28 28 0 1 1 -12 -8 L 16 -8 Z" fill="url(#cyan-light)"/>
+      <circle cx="-12" cy="20" r="28" fill="url(#lyra-grad)"/>
+    </g>
+  </g>
+
+  <!-- Glowing Star Accents -->
+  <g fill="#ffffff">
+    <circle cx="130" cy="140" r="7" filter="url(#main-glow)"/>
+    <circle cx="382" cy="140" r="7" filter="url(#main-glow)"/>
+    <circle cx="256" cy="380" r="6" filter="url(#main-glow)"/>
+  </g>
+</svg>
