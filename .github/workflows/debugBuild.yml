@@ -28,7 +28,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
 
       # 🔥 SOLO UNIVERSAL
       - name: Build Universal APK
