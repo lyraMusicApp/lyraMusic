@@ -458,7 +458,7 @@
     <string name="external_downloader_package_desc">外部下载程序的软件包名称 (例如，com.deniscerri.ytdl)</string>
     <string name="open_with_downloader">使用下载器打开</string>
     <string name="external_downloader_not_installed">外部下载程序未安装</string>
-    <string name="external_downloader_not_configured">未配置外部下载器。请在“设置 -> 播放器”中设置一个。</string>
+    <string name="external_downloader_not_configured">未配置外部下载器。请在“设置 -&gt; 播放器”中设置一个。</string>
     <string name="add_symbol">添加符号</string>
     <string name="enter_symbol">输入符号</string>
     <string name="equalizer">均衡器</string>
