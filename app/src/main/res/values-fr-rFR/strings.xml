@@ -6,22 +6,22 @@
 <!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
 <resources>
     <!-- Bottom navigation -->
-    <string name="home">Domicile</string>
-    <string name="songs">Chansons</string>
+    <string name="home">Accueil</string>
+    <string name="songs">Titres</string>
     <string name="artists">Artistes</string>
     <string name="albums">Albums</string>
-    <string name="playlists">Listes de lecture</string>
+    <string name="playlists">Playlists</string>
     <!-- Top bar -->
     <plurals name="n_selected">
         <item quantity="one">%d sélectionné</item>
-        <item quantity="other">%d sélectionné</item>
+        <item quantity="other">%d sélectionnés</item>
     </plurals>
     <!-- Home -->
     <string name="history">Historique</string>
-    <string name="stats">Stats</string>
-    <string name="mood_and_genres">Genres de l\'humeur &amp;</string>
-    <string name="account">Compte client</string>
-    <string name="quick_picks">Pioches rapides</string>
+    <string name="stats">Statistiques</string>
+    <string name="mood_and_genres">Ambiance &amp; Genres</string>
+    <string name="account">Compte</string>
+    <string name="quick_picks">Sélection Rapide</string>
     <string name="quick_picks_empty">Écoutez des chansons pour générer vos sélections rapides</string>
     <string name="speed_dial">Numérotation rapide</string>
     <string name="speed_dial_random">Jouer une chanson à numérotation rapide aléatoire</string>
@@ -114,7 +114,7 @@
     <string name="share">Partager</string>
     <string name="delete">Supprimez</string>
     <string name="together_participants">Participants</string>
-    <string name="together_connected_count">%1$d connected</string>
+    <string name="together_connected_count">%1$d est en ligne</string>
     <string name="together_role_host">Hôte</string>
     <string name="together_role_guest">Invité</string>
     <string name="together_pending_approval">En attente d\'approbation</string>
@@ -177,14 +177,14 @@
     <string name="skip_duplicates">Sauter les doublons</string>
     <string name="add_anyway">Ajouter quand même</string>
     <string name="duplicates_description_single">La chanson est déjà dans votre playlist</string>
-    <string name="duplicates_description_multiple">%d songs are already in your playlist</string>
+    <string name="duplicates_description_multiple">Votre playlist contient déjà %d titres</string>
     <!-- Noun -->
     <plurals name="n_song">
-        <item quantity="one">%d song</item>
-        <item quantity="other">%d songs</item>
+        <item quantity="one">%d titre</item>
+        <item quantity="other">%d titres</item>
     </plurals>
     <plurals name="n_artist">
-        <item quantity="one">%d artist</item>
+        <item quantity="one">%d artiste</item>
         <item quantity="other">%d artistes</item>
     </plurals>
     <plurals name="n_album">
@@ -193,23 +193,23 @@
     </plurals>
     <plurals name="n_playlist">
         <item quantity="one">%d playlist</item>
-        <item quantity="other">Liste de lecture %d</item>
+        <item quantity="other">%d playlists</item>
     </plurals>
     <plurals name="n_week">
-        <item quantity="one">%d week</item>
-        <item quantity="other">%d weeks</item>
+        <item quantity="one">%d semaine</item>
+        <item quantity="other">%d semaines</item>
     </plurals>
     <plurals name="n_month">
-        <item quantity="one">%d month</item>
-        <item quantity="other">%d months</item>
+        <item quantity="one">%d mois</item>
+        <item quantity="other">%d mois</item>
     </plurals>
     <plurals name="n_year">
-        <item quantity="one">%d year</item>
-        <item quantity="other">%d years</item>
+        <item quantity="one">%d année</item>
+        <item quantity="other">%d années</item>
     </plurals>
     <!-- Snackbar -->
     <string name="added_to_playlist">Ajouté à %s</string>
-    <string name="added_n_songs_to_playlist">Added %1$d songs to %2$s</string>
+    <string name="added_n_songs_to_playlist">%1$d titres ont été ajoutés à %2$s</string>
     <string name="added_to_n_playlists">Ajouté aux listes de lecture %d</string>
     <string name="added_n_songs_to_n_playlists">Ajout de chansons %1$d aux playlists %2$d</string>
     <string name="playlist_imported">Liste de lecture importée</string>
@@ -537,8 +537,8 @@
     <string name="restore_success">Sauvegarde restaurée avec succès</string>
     <string name="restore_failed">Échec de la restauration de la sauvegarde</string>
     <string name="discord_integration">Intégration de Discord</string>
-    <string name="discord_information">Lyra Music uses the KizzyRPC library to set your Discord account\'s status. This involves using the Discord Gateway connection, which may be considered a violation of Discord\'s TOS. However, there are no known cases of user accounts being suspended for this reason. Use at your own risk.
-Lyra Music will only extract your token, and everything else is stored locally.</string>
+    <string name="discord_information">Lyra Music utilise la bibliothèque KizzyRPC pour définir le statut de votre compte Discord. Cela implique l\'utilisation de la connexion Discord Gateway, ce qui peut être considéré comme une violation des conditions d\'utilisation de Discord. Cependant, aucun cas de suspension de compte d\'utilisateur pour cette raison n\'est connu. Utilisez cette fonctionnalité à vos propres risques.
+Lyra Music se contente d\'extraire votre jeton ; toutes les autres données sont stockées localement.</string>
     <string name="options">Options</string>
     <string name="preview">Aperçu</string>
     <string name="enable_discord_rpc">Activer Rich Presence</string>
@@ -804,7 +804,7 @@ Lyra Music will only extract your token, and everything else is stored locally.<
     <string name="troubleshooter_desc">Efface le cache des chansons et réinitialise les données des visiteurs expirées pour résoudre les erreurs de lecture.</string>
     <string name="troubleshooter_confirm_desc">Le cache des chansons temporaires sera effacé et les données des visiteurs réinitialisées. Les téléchargements et la bibliothèque ne seront pas affectés.</string>
     <string name="troubleshooter_run">Lancer le dépannage</string>
-    <string name="troubleshooter_running">Applying fixes…</string>
+    <string name="troubleshooter_running">Application des correctifs…</string>
     <string name="troubleshooter_done">Corrige avec succès. Redémarrez l\'application si le problème persiste.</string>
     <string name="confirm">Valider</string>
     <string name="social_links">Réseaux sociaux</string>
