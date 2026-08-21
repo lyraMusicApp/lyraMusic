@@ -22,18 +22,18 @@
     <string name="mood_and_genres">Ambiance &amp; Genres</string>
     <string name="account">Compte</string>
     <string name="quick_picks">Sélection Rapide</string>
-    <string name="quick_picks_empty">Écoutez des chansons pour générer vos sélections rapides</string>
+    <string name="quick_picks_empty">Écoutez des titres pour générer votre Sélection Rapide</string>
     <string name="speed_dial">Numérotation rapide</string>
     <string name="speed_dial_random">Jouer une chanson à numérotation rapide aléatoire</string>
     <string name="forgotten_favorites">Favoris oubliés</string>
-    <string name="keep_listening">Continuer à écouter</string>
+    <string name="keep_listening">Continuez à écouter</string>
     <string name="your_youtube_playlists">Vos playlists YouTube</string>
     <string name="similar_to">Similaire à</string>
-    <string name="new_release_albums">Nouveaux albums de publication</string>
-    <string name="select_playlist_to_sync">Sélectionnez la liste de lecture à synchroniser</string>
+    <string name="new_release_albums">Nouveaux albums</string>
+    <string name="select_playlist_to_sync">Sélectionnez la playlist à synchroniser</string>
     <string name="integration">Intégration</string>
     <string name="integrations">Intégrations</string>
-    <string name="internal_subcategory_settings">Paramètres de sous-catégorie internes &amp;</string>
+    <string name="internal_subcategory_settings">Paramètres internes &amp; de sous-catégories</string>
     <string name="search_try_different">Essayez un autre terme de recherche</string>
     <!-- History -->
     <string name="today">Aujourd\'hui</string>
@@ -41,30 +41,30 @@
     <string name="this_week">Cette semaine</string>
     <string name="last_week">La semaine dernière</string>
     <!-- Stats -->
-    <string name="most_played_songs">Chansons les plus jouées</string>
-    <string name="most_played_artists">Artistes les plus joués</string>
-    <string name="most_played_albums">Albums les plus joués</string>
+    <string name="most_played_songs">Titres les plus écoutés</string>
+    <string name="most_played_artists">Artistes les plus écoutés</string>
+    <string name="most_played_albums">Albums les plus écoutés</string>
     <!-- Search -->
-    <string name="search">Chercher</string>
-    <string name="search_yt_music">Rechercher dans YouTube Music…</string>
+    <string name="search">Rechercher</string>
+    <string name="search_yt_music">Rechercher sur YouTube Music…</string>
     <string name="search_library">Rechercher dans la bibliothèque…</string>
     <string name="filter_library">Bibliothèque</string>
     <string name="filter_liked">Aimé</string>
     <string name="filter_downloaded">Téléchargé</string>
     <string name="filter_downloaded_full">Téléchargé (complet)</string>
-    <string name="filter_all">Tous</string>
-    <string name="filter_songs">Chansons</string>
+    <string name="filter_all">Tout</string>
+    <string name="filter_songs">Titres</string>
     <string name="filter_videos">Vidéos</string>
     <string name="filter_albums">Albums</string>
     <string name="filter_artists">Artistes</string>
-    <string name="filter_playlists">Listes de lecture</string>
-    <string name="filter_community_playlists">Listes de lecture communautaires</string>
-    <string name="filter_featured_playlists">Playlists en vedette</string>
-    <string name="filter_bookmarked">Marque-page</string>
+    <string name="filter_playlists">Playlists</string>
+    <string name="filter_community_playlists">Playlists Communautaires</string>
+    <string name="filter_featured_playlists">Playlists en Vedette</string>
+    <string name="filter_bookmarked">Ajouté aux favoris</string>
     <string name="no_results_found">Aucun résultat trouvé</string>
-    <string name="top_results">Meilleurs résultats</string>
+    <string name="top_results">Meilleurs Résultats</string>
     <!-- Library -->
-    <string name="library_song_empty">Les musiques de la bibliothèque apparaîtront ici</string>
+    <string name="library_song_empty">Les titres de la bibliothèque s\'afficheront ici</string>
     <string name="library_artist_empty">Les artistes de la bibliothèque apparaîtront ici</string>
     <string name="library_album_empty">Les albums de la bibliothèque apparaîtront ici</string>
     <string name="library_playlist_empty">Vos playlists apparaîtront ici</string>
@@ -73,8 +73,8 @@
     <!-- Album screen -->
     <string name="other_versions">Autres versions</string>
     <!-- Playlist -->
-    <string name="liked_songs">Chansons aimées</string>
-    <string name="downloaded_songs">Chansons téléchargées</string>
+    <string name="liked_songs">Titres favoris</string>
+    <string name="downloaded_songs">Titres téléchargés</string>
     <string name="playlist_is_empty">La playlist est vide</string>
     <string name="remove_download_playlist_confirm">Voulez-vous vraiment supprimer toutes les chansons de la playlist \"%s\" du stockage de chansons téléchargées ?</string>
     <string name="delete_playlist_confirm">Voulez-vous vraiment supprimer la playlist \"%s \" ?</string>
@@ -83,7 +83,7 @@
     <!-- Button -->
     <string name="retry">Réessayer</string>
     <string name="radio">Radio</string>
-    <string name="shuffle">Lecture aléatoire</string>
+    <string name="shuffle">Lecture Aléatoire</string>
     <string name="music_recognition">Reconnaissance musicale</string>
     <string name="reset">Reset</string>
     <!-- Menu -->
