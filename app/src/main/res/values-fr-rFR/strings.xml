@@ -547,7 +547,7 @@ Lyra Music se contente d\'extraire votre jeton ; toutes les autres données sont
     <string name="lastfm_integration">Intégration de Last.fm</string>
     <string name="enable_scrobbling">Activer le Scrobbling</string>
     <string name="lastfm_now_playing">Mise à jour : En cours de lecture</string>
-    <string name="scrobbling_configuration">Scrobbling Configuration</string>
+    <string name="scrobbling_configuration">Configuration du scrobbling</string>
     <string name="scrobble_min_track_duration">Durée minimale d\'un morceau</string>
     <string name="scrobble_delay_percent">Pourcentage de délai de scrobble</string>
     <string name="scrobble_delay_minutes">Délai de scrobble (en secondes)</string>
@@ -555,8 +555,8 @@ Lyra Music se contente d\'extraire votre jeton ; toutes les autres données sont
     <string name="password">Mot de passe</string>
     <string name="logging_in">Connexion à…</string>
     <!-- ListenBrainz -->
-    <string name="listenbrainz_scrobbling">ListenBrainz scrobbling</string>
-    <string name="listenbrainz_scrobbling_description">Activer la soumission de la lecture maintenant et des écoutes terminées à ListenBrainz</string>
+    <string name="listenbrainz_scrobbling">Scrobbling sur ListenBrainz</string>
+    <string name="listenbrainz_scrobbling_description">Activer l\'envoi des écoutes en cours et terminées vers ListenBrainz</string>
     <string name="set_listenbrainz_token">Définir le jeton ListenBrainz</string>
     <string name="edit_listenbrainz_token">Modifier le jeton ListenBrainz</string>
     <!-- Discord activity customization -->
@@ -566,13 +566,13 @@ Lyra Music se contente d\'extraire votre jeton ; toutes les autres données sont
     <string name="discord_activity_button_1_url">Source de l\'URL du bouton 1</string>
     <string name="discord_activity_button_2_url">Source de l\'URL du bouton 2</string>
     <string name="discord_activity_button1_label">Étiquette du bouton 1</string>
-    <string name="discord_activity_button1_url">Bouton 1 URL personnalisée</string>
+    <string name="discord_activity_button1_url">Bouton 1 : URL personnalisée</string>
     <string name="discord_activity_button2_label">Étiquette du bouton 2</string>
-    <string name="discord_activity_button2_url">Bouton 2 URL personnalisée</string>
-    <string name="large_image_custom_url">URL personnalisée de grande image</string>
+    <string name="discord_activity_button2_url">Bouton 2 : URL personnalisée</string>
+    <string name="large_image_custom_url">URL personnalisée pour une image de grande taille</string>
     <string name="large_image">Grande image</string>
-    <string name="large_text">Texte volumineux</string>
-    <string name="custom_large_text">Texte de taille personnalisée</string>
+    <string name="large_text">Texte en gros caractères</string>
+    <string name="custom_large_text">Texte personnalisé en gros caractères</string>
     <string name="small_image">Petite image</string>
     <string name="small_image_custom_url">URL personnalisée de petite image</string>
     <string name="activity_status">Statut de l\'activité</string>
