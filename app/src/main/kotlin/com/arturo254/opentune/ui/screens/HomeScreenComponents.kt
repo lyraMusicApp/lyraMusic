@@ -1152,13 +1152,14 @@ fun HomeModernHeader(
 
             // Top right action buttons
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Search Button
+                // Search Button - Opens Search Bar directly
+                val openSearch = com.arturo254.opentune.LocalOpenSearch.current
                 Box(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable { navController.navigate("search") },
+                        .clickable { openSearch() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -1204,19 +1205,20 @@ fun HomeModernHeader(
 
 @Composable
 fun HomePillChipsRow(
-    selectedChipTitle: String,
-    onChipSelected: (String) -> Unit,
-    navController: NavController,
+    chips: List<com.arturo254.opentune.innertube.pages.HomePage.Chip>,
+    selectedChip: com.arturo254.opentune.innertube.pages.HomePage.Chip?,
+    onChipSelected: (com.arturo254.opentune.innertube.pages.HomePage.Chip) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val chips = listOf("All", "New Release", "Trending", "Top daily", "Relax", "Workout")
+    if (chips.isEmpty()) return
+
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 18.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(chips) { chip ->
-            val isSelected = chip == selectedChipTitle
+            val isSelected = chip == selectedChip
             val containerColor = if (isSelected) Color(0xFFD4E84B) else Color(0xFF1E222A).copy(alpha = 0.85f)
             val textColor = if (isSelected) Color(0xFF111827) else Color(0xFFE5E7EB)
 
@@ -1225,17 +1227,13 @@ fun HomePillChipsRow(
                     .clip(CircleShape)
                     .background(containerColor)
                     .clickable {
-                        when (chip) {
-                            "New Release" -> navController.navigate("new_release")
-                            "Trending" -> navController.navigate("charts_screen")
-                            else -> onChipSelected(chip)
-                        }
+                        onChipSelected(chip)
                     }
                     .padding(horizontal = 18.dp, vertical = 9.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = chip,
+                    text = chip.title,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                         color = textColor

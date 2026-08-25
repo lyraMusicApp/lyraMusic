@@ -179,7 +179,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             if (!showSearchBar) {
-                LargeTopAppBar(
+                androidx.compose.material3.TopAppBar(
                     title = {
                         Text(
                             text = stringResource(R.string.settings),
@@ -209,7 +209,7 @@ fun SettingsScreen(
                         }
                     },
                     scrollBehavior = scrollBehavior,
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
                         scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                     ),
@@ -217,7 +217,6 @@ fun SettingsScreen(
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {

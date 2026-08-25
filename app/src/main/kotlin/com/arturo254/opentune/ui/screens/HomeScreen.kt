@@ -245,24 +245,17 @@ fun HomeScreen(
                     )
                 }
 
-                // 2. Pill Filter Chips (Active chip in bright lime-green)
-                item {
-                    HomePillChipsRow(
-                        selectedChipTitle = selectedChip?.title ?: "All",
-                        onChipSelected = { chipTitle ->
-                            if (chipTitle == "All") {
-                                if (selectedChip != null) {
-                                    viewModel.toggleChip(selectedChip)
-                                }
-                            } else {
-                                val match = homePage?.chips.orEmpty().find { it.title.equals(chipTitle, ignoreCase = true) }
-                                if (match != null) {
-                                    viewModel.toggleChip(match)
-                                }
+                // 2. Pill Filter Chips (Dynamic YouTube music categories)
+                homePage?.chips?.takeIf { it.isNotEmpty() }?.let { chips ->
+                    item {
+                        HomePillChipsRow(
+                            chips = chips,
+                            selectedChip = selectedChip,
+                            onChipSelected = { chip ->
+                                viewModel.toggleChip(chip)
                             }
-                        },
-                        navController = navController
-                    )
+                        )
+                    }
                 }
 
 

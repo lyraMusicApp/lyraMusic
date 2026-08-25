@@ -67,7 +67,7 @@ data class UpdateInfo(
     val publishedAt: String,
 )
 
-private const val LYRA_REPOSITORY = "shnwazdeveloper/lyraMusic"
+private const val LYRA_REPOSITORY = "lyraMusicApp/lyraMusic"
 private const val USER_AGENT = "LyraMusic"
 private const val STABLE_APK_ASSET_NAME = "LyraMusic.apk"
 private const val NIGHTLY_TAG_NAME = "nightly"

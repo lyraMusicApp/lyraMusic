@@ -340,9 +340,7 @@ object YTPlayerUtils {
 
             format = selectedFormat
             streamUrl = selectedUrl
-            streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds
-
-            if (streamExpiresInSeconds == null) continue
+            streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds ?: 21600
 
             Timber.tag(logTag).i("Format found: ${format.mimeType}, bitrate: ${format.bitrate}")
             Timber.tag(logTag).v("Stream expires in: $streamExpiresInSeconds seconds")
@@ -401,10 +399,7 @@ object YTPlayerUtils {
             )
         }
 
-        if (streamExpiresInSeconds == null) {
-            Timber.tag(logTag).e("Missing stream expire time")
-            throw Exception("Missing stream expire time")
-        }
+        val resolvedExpiresInSeconds = streamExpiresInSeconds ?: streamPlayerResponse.streamingData?.expiresInSeconds ?: 21600
 
         if (format == null) {
             Timber.tag(logTag).e("Could not find suitable format for quality: $audioQuality. Available formats from last client: ${streamPlayerResponse.streamingData?.adaptiveFormats?.filter { it.isAudio }?.map { "${it.mimeType} @ ${it.bitrate}bps (itag: ${it.itag})" }}")
@@ -421,7 +416,7 @@ object YTPlayerUtils {
         streamUrlCache[buildCacheKey(videoId, format.itag)] =
             CachedStreamUrl(
                 url = streamUrl,
-                expiresAtMs = System.currentTimeMillis() + (streamExpiresInSeconds * 1000L),
+                expiresAtMs = System.currentTimeMillis() + (resolvedExpiresInSeconds * 1000L),
             )
 
         return PlaybackData(
@@ -430,7 +425,7 @@ object YTPlayerUtils {
             playbackTracking,
             format,
             streamUrl,
-            streamExpiresInSeconds,
+            resolvedExpiresInSeconds,
         )
     }
     /**
