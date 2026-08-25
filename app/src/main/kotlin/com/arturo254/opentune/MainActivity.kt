@@ -669,11 +669,16 @@ class MainActivity : ComponentActivity() {
                     val allLocalItems by homeViewModel.allLocalItems.collectAsState()
                     val allYtItems by homeViewModel.allYtItems.collectAsState()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val (previousTab) = rememberSaveable { mutableStateOf("home") }
+                    val navigationItems = remember { Screens.MainScreens }
+                    var previousTab by rememberSaveable { mutableStateOf("home") }
                     val currentRoute = navBackStackEntry?.destination?.route
                     val isYearInMusicScreen = currentRoute == "year_in_music"
 
-                    val navigationItems = remember { Screens.MainScreens }
+                    LaunchedEffect(currentRoute) {
+                        if (currentRoute != null && navigationItems.fastAny { it.route == currentRoute }) {
+                            previousTab = currentRoute
+                        }
+                    }
                     val (slimNav) = rememberPreference(SlimNavBarKey, defaultValue = false)
                     val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                     val (savedMiniPlayerAnchor, setSavedMiniPlayerAnchor) = rememberPreference(

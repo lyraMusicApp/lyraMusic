@@ -265,24 +265,6 @@ fun HomeScreen(
                     )
                 }
 
-                // 3. Curated & Trending Hero Banner Card
-                item {
-                    CuratedTrendingHeroCard(
-                        onCardClick = { playlistId ->
-                            navController.navigate("online_playlist/$playlistId")
-                        }
-                    )
-                }
-
-                // 4. Top Daily Playlists Section
-                item {
-                    TopDailyPlaylistsSection(
-                        navController = navController,
-                        onPlaylistClick = { playlistId ->
-                            navController.navigate("online_playlist/$playlistId")
-                        }
-                    )
-                }
 
 
                 quickPicks?.takeIf { it.isNotEmpty() }?.let { picks ->

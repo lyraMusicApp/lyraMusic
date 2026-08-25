@@ -54,85 +54,204 @@ object SpotifyImporter {
         val type = idAndType.first
         val id = idAndType.second
 
-        val embedUrl = "https://open.spotify.com/embed/$type/$id"
-        val request = Request.Builder()
-            .url(embedUrl)
-            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            .build()
-
-        val response = client.newCall(request).execute()
-        val html = response.body?.string() ?: ""
-
         val tracks = mutableListOf<SpotifyTrackInfo>()
         var title = "Spotify Import"
 
-        // Try extracting __NEXT_DATA__ JSON script tag
-        val scriptPattern = Pattern.compile("<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>", Pattern.DOTALL)
-        val scriptMatcher = scriptPattern.matcher(html)
+        // 1. Try official Spotify Web API with anonymous token to get unlimited tracks (no 100-track limit)
+        try {
+            val tokenReq = Request.Builder()
+                .url("https://open.spotify.com/get_access_token?reason=transport&productType=web_player")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                .build()
+            val tokenResp = client.newCall(tokenReq).execute()
+            val tokenBody = tokenResp.body?.string() ?: "{}"
+            val tokenJson = JSONObject(tokenBody)
+            val accessToken = tokenJson.optString("accessToken", "")
 
-        if (scriptMatcher.find()) {
-            val jsonStr = scriptMatcher.group(1)
-            try {
-                val json = JSONObject(jsonStr)
-                val entity = json.optJSONObject("props")
-                    ?.optJSONObject("pageProps")
-                    ?.optJSONObject("state")
-                    ?.optJSONObject("data")
-                    ?.optJSONObject("entity")
+            if (accessToken.isNotBlank()) {
+                if (type == "playlist") {
+                    var offset = 0
+                    val limit = 100
+                    var hasMore = true
 
-                if (entity != null) {
-                    title = entity.optString("name", entity.optString("title", "Spotify Playlist"))
+                    val playlistReq = Request.Builder()
+                        .url("https://api.spotify.com/v1/playlists/$id?fields=name")
+                        .header("Authorization", "Bearer $accessToken")
+                        .build()
+                    val playlistResp = client.newCall(playlistReq).execute()
+                    val playlistJson = JSONObject(playlistResp.body?.string() ?: "{}")
+                    val fetchedTitle = playlistJson.optString("name", "")
+                    if (fetchedTitle.isNotBlank()) title = fetchedTitle
 
-                    val trackList = entity.optJSONArray("trackList")
-                    if (trackList != null) {
-                        for (i in 0 until trackList.length()) {
-                            val item = trackList.optJSONObject(i) ?: continue
-                            val name = item.optString("title", item.optString("name", ""))
-                            val artist = item.optString("subtitle", item.optString("artists", ""))
-                            val album = item.optString("album", "")
-                            val duration = item.optInt("duration", 0) / 1000
-                            if (name.isNotBlank()) {
-                                tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = album, durationSeconds = duration))
+                    while (hasMore) {
+                        val tracksReq = Request.Builder()
+                            .url("https://api.spotify.com/v1/playlists/$id/tracks?limit=$limit&offset=$offset")
+                            .header("Authorization", "Bearer $accessToken")
+                            .build()
+                        val tracksResp = client.newCall(tracksReq).execute()
+                        val tracksJson = JSONObject(tracksResp.body?.string() ?: "{}")
+                        val items = tracksJson.optJSONArray("items")
+                        if (items != null && items.length() > 0) {
+                            for (i in 0 until items.length()) {
+                                val item = items.optJSONObject(i) ?: continue
+                                val trackObj = item.optJSONObject("track") ?: continue
+                                val name = trackObj.optString("name", "")
+                                val artistsArr = trackObj.optJSONArray("artists")
+                                val artistNames = mutableListOf<String>()
+                                if (artistsArr != null) {
+                                    for (j in 0 until artistsArr.length()) {
+                                        val artistObj = artistsArr.optJSONObject(j)
+                                        val aName = artistObj?.optString("name", "") ?: ""
+                                        if (aName.isNotBlank()) artistNames.add(aName)
+                                    }
+                                }
+                                val artist = artistNames.joinToString(", ")
+                                val albumObj = trackObj.optJSONObject("album")
+                                val album = albumObj?.optString("name", "") ?: ""
+                                val duration = trackObj.optInt("duration_ms", 0) / 1000
+                                if (name.isNotBlank()) {
+                                    tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = album, durationSeconds = duration))
+                                }
                             }
+                            offset += items.length()
+                            val next = tracksJson.optString("next", "null")
+                            hasMore = next != "null" && next.isNotBlank() && items.length() == limit
+                        } else {
+                            hasMore = false
+                        }
+                    }
+                } else if (type == "album") {
+                    var offset = 0
+                    val limit = 50
+                    var hasMore = true
+
+                    val albumReq = Request.Builder()
+                        .url("https://api.spotify.com/v1/albums/$id")
+                        .header("Authorization", "Bearer $accessToken")
+                        .build()
+                    val albumResp = client.newCall(albumReq).execute()
+                    val albumJson = JSONObject(albumResp.body?.string() ?: "{}")
+                    val fetchedTitle = albumJson.optString("name", "")
+                    if (fetchedTitle.isNotBlank()) title = fetchedTitle
+
+                    while (hasMore) {
+                        val tracksReq = Request.Builder()
+                            .url("https://api.spotify.com/v1/albums/$id/tracks?limit=$limit&offset=$offset")
+                            .header("Authorization", "Bearer $accessToken")
+                            .build()
+                        val tracksResp = client.newCall(tracksReq).execute()
+                        val tracksJson = JSONObject(tracksResp.body?.string() ?: "{}")
+                        val items = tracksJson.optJSONArray("items")
+                        if (items != null && items.length() > 0) {
+                            for (i in 0 until items.length()) {
+                                val item = items.optJSONObject(i) ?: continue
+                                val name = item.optString("name", "")
+                                val artistsArr = item.optJSONArray("artists")
+                                val artistNames = mutableListOf<String>()
+                                if (artistsArr != null) {
+                                    for (j in 0 until artistsArr.length()) {
+                                        val artistObj = artistsArr.optJSONObject(j)
+                                        val aName = artistObj?.optString("name", "") ?: ""
+                                        if (aName.isNotBlank()) artistNames.add(aName)
+                                    }
+                                }
+                                val artist = artistNames.joinToString(", ")
+                                val duration = item.optInt("duration_ms", 0) / 1000
+                                if (name.isNotBlank()) {
+                                    tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = title, durationSeconds = duration))
+                                }
+                            }
+                            offset += items.length()
+                            val next = tracksJson.optString("next", "null")
+                            hasMore = next != "null" && next.isNotBlank() && items.length() == limit
+                        } else {
+                            hasMore = false
                         }
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
-        // Fallback: If no tracks from __NEXT_DATA__, try oEmbed endpoint
+        // Fallback: If Web API didn't return tracks, use embed HTML parsing
         if (tracks.isEmpty()) {
-            try {
-                val oembedUrl = "https://open.spotify.com/oembed?url=" + URLDecoder.decode(url, "UTF-8")
-                val req = Request.Builder().url(oembedUrl).build()
-                val resp = client.newCall(req).execute()
-                val oembedJson = JSONObject(resp.body?.string() ?: "{}")
-                val oembedTitle = oembedJson.optString("title", "")
-                if (oembedTitle.isNotBlank()) {
-                    title = oembedTitle
+            val embedUrl = "https://open.spotify.com/embed/$type/$id"
+            val request = Request.Builder()
+                .url(embedUrl)
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                .build()
+
+            val response = client.newCall(request).execute()
+            val html = response.body?.string() ?: ""
+
+            // Try extracting __NEXT_DATA__ JSON script tag
+            val scriptPattern = Pattern.compile("<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>", Pattern.DOTALL)
+            val scriptMatcher = scriptPattern.matcher(html)
+
+            if (scriptMatcher.find()) {
+                val jsonStr = scriptMatcher.group(1)
+                try {
+                    val json = JSONObject(jsonStr)
+                    val entity = json.optJSONObject("props")
+                        ?.optJSONObject("pageProps")
+                        ?.optJSONObject("state")
+                        ?.optJSONObject("data")
+                        ?.optJSONObject("entity")
+
+                    if (entity != null) {
+                        title = entity.optString("name", entity.optString("title", "Spotify Playlist"))
+
+                        val trackList = entity.optJSONArray("trackList")
+                        if (trackList != null) {
+                            for (i in 0 until trackList.length()) {
+                                val item = trackList.optJSONObject(i) ?: continue
+                                val name = item.optString("title", item.optString("name", ""))
+                                val artist = item.optString("subtitle", item.optString("artists", ""))
+                                val album = item.optString("album", "")
+                                val duration = item.optInt("duration", 0) / 1000
+                                if (name.isNotBlank()) {
+                                    tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = album, durationSeconds = duration))
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (_: Exception) {}
-        }
-
-        // Secondary fallback: Extract title & tracks using Regex from embed HTML
-        if (tracks.isEmpty()) {
-            val titleMatch = Pattern.compile("<title>(.*?)</title>").matcher(html)
-            if (titleMatch.find()) {
-                title = titleMatch.group(1)?.replace(" | Spotify", "")?.trim() ?: "Spotify Import"
             }
 
-            // Regex match for track listings embedded in HTML
-            val trackPattern = Pattern.compile("\"name\":\"([^\"]+)\".*?\"artists\":\\[\\{\"name\":\"([^\"]+)\"", Pattern.DOTALL)
-            val matcher = trackPattern.matcher(html)
-            val seen = mutableSetOf<String>()
-            while (matcher.find()) {
-                val name = matcher.group(1) ?: continue
-                val artist = matcher.group(2) ?: ""
-                val key = "$name-$artist".lowercase()
-                if (seen.add(key)) {
-                    tracks.add(SpotifyTrackInfo(name = name, artist = artist))
+            // Fallback: If no tracks from __NEXT_DATA__, try oEmbed endpoint
+            if (tracks.isEmpty()) {
+                try {
+                    val oembedUrl = "https://open.spotify.com/oembed?url=" + URLDecoder.decode(url, "UTF-8")
+                    val req = Request.Builder().url(oembedUrl).build()
+                    val resp = client.newCall(req).execute()
+                    val oembedJson = JSONObject(resp.body?.string() ?: "{}")
+                    val oembedTitle = oembedJson.optString("title", "")
+                    if (oembedTitle.isNotBlank()) {
+                        title = oembedTitle
+                    }
+                } catch (_: Exception) {}
+            }
+
+            // Secondary fallback: Extract title & tracks using Regex from embed HTML
+            if (tracks.isEmpty()) {
+                val titleMatch = Pattern.compile("<title>(.*?)</title>").matcher(html)
+                if (titleMatch.find()) {
+                    title = titleMatch.group(1)?.replace(" | Spotify", "")?.trim() ?: "Spotify Import"
+                }
+
+                val trackPattern = Pattern.compile("\"name\":\"([^\"]+)\".*?\"artists\":\\[\\{\"name\":\"([^\"]+)\"", Pattern.DOTALL)
+                val matcher = trackPattern.matcher(html)
+                val seen = mutableSetOf<String>()
+                while (matcher.find()) {
+                    val name = matcher.group(1) ?: continue
+                    val artist = matcher.group(2) ?: ""
+                    val key = "$name-$artist".lowercase()
+                    if (seen.add(key)) {
+                        tracks.add(SpotifyTrackInfo(name = name, artist = artist))
+                    }
                 }
             }
         }

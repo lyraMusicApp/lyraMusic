@@ -40,7 +40,7 @@ constructor(
     @ApplicationContext val context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    val query = savedStateHandle.get<String>("query")!!
+    val query = savedStateHandle.get<String>("query") ?: ""
     val filter = MutableStateFlow<YouTube.SearchFilter?>(null)
     var summaryPage by mutableStateOf<SearchSummaryPage?>(null)
     val viewStateMap = mutableStateMapOf<String, ItemsPage?>()
@@ -48,22 +48,24 @@ constructor(
     init {
         viewModelScope.launch {
             filter.collect { filter ->
-                if (filter == null) {
-                    if (summaryPage == null) {
-                        YouTube
-                            .searchSummary(query)
-                            .onSuccess {
-                                summaryPage = it.filterExplicit(context.dataStore.get(HideExplicitKey, false)).filterVideo(context.dataStore.get(HideVideoKey, false))
-                            }.onFailure {
-                                reportException(it)
-                            }
-                    }
-                    if (viewStateMap[FILTER_SONG.value] == null) {
-                        loadSearchPage(FILTER_SONG)
-                    }
-                } else {
-                    if (viewStateMap[filter.value] == null) {
-                        loadSearchPage(filter)
+                if (query.isNotBlank()) {
+                    if (filter == null) {
+                        if (summaryPage == null) {
+                            YouTube
+                                .searchSummary(query)
+                                .onSuccess {
+                                    summaryPage = it.filterExplicit(context.dataStore.get(HideExplicitKey, false)).filterVideo(context.dataStore.get(HideVideoKey, false))
+                                }.onFailure {
+                                    reportException(it)
+                                }
+                        }
+                        if (viewStateMap[FILTER_SONG.value] == null) {
+                            loadSearchPage(FILTER_SONG)
+                        }
+                    } else {
+                        if (viewStateMap[filter.value] == null) {
+                            loadSearchPage(filter)
+                        }
                     }
                 }
             }
