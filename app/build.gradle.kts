@@ -54,9 +54,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("keystore/release.keystore")
-            storePassword = System.getenv("STORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            storePassword = System.getenv("STORE_PASSWORD") ?: "lyramusic"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "lyramusic"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "lyramusic"
         }
     }
 
@@ -78,8 +78,8 @@ android {
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = false
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -212,6 +212,9 @@ dependencies {
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.server.content.negotiation)
 
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+
     coreLibraryDesugaring(libs.desugaring)
 
     implementation(libs.timber)
@@ -224,7 +227,7 @@ dependencies {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_17)
         freeCompilerArgs.add("-Xannotation-default-target=param-property")
         freeCompilerArgs.addAll(
             "-opt-in=kotlin.RequiresOptIn",

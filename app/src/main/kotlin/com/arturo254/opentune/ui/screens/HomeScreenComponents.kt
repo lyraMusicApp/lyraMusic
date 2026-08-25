@@ -63,6 +63,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -1093,6 +1097,468 @@ fun LazyListScope.SimilarRecommendationsContainer(
                     haptic = haptic,
                     scope = scope
                 )
+            }
+        }
+    }
+}
+
+// ── Modern Homepage Components ───────────────────────────────────────────────
+
+@Composable
+fun HomeModernHeader(
+    accountName: String,
+    accountImageUrl: String?,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp)
+            .padding(top = 14.dp, bottom = 8.dp)
+    ) {
+        // Top row: Profile avatar on left, Search and Favorites buttons on right
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Profile avatar (clickable -> account/login)
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF2A2D37))
+                    .border(1.5.dp, Color(0xFFD4E84B), CircleShape)
+                    .clickable { navController.navigate("account") },
+                contentAlignment = Alignment.Center
+            ) {
+                if (!accountImageUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = accountImageUrl,
+                        contentDescription = "Profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.account),
+                        contentDescription = "Profile",
+                        tint = Color(0xFFD4E84B),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            // Top right action buttons
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Search Button
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable { navController.navigate("search") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search),
+                        contentDescription = "Search",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Favorites / Liked Button
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable { navController.navigate("library") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.favorite_border),
+                        contentDescription = "Favorites",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Dynamic greeting: Real user name when logged in, or clean welcome when not
+        val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
+        Text(
+            text = if (isLoggedIn) "Hi, $accountName" else "Welcome to Lyra Music",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        )
+    }
+}
+
+@Composable
+fun HomePillChipsRow(
+    selectedChipTitle: String,
+    onChipSelected: (String) -> Unit,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val chips = listOf("All", "New Release", "Trending", "Top daily", "Relax", "Workout")
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 18.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(chips) { chip ->
+            val isSelected = chip == selectedChipTitle
+            val containerColor = if (isSelected) Color(0xFFD4E84B) else Color(0xFF1E222A).copy(alpha = 0.85f)
+            val textColor = if (isSelected) Color(0xFF111827) else Color(0xFFE5E7EB)
+
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(containerColor)
+                    .clickable {
+                        when (chip) {
+                            "New Release" -> navController.navigate("new_release")
+                            "Trending" -> navController.navigate("charts_screen")
+                            else -> onChipSelected(chip)
+                        }
+                    }
+                    .padding(horizontal = 18.dp, vertical = 9.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = chip,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        color = textColor
+                    )
+                )
+            }
+        }
+    }
+}
+
+data class HeroCardItem(
+    val id: String,
+    val title: String,
+    val description: String,
+    val playlistId: String,
+    val gradientColors: List<Color>,
+    val textColor: Color,
+    val subTextColor: Color,
+    val buttonBgColor: Color,
+    val imageUrl: String
+)
+
+@Composable
+fun CuratedTrendingHeroCard(
+    onCardClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cards = remember {
+        listOf(
+            HeroCardItem(
+                id = "1",
+                title = "Bollywood Hits",
+                description = "Biggest Hindi chartbusters, viral party songs & romantic hits.",
+                playlistId = "RDCLAK5uy_n9Fbdw7e6ap-98_A-8JYBmPv64v-ErMrE",
+                gradientColors = listOf(Color(0xFFD7B6F8), Color(0xFFC7A5F4), Color(0xFFB58EF0)),
+                textColor = Color(0xFF1E1038),
+                subTextColor = Color(0xFF423063),
+                buttonBgColor = Color(0xFF381566),
+                imageUrl = "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80"
+            ),
+            HeroCardItem(
+                id = "2",
+                title = "Punjabi Pop 100",
+                description = "Top trending Punjabi party anthems, hip-hop & high beats.",
+                playlistId = "RDCLAK5uy_l43N7i0KzY85B6c2N8_3053v-wB5h-8jA",
+                gradientColors = listOf(Color(0xFFFDA4AF), Color(0xFFFB7185), Color(0xFFF43F5E)),
+                textColor = Color(0xFF4C0519),
+                subTextColor = Color(0xFF881337),
+                buttonBgColor = Color(0xFF4C0519),
+                imageUrl = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80"
+            ),
+            HeroCardItem(
+                id = "3",
+                title = "Desi Lo-Fi & Chill",
+                description = "Acoustic Hindi covers & late night chill melodies.",
+                playlistId = "RDCLAK5uy_m-0_Zz_QnZ18gPq2iU5q9e9W4G_7q88cA",
+                gradientColors = listOf(Color(0xFF93C5FD), Color(0xFF60A5FA), Color(0xFF3B82F6)),
+                textColor = Color(0xFF1E3A8A),
+                subTextColor = Color(0xFF172554),
+                buttonBgColor = Color(0xFF1E3A8A),
+                imageUrl = "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=400&q=80"
+            ),
+            HeroCardItem(
+                id = "4",
+                title = "Arijit Singh Romantics",
+                description = "Soulful Bollywood melodies & all-time romantic favorites.",
+                playlistId = "RDCLAK5uy_kh9o-lW2N81G6xX8-FqgQfGzG24B9Yc0I",
+                gradientColors = listOf(Color(0xFFFDE047), Color(0xFFA3E635), Color(0xFF84CC16)),
+                textColor = Color(0xFF1A2E05),
+                subTextColor = Color(0xFF365314),
+                buttonBgColor = Color(0xFF1A2E05),
+                imageUrl = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80"
+            )
+        )
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        Text(
+            text = "Curated & trending",
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            ),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)
+        )
+
+        // Smoothly Slidable / Swipable Hero Carousel
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 18.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            items(cards, key = { it.id }) { item ->
+                Box(
+                    modifier = Modifier
+                        .width(320.dp)
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(26.dp))
+                        .background(Brush.horizontalGradient(colors = item.gradientColors))
+                        .clickable { onCardClick(item.playlistId) }
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Left Text and Controls Column
+                        Column(
+                            modifier = Modifier
+                                .weight(1.15f)
+                                .padding(start = 18.dp, top = 14.dp, bottom = 14.dp, end = 6.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = item.textColor
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    text = item.description,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = item.subTextColor,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            // Bottom Sleek Control Row
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // Small Circular Play Button
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(item.buttonBgColor)
+                                        .clickable { onCardClick(item.playlistId) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.play),
+                                        contentDescription = "Play",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+
+                                // Favorite Icon
+                                Icon(
+                                    painter = painterResource(R.drawable.favorite_border),
+                                    contentDescription = "Favorite",
+                                    tint = item.buttonBgColor,
+                                    modifier = Modifier
+                                        .size(17.dp)
+                                        .clickable { onCardClick(item.playlistId) }
+                                )
+
+                                // Download Icon
+                                Icon(
+                                    painter = painterResource(R.drawable.download),
+                                    contentDescription = "Download",
+                                    tint = item.buttonBgColor,
+                                    modifier = Modifier
+                                        .size(17.dp)
+                                        .clickable { onCardClick(item.playlistId) }
+                                )
+
+                                // More Icon
+                                Icon(
+                                    painter = painterResource(R.drawable.more_horiz),
+                                    contentDescription = "More",
+                                    tint = item.buttonBgColor,
+                                    modifier = Modifier
+                                        .size(17.dp)
+                                        .clickable { onCardClick(item.playlistId) }
+                                )
+                            }
+                        }
+
+                        // Right Illustration Artwork
+                        Box(
+                            modifier = Modifier
+                                .weight(0.85f)
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            AsyncImage(
+                                model = item.imageUrl,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(130.dp)
+                                    .clip(RoundedCornerShape(topEnd = 26.dp, bottomEnd = 26.dp))
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class DailyPlaylistItem(
+    val title: String,
+    val subtitle: String,
+    val imageUrl: String,
+    val playlistId: String
+)
+
+@Composable
+fun TopDailyPlaylistsSection(
+    navController: NavController,
+    onPlaylistClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val samplePlaylists = listOf(
+        DailyPlaylistItem("Bollywood Hot 50", "By T-Series • Hindi Trending Hits", "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=300&q=80", "RDCLAK5uy_n9Fbdw7e6ap-98_A-8JYBmPv64v-ErMrE"),
+        DailyPlaylistItem("Punjabi Top 50", "By Speed Records • Top Trending Punjabi", "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80", "RDCLAK5uy_l43N7i0KzY85B6c2N8_3053v-wB5h-8jA"),
+        DailyPlaylistItem("Indie India Viral", "By Desi Music Factory • Viral Desi Tracks", "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=300&q=80", "RDCLAK5uy_m-0_Zz_QnZ18gPq2iU5q9e9W4G_7q88cA"),
+        DailyPlaylistItem("South Indian Hits", "By Lyra Music • Tamil, Telugu, Malayalam", "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=300&q=80", "RDCLAK5uy_kh9o-lW2N81G6xX8-FqgQfGzG24B9Yc0I")
+    )
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp, bottom = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Top daily playlists",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            )
+
+            Text(
+                text = "See all",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = Color(0xFF9CA3AF),
+                    fontWeight = FontWeight.Medium
+                ),
+                modifier = Modifier.clickable { navController.navigate("charts_screen") }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        samplePlaylists.forEach { item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPlaylistClick(item.playlistId) }
+                    .padding(horizontal = 18.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    AsyncImage(
+                        model = item.imageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+
+                    Column {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        )
+                        Text(
+                            text = item.subtitle,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color(0xFF9CA3AF)
+                            )
+                        )
+                    }
+                }
+
+                // Play circle button on right
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF262A34))
+                        .clickable { onPlaylistClick(item.playlistId) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.play),
+                        contentDescription = "Play",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }

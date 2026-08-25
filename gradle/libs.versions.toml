@@ -36,7 +36,7 @@ turbine = "1.2.1"
 timber = "5.0.1"
 kuromojiIpadic = "0.9.0"
 anyascii = "0.3.3"
-extractor = "c46af33"
+extractor = "v0.25.2"
 rhino = "1.9.1"
 multiplatformMarkdown = "0.40.2"
 haze = "1.7.2"
@@ -49,6 +49,11 @@ backdrop = "1.0.6"
 liquidGlass = "1.0.6"
 backdropVersion = "0.0.1-alpha02"
 hazeVersion = "1.3.1"
+okhttp = "5.3.2"
+glance = "1.2.0-rc01"
+composeMarkdown = "0.7.2"
+okhttpVersion = "5.0.0-alpha.16"
+loggingInterceptor = "5.0.0-alpha.16"
 
 [libraries]
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
@@ -113,6 +118,9 @@ ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 
+glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
+
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 re2j = { module = "com.google.re2j:re2j", version.ref = "re2j" }
 
@@ -128,9 +136,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
-newpipe-extractor = { module = "com.github.teamnewpipe:NewPipeExtractor", version = "v0.26.0" }
-#newpipe-extractor = { module = "com.github.libre-tube:NewPipeExtractor", version = "70be3a4" }
-#newpipe-extractor = { module = "com.github.teamnewpipe:NewPipeExtractor", version = "master-SNAPSHOT" }
+newpipe-extractor = { module = "com.github.TeamNewPipe:NewPipeExtractor", version.ref = "extractor" }
 
 kuromoji-ipadic = { module = "com.atilika.kuromoji:kuromoji-ipadic", version.ref = "kuromojiIpadic" }
 anyascii = { module = "com.anyascii:anyascii", version.ref = "anyascii" }
@@ -146,6 +152,10 @@ backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backd
 liquid-glass = { group = "om.kyant", name = "liquid-glass", version.ref = "liquidGlass" }
 kashif-mehmood-km-backdrop = { group = "io.github.kashif-mehmood-km", name = "backdrop", version.ref = "backdropVersion" }
 dev-haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "hazeVersion" }
+okhttp-dnsoverhttps = { group = "com.squareup.okhttp3", name = "okhttp-dnsoverhttps", version.ref = "okhttp" }
+compose-markdown = { group = "com.github.jeziellago", name = "compose-markdown", version.ref = "composeMarkdown" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
 
 
 [plugins]

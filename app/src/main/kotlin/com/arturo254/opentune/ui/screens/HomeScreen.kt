@@ -57,6 +57,7 @@ import com.arturo254.opentune.ui.component.LocalMenuState
 import com.arturo254.opentune.ui.component.NavigationTitle
 import com.arturo254.opentune.ui.utils.SnapLayoutInfoProvider
 import com.arturo254.opentune.utils.rememberPreference
+import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.viewmodels.HomeViewModel
 
 
@@ -138,119 +139,78 @@ fun HomeScreen(
         forgottenFavoritesLazyGridState.scrollToItem(0)
     }
 
-    // Capture M3 Expressive colors from theme outside drawBehind
     val color1 = MaterialTheme.colorScheme.primary
     val color2 = MaterialTheme.colorScheme.secondary
     val color3 = MaterialTheme.colorScheme.tertiary
     val color4 = MaterialTheme.colorScheme.primaryContainer
     val color5 = MaterialTheme.colorScheme.secondaryContainer
     val surfaceColor = MaterialTheme.colorScheme.surface
-    
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // M3E Mesh gradient background layer at the top
-        if (!disableBlur) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxSize(0.7f) // Cover top 70% of screen
-                    .align(Alignment.TopCenter)
-                    .zIndex(-1f) // Place behind all content
-                    .drawWithCache {
-                        val width = this.size.width
-                        val height = this.size.height
+        // Glowing Ambient Mesh gradient background layer at the top
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize(0.65f) // Cover top 65% of screen
+                .align(Alignment.TopCenter)
+                .zIndex(-1f) // Place behind all content
+                .drawWithCache {
+                    val width = this.size.width
+                    val height = this.size.height
 
-                        // Create mesh gradient with 5 color blobs for more variation
-                        // First color blob - top left
-                        val brush1 = Brush.radialGradient(
-                            colors = listOf(
-                                color1.copy(alpha = 0.38f),
-                                color1.copy(alpha = 0.24f),
-                                color1.copy(alpha = 0.14f),
-                                color1.copy(alpha = 0.06f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.15f, height * 0.1f),
-                            radius = width * 0.55f
-                        )
+                    val brush1 = Brush.radialGradient(
+                        colors = listOf(
+                            color1.copy(alpha = 0.42f),
+                            color1.copy(alpha = 0.22f),
+                            color1.copy(alpha = 0.08f),
+                            Color.Transparent
+                        ),
+                        center = Offset(width * 0.15f, height * 0.12f),
+                        radius = width * 0.65f
+                    )
 
-                        // Second color blob - top right
-                        val brush2 = Brush.radialGradient(
-                            colors = listOf(
-                                color2.copy(alpha = 0.34f),
-                                color2.copy(alpha = 0.2f),
-                                color2.copy(alpha = 0.11f),
-                                color2.copy(alpha = 0.05f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.85f, height * 0.2f),
-                            radius = width * 0.65f
-                        )
+                    val brush2 = Brush.radialGradient(
+                        colors = listOf(
+                            color2.copy(alpha = 0.35f),
+                            color3.copy(alpha = 0.18f),
+                            color3.copy(alpha = 0.06f),
+                            Color.Transparent
+                        ),
+                        center = Offset(width * 0.85f, height * 0.18f),
+                        radius = width * 0.70f
+                    )
 
-                        // Third color blob - middle left
-                        val brush3 = Brush.radialGradient(
-                            colors = listOf(
-                                color3.copy(alpha = 0.3f),
-                                color3.copy(alpha = 0.17f),
-                                color3.copy(alpha = 0.09f),
-                                color3.copy(alpha = 0.04f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.3f, height * 0.45f),
-                            radius = width * 0.6f
-                        )
+                    val brush3 = Brush.radialGradient(
+                        colors = listOf(
+                            color4.copy(alpha = 0.25f),
+                            color5.copy(alpha = 0.10f),
+                            Color.Transparent
+                        ),
+                        center = Offset(width * 0.5f, height * 0.45f),
+                        radius = width * 0.6f
+                    )
 
-                        // Fourth color blob - middle right
-                        val brush4 = Brush.radialGradient(
-                            colors = listOf(
-                                color4.copy(alpha = 0.26f),
-                                color4.copy(alpha = 0.14f),
-                                color4.copy(alpha = 0.08f),
-                                color4.copy(alpha = 0.03f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.7f, height * 0.5f),
-                            radius = width * 0.7f
-                        )
+                    val overlayBrush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            surfaceColor.copy(alpha = 0.4f),
+                            surfaceColor.copy(alpha = 0.85f),
+                            surfaceColor
+                        ),
+                        startY = height * 0.35f,
+                        endY = height
+                    )
 
-                        // Fifth color blob - bottom center (helps with smooth fade)
-                        val brush5 = Brush.radialGradient(
-                            colors = listOf(
-                                color5.copy(alpha = 0.22f),
-                                color5.copy(alpha = 0.12f),
-                                color5.copy(alpha = 0.06f),
-                                color5.copy(alpha = 0.02f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.5f, height * 0.75f),
-                            radius = width * 0.8f
-                        )
-
-                        // Add a final vertical gradient overlay to ensure smooth bottom fade
-                        val overlayBrush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                surfaceColor.copy(alpha = 0.22f),
-                                surfaceColor.copy(alpha = 0.55f),
-                                surfaceColor
-                            ),
-                            startY = height * 0.4f,
-                            endY = height
-                        )
-
-                        onDrawBehind {
-                            drawRect(brush = brush1)
-                            drawRect(brush = brush2)
-                            drawRect(brush = brush3)
-                            drawRect(brush = brush4)
-                            drawRect(brush = brush5)
-                            drawRect(brush = overlayBrush)
-                        }
+                    onDrawBehind {
+                        drawRect(brush = brush1)
+                        drawRect(brush = brush2)
+                        drawRect(brush = brush3)
+                        drawRect(brush = overlayBrush)
                     }
-            ) {}
-        }
+                }
+        ) {}
         
         BoxWithConstraints(
             modifier = Modifier
@@ -276,17 +236,54 @@ fun HomeScreen(
                 state = lazylistState,
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
             ) {
-                if (showHomeCategoryChips) {
-                    item {
-                        ChipsRow(
-                            chips = homePage?.chips.orEmpty().map { it to it.title },
-                            currentValue = selectedChip,
-                            onValueUpdate = {
-                                viewModel.toggleChip(it)
-                            }
-                        )
-                    }
+                // 1. Top Header with User Profile, "Hi, {name}", Search and Heart buttons
+                item {
+                    HomeModernHeader(
+                        accountName = accountName,
+                        accountImageUrl = url,
+                        navController = navController
+                    )
                 }
+
+                // 2. Pill Filter Chips (Active chip in bright lime-green)
+                item {
+                    HomePillChipsRow(
+                        selectedChipTitle = selectedChip?.title ?: "All",
+                        onChipSelected = { chipTitle ->
+                            if (chipTitle == "All") {
+                                if (selectedChip != null) {
+                                    viewModel.toggleChip(selectedChip)
+                                }
+                            } else {
+                                val match = homePage?.chips.orEmpty().find { it.title.equals(chipTitle, ignoreCase = true) }
+                                if (match != null) {
+                                    viewModel.toggleChip(match)
+                                }
+                            }
+                        },
+                        navController = navController
+                    )
+                }
+
+                // 3. Curated & Trending Hero Banner Card
+                item {
+                    CuratedTrendingHeroCard(
+                        onCardClick = { playlistId ->
+                            navController.navigate("online_playlist/$playlistId")
+                        }
+                    )
+                }
+
+                // 4. Top Daily Playlists Section
+                item {
+                    TopDailyPlaylistsSection(
+                        navController = navController,
+                        onPlaylistClick = { playlistId ->
+                            navController.navigate("online_playlist/$playlistId")
+                        }
+                    )
+                }
+
 
                 quickPicks?.takeIf { it.isNotEmpty() }?.let { picks ->
             /*

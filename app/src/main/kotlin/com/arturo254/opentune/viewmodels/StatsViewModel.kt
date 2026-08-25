@@ -62,6 +62,10 @@ constructor(
                     )
             }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    val totalTimeListened = mostPlayedSongsStats.map { songs ->
+        songs.fold(0L) { acc, song -> acc + (song.timeListened ?: 0L) }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, 0L)
+
     val mostPlayedSongs =
         combine(
             selectedOption,

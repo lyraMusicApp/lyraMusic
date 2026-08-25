@@ -118,6 +118,7 @@ fun StatsScreen(
     val mostPlayedSongsStats by viewModel.mostPlayedSongsStats.collectAsState()
     val mostPlayedArtists by viewModel.mostPlayedArtists.collectAsState()
     val mostPlayedAlbums by viewModel.mostPlayedAlbums.collectAsState()
+    val totalTime by viewModel.totalTimeListened.collectAsState()
     val firstEvent by viewModel.firstEvent.collectAsState()
     val currentDate = LocalDateTime.now()
 
@@ -382,6 +383,7 @@ fun StatsScreen(
                 if (mostPlayedArtists.isNotEmpty()) {
                     Spacer(modifier = Modifier.size(16.dp))
                     ArtistPieChart(
+                        totalTime = totalTime,
                         artists = mostPlayedArtists.take(5), // Top 5 artists for the chart
                         modifier = Modifier
                             .fillMaxWidth()
@@ -614,10 +616,11 @@ fun StatsScreen(
 @Composable
 fun ArtistPieChart(
     artists: List<Artist>,
+    totalTime: Long = 0L,
     modifier: Modifier = Modifier
 ) {
-    val totalTime = artists.sumOf { it.timeListened?.toLong() ?: 0L }
-    if (totalTime == 0L) return
+    val computedTotalTime = if (totalTime > 0L) totalTime else artists.sumOf { it.timeListened?.toLong() ?: 0L }
+    if (computedTotalTime == 0L) return
 
     Row(
         modifier = modifier,
@@ -631,9 +634,9 @@ fun ArtistPieChart(
         ) {
             var startAngle = -90f
 
-            artists.forEach { artist ->
+            for (artist in artists) {
                 val time = artist.timeListened?.toLong() ?: 0L
-                val sweepAngle = (time.toFloat() / totalTime) * 360f
+                val sweepAngle = if (totalTime > 0) (time.toFloat() / totalTime) * 360f else (360f / artists.size)
                 
                 // Only draw significant slices
                 if (sweepAngle > 1f) {

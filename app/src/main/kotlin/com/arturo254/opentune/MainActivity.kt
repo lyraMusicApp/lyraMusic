@@ -1010,7 +1010,9 @@ class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(navBackStackEntry) {
                         shouldShowTopBar =
-                            !active && navBackStackEntry?.destination?.route in topLevelScreens && navBackStackEntry?.destination?.route != "settings"
+                            !active && navBackStackEntry?.destination?.route in topLevelScreens &&
+                                    navBackStackEntry?.destination?.route != "settings" &&
+                                    navBackStackEntry?.destination?.route != Screens.Home.route
                     }
 
                     val coroutineScope = rememberCoroutineScope()
@@ -1194,22 +1196,24 @@ class MainActivity : ComponentActivity() {
                                                     WindowInsetsSides.Right
                                                 } else WindowInsetsSides.Horizontal) + WindowInsetsSides.Top),
                                                 title = {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        // app icon
-                                                        Icon(
-                                                            painter = painterResource(R.drawable.opentune),
-                                                            contentDescription = null,
-                                                            modifier = Modifier
-                                                                .size(35.dp)
-                                                                .padding(end = 3.dp)
-                                                        )
+                                                    if (navBackStackEntry?.destination?.route != Screens.Library.route) {
+                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                            // app icon
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.opentune),
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(35.dp)
+                                                                    .padding(end = 3.dp)
+                                                            )
 
-                                                        Text(
-                                                            text = stringResource(R.string.app_name),
-                                                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                                            maxLines = 1,
-                                                            overflow = TextOverflow.Ellipsis
-                                                        )
+                                                            Text(
+                                                                text = stringResource(R.string.app_name),
+                                                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                                                maxLines = 1,
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
                                                     }
                                                 },
                                                 actions = {

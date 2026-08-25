@@ -350,7 +350,7 @@ fun YearInMusicScreen(
                     // Brand label — centered
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text       = "OpenTune",
+                            text       = "Lyra Music",
                             style      = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color      = SnowDim,
@@ -1456,7 +1456,7 @@ private fun SummaryPage(
                     }
                     Column {
                         Text(
-                            "OpenTune Insight",
+                            "Lyra Music Insight",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = Snow,
@@ -1488,14 +1488,14 @@ private fun SummaryPage(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     SummaryStatBox(
-                        emoji = "⏱",
+                        iconRes = R.drawable.history,
                         label = "Time listened",
                         value = makeTimeString(totalListeningTime),
                         accent = MinutesC,
                         modifier = Modifier.weight(1f),
                     )
                     SummaryStatBox(
-                        emoji = "▶",
+                        iconRes = R.drawable.play,
                         label = "Total plays",
                         value = totalSongsPlayed.toString(),
                         accent = SongsB,
@@ -1521,7 +1521,7 @@ private fun SummaryPage(
                         )
                         topSong?.let {
                             SummaryHighlight(
-                                emoji  = "🎵",
+                                iconRes = R.drawable.music_note,
                                 label  = "Top Song",
                                 value  = it.title,
                                 accent = SpotB,
@@ -1529,7 +1529,7 @@ private fun SummaryPage(
                         }
                         topArtist?.let {
                             SummaryHighlight(
-                                emoji  = "🎤",
+                                iconRes = R.drawable.person,
                                 label  = "Top Artist",
                                 value  = it.artist.name,
                                 accent = ArtistB,
@@ -1537,7 +1537,7 @@ private fun SummaryPage(
                         }
                         topAlbum?.let {
                             SummaryHighlight(
-                                emoji  = "💿",
+                                iconRes = R.drawable.album,
                                 label  = "Top Album",
                                 value  = it.album.title,
                                 accent = AlbumB,
@@ -1563,12 +1563,12 @@ private fun SummaryPage(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    joinByBullet("OpenTune", year.toString()),
+                    joinByBullet("Lyra Music", year.toString()),
                     style = MaterialTheme.typography.labelSmall,
                     color = SnowDim,
                 )
                 Text(
-                    "OpenTune Insight",
+                    "Lyra Music Insight",
                     style = MaterialTheme.typography.labelSmall,
                     color = SnowDim,
                 )
@@ -1813,7 +1813,7 @@ private fun InsightStatChip(emoji: String, value: String, accent: Color) {
 
 @Composable
 private fun SummaryStatBox(
-    emoji: String,
+    iconRes: Int,
     label: String,
     value: String,
     accent: Color,
@@ -1826,8 +1826,13 @@ private fun SummaryStatBox(
             .border(1.dp, GlassBorder, RoundedCornerShape(18.dp))
             .padding(14.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(emoji, fontSize = 22.sp)
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(22.dp)
+            )
             Text(
                 text       = value,
                 style      = MaterialTheme.typography.titleLarge,
@@ -1846,7 +1851,7 @@ private fun SummaryStatBox(
 }
 
 @Composable
-private fun SummaryHighlight(emoji: String, label: String, value: String, accent: Color) {
+private fun SummaryHighlight(iconRes: Int, label: String, value: String, accent: Color) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -1858,7 +1863,12 @@ private fun SummaryHighlight(emoji: String, label: String, value: String, accent
                 .background(accent.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center,
         ) {
-            Text(emoji, fontSize = 18.sp)
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(20.dp)
+            )
         }
         Column(
             modifier = Modifier.weight(1f),

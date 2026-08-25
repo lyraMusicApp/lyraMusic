@@ -48,7 +48,21 @@ sealed class Screens(
         route = "mood_and_genres"
     )
 
+    object History : Screens(
+        titleId = R.string.history,
+        iconIdInactive = R.drawable.history,
+        iconIdActive = R.drawable.history,
+        route = "history"
+    )
+
+    object Settings : Screens(
+        titleId = R.string.settings,
+        iconIdInactive = R.drawable.settings,
+        iconIdActive = R.drawable.settings,
+        route = "settings"
+    )
+
     companion object {
-        val MainScreens = listOf(Home, Search, MoodAndGenres, Library)
+        val MainScreens = listOf(Home, MoodAndGenres, History, Library, Settings)
     }
 }
