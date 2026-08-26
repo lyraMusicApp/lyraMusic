@@ -6,6 +6,15 @@
 
 A clean, modern, and privacy-focused Android music player built with Jetpack Compose.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android">
+  <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin">
+  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Compose">
+  <img src="https://img.shields.io/badge/Audio-ExoPlayer-E11D48?style=flat-square&logo=googleplay&logoColor=white" alt="ExoPlayer">
+  <img src="https://img.shields.io/badge/Translations-Crowdin-2E8555?style=flat-square&logo=crowdin&logoColor=white" alt="Crowdin">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-0EA5E9?style=flat-square&logo=gnu" alt="GPL-3.0">
+</p>
+
 [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) &bull; [Crowdin](https://crowdin.com/project/lyramusic) &bull; [Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions) &bull; [License](LICENSE)
 
 </div>
@@ -32,6 +41,10 @@ Download the latest APK release directly from the [Releases](https://github.com/
 ---
 
 ### Tech Stack
+
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=kotlin,androidstudio,gradle,github,git&theme=dark" alt="Tech Stack Icons" />
+</p>
 
 * **Language:** Kotlin
 * **UI:** Jetpack Compose & Material 3
