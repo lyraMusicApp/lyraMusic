@@ -1,189 +1,244 @@
 <div align="center">
-  <img src="assets/icon.png" width="128" height="128" alt="Lyra Music Logo" style="border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+  <img src="assets/icon.png" width="120" height="120" alt="Lyra Music Logo">
 
-  # 🎵 Lyra Music
+  # Lyra Music
 
   <p align="center">
-    <strong>A sleek, modern, and privacy-focused Android music player built with Jetpack Compose & Material You.</strong>
+    <strong>A modern, high-performance, and privacy-focused Android music player built with Jetpack Compose and Material You.</strong>
   </p>
 
   <p align="center">
     <a href="https://github.com/lyraMusicApp/lyraMusic/releases/latest">
-      <img src="https://img.shields.io/github/v/release/lyraMusicApp/lyraMusic?style=for-the-badge&logo=github&color=8B5CF6&label=Latest%20Release" alt="Latest Release">
+      <img src="https://img.shields.io/github/v/release/lyraMusicApp/lyraMusic?style=flat-square&color=8B5CF6&label=Release" alt="Latest Release">
     </a>
     <a href="https://github.com/lyraMusicApp/lyraMusic/releases">
-      <img src="https://img.shields.io/github/downloads/lyraMusicApp/lyraMusic/total?style=for-the-badge&logo=android&color=10B981&label=Downloads" alt="Downloads">
+      <img src="https://img.shields.io/github/downloads/lyraMusicApp/lyraMusic/total?style=flat-square&color=10B981&label=Downloads" alt="Downloads">
     </a>
     <a href="https://crowdin.com/project/lyramusic">
-      <img src="https://img.shields.io/badge/Crowdin-Translate-2E8555?style=for-the-badge&logo=crowdin&logoColor=white" alt="Crowdin Translations">
+      <img src="https://img.shields.io/badge/Crowdin-Translate-2E8555?style=flat-square" alt="Crowdin Translations">
     </a>
     <a href="LICENSE">
-      <img src="https://img.shields.io/badge/License-GPL--3.0-0EA5E9?style=for-the-badge&logo=gnu" alt="License: GPL-3.0">
+      <img src="https://img.shields.io/badge/License-GPL--3.0-0EA5E9?style=flat-square" alt="License: GPL-3.0">
     </a>
   </p>
 
   <p align="center">
-    <img src="https://img.shields.io/badge/Android-8.0%2B%20(API%2026%2B)-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android">
-    <img src="https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin">
-    <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose">
-    <img src="https://img.shields.io/badge/Design-Material%20You-FF7043?style=flat-square&logo=materialdesign&logoColor=white" alt="Material You">
-    <img src="https://img.shields.io/badge/Audio-Media3%20%2F%20ExoPlayer-E11D48?style=flat-square&logo=googleplay&logoColor=white" alt="ExoPlayer">
+    <img src="https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026%2B)-3DDC84?style=flat-square" alt="Platform: Android 8.0+">
+    <img src="https://img.shields.io/badge/Language-Kotlin%202.0-7F52FF?style=flat-square" alt="Language: Kotlin 2.0">
+    <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square" alt="UI: Jetpack Compose">
+    <img src="https://img.shields.io/badge/Design-Material%203%20%2F%20Material%20You-FF7043?style=flat-square" alt="Design: Material You">
+    <img src="https://img.shields.io/badge/Media-AndroidX%20Media3%20%2F%20ExoPlayer-E11D48?style=flat-square" alt="Media: ExoPlayer">
   </p>
 
   <p align="center">
-    <a href="#-key-features">Features</a> •
-    <a href="#-download--installation">Download</a> •
-    <a href="#-crowdin-translations">Translations</a> •
-    <a href="#-tech-stack--architecture">Tech Stack</a> •
-    <a href="#-build-from-source">Build</a> •
-    <a href="#-credits--acknowledgments">Credits</a> •
-    <a href="#-license">License</a>
+    <a href="#overview">Overview</a> •
+    <a href="#key-features">Key Features</a> •
+    <a href="#download-and-installation">Download</a> •
+    <a href="#user-guide">User Guide</a> •
+    <a href="#crowdin-and-localization">Localization</a> •
+    <a href="#architecture-and-tech-stack">Architecture</a> •
+    <a href="#build-from-source">Build Guide</a> •
+    <a href="#troubleshooting-and-faq">FAQ</a> •
+    <a href="#contributing">Contributing</a> •
+    <a href="#license">License</a>
   </p>
 </div>
 
 ---
 
-## ✨ Key Features
+## Overview
 
-<table>
-  <tr>
-    <td width="33%" valign="top">
-      <h3>🎧 Music & Streaming</h3>
-      <ul>
-        <li><b>Seamless YouTube Music Streaming</b> with high audio quality</li>
-        <li><b>Smart Offline Caching & Downloads</b> for offline playback</li>
-        <li><b>Background Playback</b> with full Android Media Session & Lockscreen controls</li>
-        <li><b>Curated Discover Mixes</b> and personalized suggestions</li>
-        <li><b>Synchronized Lyrics</b> via LRCLIB & Kugou</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h3>📊 Listening Stats & Social</h3>
-      <ul>
-        <li><b>Real-Time Listening Stats</b> & listening hours tracking</li>
-        <li><b>Artwork Pie-Chart Visualizer</b> for listening breakdown</li>
-        <li><b>Last.fm Scrobbling</b> integration</li>
-        <li><b>Discord Rich Presence</b> support via Kizzy</li>
-        <li><b>ShazamKit Song Recognition</b> support</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h3>🎨 Modern UI & Experience</h3>
-      <ul>
-        <li><b>Material You Dynamic Theming</b> & ambient mesh gradient</li>
-        <li><b>Floating Glass Navigation</b> with fluid animations</li>
-        <li><b>Spotify Playlist Importer</b> & local library backup/restore</li>
-        <li><b>Ad-Free & Privacy Focused</b> with zero analytics trackers</li>
-        <li><b>Equalizer & Audio Effects</b> customization</li>
-      </ul>
-    </td>
-  </tr>
-</table>
+Lyra Music is an open-source Android music streaming client and local player designed for simplicity, customization, and audio fidelity. Developed entirely in modern Kotlin with Jetpack Compose, Lyra Music delivers fluid animations, dynamic Material You theming, real-time analytics, and a native playback engine powered by AndroidX Media3.
 
 ---
 
-## 📥 Download & Installation
+## Key Features
 
-Get the latest signed APK directly from GitHub Releases:
+### Playback and Audio Engine
+* **High-Quality Streaming:** Fast streaming backend powered by YouTube Music integration.
+* **Offline Caching and Downloads:** Download songs, albums, and playlists for offline listening.
+* **Media3 Playback Service:** Full background playback support, seamless lock screen controls, and Android Auto/headset hardware key handling.
+* **Synchronized and Plain Lyrics:** Real-time synchronized lyrics integration via LRCLIB and Kugou providers.
+* **Equalizer and Audio Effects:** Built-in audio equalization and customizable output controls.
 
-<div align="center">
+### Personalization and Statistics
+* **Listening Analytics:** Real-time hours tracked, artist rankings, and most-played track breakdowns.
+* **Artwork Visualizer:** Dynamic visualizer integrating album art color palettes.
+* **Last.fm Scrobbling:** Real-time scrobble synchronization for Last.fm accounts.
+* **Discord Presence (RPC):** Rich presence status integration using Kizzy RPC.
+* **Music Recognition:** Instant audio identification powered by ShazamKit.
 
-[![Download APK](https://img.shields.io/badge/Download-Latest_APK_Release-8B5CF6?style=for-the-badge&logo=android&logoColor=white)](https://github.com/lyraMusicApp/lyraMusic/releases/latest)
-
-</div>
-
-1. Head to the **[Releases](https://github.com/lyraMusicApp/lyraMusic/releases)** section.
-2. Download the latest `app-release.apk` (or architecture-specific APK).
-3. Install the APK on your Android device (Android 8.0+ / Oreo or higher).
-
----
-
-## 🌍 Crowdin Translations
-
-Help bring Lyra Music to more languages worldwide! We manage all community translations on **Crowdin**:
-
-<div align="center">
-
-[![Crowdin](https://img.shields.io/badge/Crowdin-Translate%20Lyra%20Music-2E8555?style=for-the-badge&logo=crowdin&logoColor=white)](https://crowdin.com/project/lyramusic)
-
-</div>
-
-* If you would like to translate or proofread Lyra Music in your native language, join the [Lyra Music Crowdin Project](https://crowdin.com/project/lyramusic).
-* To request a **Proofreader** role or ask questions about localization, open a discussion in [GitHub Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions).
+### Modern Interface and Usability
+* **Material You Dynamic Theming:** System wallpaper color extraction (Android 12+) and customizable color accents.
+* **Floating Navigation Interface:** Clean, gesture-driven bottom bar navigation with smooth transitions.
+* **Playlist Management:** Import external playlists from Spotify and manage custom local playlists.
+* **Privacy Focused:** Zero third-party trackers, telemetry, or invasive advertisements.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Download and Installation
 
-- **Language:** [Kotlin](https://kotlinlang.org/)
-- **UI Framework:** [Jetpack Compose](https://developer.android.com/jetpack/compose) with Material You (Material 3)
-- **Audio Engine:** [AndroidX Media3 (ExoPlayer)](https://developer.android.com/media/media3)
-- **Lyrics Providers:** [LRCLIB](https://lrclib.net/) & Kugou
-- **Scrobbling & Social:** Last.fm API & [Kizzy](https://github.com/deadlyjack/kizzy-rpc) Discord RPC
-- **Song Recognition:** ShazamKit integration
-- **Build System:** Gradle (Kotlin DSL) with Android SDK 36, JDK 21
+### System Requirements
+* **Operating System:** Android 8.0 (API Level 26) or higher.
+* **Storage Space:** Minimum 50 MB free internal storage.
+* **Network:** Stable internet connection required for streaming and lyrics fetching.
+
+### Installation Steps
+1. Navigate to the [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) page.
+2. Select the latest version and download `app-release.apk` (or the architecture-specific APK for your device).
+3. Open the downloaded APK on your Android device.
+4. If prompted, grant permission to install applications from your browser or file manager.
+5. Launch Lyra Music from your app drawer.
 
 ---
 
-## 🏗️ Build From Source
+## User Guide
+
+### 1. Discover and Search
+* Use the Search tab to query tracks, artists, albums, or public playlists.
+* Tap any track to begin immediate playback or add it to the active queue.
+
+### 2. Offline Mode
+* Tap the three dots menu next to any song, album, or playlist and select **Download**.
+* Downloaded tracks can be accessed under **Library > Downloads** without an active internet connection.
+
+### 3. Importing Spotify Playlists
+* Navigate to **Library > Import Playlist**.
+* Paste your public Spotify playlist link and confirm the import. Lyra Music will match and add the tracks to your local library.
+
+### 4. Enabling Synchronized Lyrics
+* Open the Player view and swipe up or tap the lyrics icon.
+* If a song does not automatically display lyrics, tap the lyrics provider toggle to switch between LRCLIB and Kugou.
+
+### 5. Enabling Discord Rich Presence
+* Open **Settings > Social Integrations > Discord RPC**.
+* Enable the toggle to broadcast current track, artist, and playback progress to your Discord profile.
+
+---
+
+## Crowdin and Localization
+
+Lyra Music is localized by the global open-source community using Crowdin.
+
+* **Crowdin Project:** [https://crowdin.com/project/lyramusic](https://crowdin.com/project/lyramusic)
+* **Configuration:** Source strings are stored in `/app/src/main/res/values/strings.xml` and mapped via `crowdin.yml`.
+
+### How to Contribute Translations:
+1. Create a free account on [Crowdin](https://crowdin.com).
+2. Visit the [Lyra Music Project](https://crowdin.com/project/lyramusic) on Crowdin.
+3. Select your language and begin translating unlocalized strings or suggesting improvements.
+4. If you wish to become a language **Proofreader** to approve and validate translations, open a thread on [GitHub Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions).
+
+---
+
+## Architecture and Tech Stack
+
+Lyra Music is built using clean Android development patterns and modern libraries:
+
+* **UI Layer:** Jetpack Compose, Material 3, Accompanist, Coil (Image Loading).
+* **Architecture:** MVVM (Model-View-ViewModel) with Kotlin Coroutines and StateFlow.
+* **Audio Layer:** AndroidX Media3 ExoPlayer, MediaSessionService.
+* **Local Persistence:** Room Database for caching metadata, playlists, and history.
+* **Network and Serialization:** Ktor Client, Retrofit, Kotlinx Serialization.
+* **Integrations:**
+  * `innertube`: Internal YouTube Music client.
+  * `lrclib`: Synchronized lyrics provider.
+  * `kugou`: Alternative lyric database.
+  * `kizzy`: Discord RPC client.
+  * `lastfm`: Last.fm scrobble API.
+  * `shazamkit`: Music recognition bridge.
+
+---
+
+## Build from Source
 
 ### Prerequisites
-- **Android Studio** Ladybug or newer
-- **Android SDK:** 36
-- **JDK:** 21 (Temurin / OpenJDK)
-- **Git**
+Before building the project, ensure you have the following software installed:
+* **Android Studio:** Ladybug (2024.2.1) or newer.
+* **Java Development Kit (JDK):** Version 21 (OpenJDK / Eclipse Temurin).
+* **Android SDK:** Version 36 with Build Tools 36.0.0.
+* **Git:** Version 2.30+ installed and added to PATH.
 
-### Steps
+### Build Steps
 
-1. **Clone the repository:**
+1. **Clone the Repository:**
    ```bash
    git clone -b lyra https://github.com/lyraMusicApp/lyraMusic.git
    cd lyraMusic
    ```
 
-2. **Build the release APK:**
-   * **Windows (PowerShell / CMD):**
-     ```powershell
-     .\gradlew.bat :app:assembleRelease
-     ```
-   * **Linux / macOS:**
-     ```bash
-     ./gradlew :app:assembleRelease
-     ```
+2. **Open in Android Studio:**
+   * Launch Android Studio.
+   * Select **Open** and choose the `lyraMusic` directory.
+   * Allow Gradle to sync dependencies and project configuration.
 
-3. **Locate your built APK:**
-   ```text
-   app/build/outputs/apk/release/app-release.apk
-   ```
+3. **Compile via Command Line:**
+   * **Debug Build:**
+     * Windows (PowerShell / Command Prompt):
+       ```powershell
+       .\gradlew.bat :app:assembleDebug
+       ```
+     * Linux / macOS:
+       ```bash
+       ./gradlew :app:assembleDebug
+       ```
+   * **Release Build:**
+     * Windows (PowerShell / Command Prompt):
+       ```powershell
+       .\gradlew.bat :app:assembleRelease
+       ```
+     * Linux / macOS:
+       ```bash
+       ./gradlew :app:assembleRelease
+       ```
 
----
-
-## 🤝 Contributing
-
-Contributions, bug reports, and feature suggestions are warmly welcomed!
-
-- 🐛 **Found a bug?** Open an [Issue](https://github.com/lyraMusicApp/lyraMusic/issues).
-- 💡 **Have a feature idea or question?** Join our [Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions).
-- 🔀 **Want to contribute code?** Fork the repository, create a feature branch, and submit a Pull Request targeting the `lyra` branch.
-
----
-
-## 💖 Credits & Acknowledgments
-
-Lyra Music is built upon the incredible work of the open-source community:
-
-- **[OpenTune](https://github.com/Arturo254/OpenTune)** by Arturo254 — The foundational open-source music player project.
-- **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** — Inspiration for streaming & player enhancements.
-- **[LRCLIB](https://lrclib.net/)** — Open-source synchronized lyrics API.
-- All our community translators and contributors on **Crowdin** and **GitHub**!
+4. **Locate Generated APK Artifacts:**
+   * Debug: `app/build/outputs/apk/debug/app-debug.apk`
+   * Release: `app/build/outputs/apk/release/app-release.apk`
 
 ---
 
-## 📄 License
+## Troubleshooting and FAQ
+
+#### 1. Why are some songs not playing?
+Verify that you have an active network connection. If using private DNS or VPN services, ensure YouTube domains are not blocked.
+
+#### 2. The app stops playing in the background.
+Android battery optimization may kill background services. To resolve:
+* Go to Android Settings > Apps > Lyra Music.
+* Select Battery > Set to **Unrestricted**.
+
+#### 3. How do I report a bug or request a feature?
+Open a detailed report under the [Issues](https://github.com/lyraMusicApp/lyraMusic/issues) tab. Please include your Android version, device model, and reproduction steps.
+
+---
+
+## Contributing
+
+We welcome contributions from developers, designers, and translators.
+
+### Development Workflow
+1. Fork the repository on GitHub.
+2. Create a descriptive topic branch (`git checkout -b feature/new-audio-effect`).
+3. Implement your changes following Kotlin coding conventions and project formatting standards.
+4. Test your changes thoroughly on a physical device or emulator.
+5. Push your branch to your fork (`git push origin feature/new-audio-effect`).
+6. Submit a Pull Request targeting the `lyra` branch.
+
+---
+
+## Credits and Acknowledgments
+
+Lyra Music incorporates and builds upon work from the open-source community:
+
+* **[OpenTune](https://github.com/Arturo254/OpenTune)** by Arturo254 (Foundational open-source music player).
+* **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** by maxrave-dev (Streaming architecture and player enhancements).
+* **[LRCLIB](https://lrclib.net/)** (Synchronized lyrics provider).
+* All contributors, translators, and testers supporting the project.
+
+---
+
+## License
 
 This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.  
-See the [LICENSE](LICENSE) file for details.
-
-<div align="center">
-  <sub>Crafted with ❤️ by the Lyra Music Team</sub>
-</div>
+See the [LICENSE](LICENSE) file for the complete terms and conditions.
