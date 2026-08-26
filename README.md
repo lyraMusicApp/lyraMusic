@@ -6,7 +6,7 @@
 
 A clean, modern, and privacy-focused Android music player built with Jetpack Compose.
 
-[Releases](https://github.com/lyraMusicApp/lyraMusic/releases) • [Crowdin](https://crowdin.com/project/lyramusic) • [Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions) • [License](LICENSE)
+[Releases](https://github.com/lyraMusicApp/lyraMusic/releases) &bull; [Crowdin](https://crowdin.com/project/lyramusic) &bull; [Discussions](https://github.com/lyraMusicApp/lyraMusic/discussions) &bull; [License](LICENSE)
 
 </div>
 
