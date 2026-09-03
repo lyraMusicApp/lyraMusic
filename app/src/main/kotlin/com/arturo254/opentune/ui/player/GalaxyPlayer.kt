@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.R
 import com.arturo254.opentune.models.MediaMetadata
 import com.arturo254.opentune.lyrics.LyricsEntry
@@ -843,6 +843,7 @@ fun TopPillButton(icon: Int, text: String, isSelected: Boolean, onClick: () -> U
         )
     }
 }
+
 
 
 

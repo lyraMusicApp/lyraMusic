@@ -72,7 +72,7 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerAwareWindowInsets
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
@@ -1162,4 +1162,5 @@ private fun greeting(name: String): String {
     }
     return "$greetingText $cleanName"
 }
+
 

@@ -37,7 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
 import com.arturo254.opentune.constants.LiquidGlassKey
@@ -688,6 +688,7 @@ private fun ChevronLeftIcon(tint: Color, modifier: Modifier = Modifier) {
         )
     }
 }
+
 
 
 

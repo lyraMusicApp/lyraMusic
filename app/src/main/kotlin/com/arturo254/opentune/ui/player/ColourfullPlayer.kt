@@ -4,8 +4,8 @@ import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.ui.platform.LocalContext
-import coil.ImageLoader
-import coil.request.ImageRequest
+import coil3.ImageLoader
+import coil3.request.ImageRequest
 import com.arturo254.opentune.ui.theme.extractThemeColor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -352,6 +352,7 @@ fun ColourfullPlayer(
         }
     }
 }
+
 
 
 

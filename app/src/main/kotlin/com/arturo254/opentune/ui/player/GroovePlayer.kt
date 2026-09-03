@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.media3.common.Player
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.R
 import com.arturo254.opentune.playback.PlayerConnection
 
@@ -565,6 +565,7 @@ private fun formatTime(ms: Long): String {
     val seconds = totalSeconds % 60
     return String.format("%d:%02d", minutes, seconds)
 }
+
 
 
 

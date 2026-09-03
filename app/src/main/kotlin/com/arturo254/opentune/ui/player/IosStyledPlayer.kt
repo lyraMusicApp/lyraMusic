@@ -74,7 +74,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.media3.common.Player
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.R
 import com.arturo254.opentune.constants.PlayerHorizontalPadding
 import com.arturo254.opentune.db.entities.FormatEntity
@@ -1061,6 +1061,7 @@ private fun AudioDeviceInfo.outputName(): String {
         else -> if (isBleHeadset(this)) "BLE headset" else "Device"
     }
 }
+
 
 
 

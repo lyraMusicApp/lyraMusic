@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
 import com.arturo254.opentune.constants.LiquidGlassKey
@@ -798,6 +798,7 @@ private fun FrostChevronLeftIcon(tint: Color, modifier: Modifier = Modifier) {
         )
     }
 }
+
 
 
 

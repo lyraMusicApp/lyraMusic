@@ -67,14 +67,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import androidx.core.net.toUri
 import com.arturo254.opentune.LocalDatabase
 import com.arturo254.opentune.LocalPlayerAwareWindowInsets
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
 import com.arturo254.opentune.constants.DarkModeKey
-import com.arturo254.opentune.constants.LibraryFilter
 import com.arturo254.opentune.db.entities.Song
 import com.arturo254.opentune.innertube.models.AlbumItem
 import com.arturo254.opentune.innertube.models.ArtistItem
@@ -83,11 +82,6 @@ import com.arturo254.opentune.innertube.models.SongItem
 import com.arturo254.opentune.innertube.models.YTItem
 import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.playback.queues.YouTubeQueue
-import com.arturo254.opentune.ui.screens.library.LibraryAlbumsScreen
-import com.arturo254.opentune.ui.screens.library.LibraryArtistsScreen
-import com.arturo254.opentune.ui.screens.library.LibraryPlaylistsScreen
-import com.arturo254.opentune.ui.screens.library.LibrarySongsScreen
-import com.arturo254.opentune.ui.screens.library.LocalSongsScreen
 import com.arturo254.opentune.ui.screens.settings.DarkMode
 import com.arturo254.opentune.ui.utils.highQualityThumbnailUrlOrNull
 import com.arturo254.opentune.utils.rememberEnumPreference
@@ -255,9 +249,9 @@ fun AppleHeader(
                     else -> {
                         if (profileUrl != null) {
                             AsyncImage(
-                                model = coil.request.ImageRequest.Builder(context)
+                                model = coil3.request.ImageRequest.Builder(context)
                                     .data(profileUrl)
-                                    .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+                                    .diskCachePolicy(coil3.request.CachePolicy.ENABLED)
                                     .diskCacheKey(profileUrl)
                                     .crossfade(true)
                                     .build(),
@@ -547,15 +541,15 @@ fun AppleExploreScreen(
             AppleYtRow(explorePage?.newReleaseAlbums.orEmpty(), navController, playerConnection)
         }
         
-        moodAndGenres?.forEach { group ->
+        moodAndGenres?.let { list ->
             item {
-                AppleSectionTitle(group.title)
+                AppleSectionTitle("Moods & Genres")
                 Column(
                     modifier = Modifier.padding(horizontal = 24.dp).padding(top = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     val itemsPerRow = 2
-                    group.items.chunked(itemsPerRow).forEach { row ->
+                    list.chunked(itemsPerRow).forEach { row ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             row.forEach { item ->
                                 Box(
@@ -591,61 +585,7 @@ fun AppleExploreScreen(
 
 @Composable
 fun AppleLibraryScreen(navController: NavController) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    var filterType by remember { mutableStateOf(LibraryFilter.PLAYLISTS) }
-
-    AppleScaffold(
-        title = stringResource(R.string.library),
-        navController = navController
-    ) {
-        item {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                val filters = listOf(
-                    context.getString(R.string.playlists) to LibraryFilter.PLAYLISTS,
-                    context.getString(R.string.songs) to LibraryFilter.SONGS,
-                    context.getString(R.string.albums) to LibraryFilter.ALBUMS,
-                    context.getString(R.string.artists) to LibraryFilter.ARTISTS,
-                    context.getString(R.string.local_files) to LibraryFilter.LOCAL
-                )
-                items(filters) { (label, filter) ->
-                    val isSelected = filterType == filter
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isSelected) AppleRed else AppleBg.copy(alpha = 0.3f))
-                            .clickable { filterType = filter }
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = label,
-                            color = if (isSelected) Color.White else AppleText,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            CompositionLocalProvider(
-                LocalPlayerAwareWindowInsets provides WindowInsets(0, 0, 0, 0)
-            ) {
-                Box(Modifier.fillParentMaxSize()) {
-                    when (filterType) {
-                        LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController = navController, filterContent = {}, onLocalClick = { filterType = LibraryFilter.LOCAL })
-                        LibraryFilter.SONGS -> LibrarySongsScreen(navController = navController, onDeselect = { filterType = LibraryFilter.PLAYLISTS })
-                        LibraryFilter.ALBUMS -> LibraryAlbumsScreen(navController = navController, onDeselect = { filterType = LibraryFilter.PLAYLISTS })
-                        LibraryFilter.ARTISTS -> LibraryArtistsScreen(navController = navController, onDeselect = { filterType = LibraryFilter.PLAYLISTS })
-                        LibraryFilter.LOCAL -> LocalSongsScreen(navController = navController)
-                        else -> {}
-                    }
-                }
-            }
-        }
-    }
+    com.arturo254.opentune.ui.screens.library.LibraryScreen(navController = navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -670,7 +610,7 @@ fun AppleSearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
-                placeholder = { Text(stringResource(R.string.search_everything_placeholder), color = AppleText.copy(alpha = 0.5f)) },
+                placeholder = { Text("Search songs, artists, albums...", color = AppleText.copy(alpha = 0.5f)) },
                 leadingIcon = { Icon(painterResource(R.drawable.search), contentDescription = null, tint = AppleText.copy(alpha=0.5f)) },
                 trailingIcon = {
                     IconButton(onClick = { navController.navigate(com.arturo254.opentune.ui.screens.musicrecognition.MusicRecognitionRoute) }) {
@@ -886,4 +826,5 @@ fun AppleStatsScreen(
         }
     }
 }
+
 
