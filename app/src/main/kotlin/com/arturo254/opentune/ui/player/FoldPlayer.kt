@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -12,12 +12,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.media3.common.Player
@@ -144,7 +138,7 @@ fun FoldPlayer(
                     modifier = Modifier.clickable(onClick = onCollapse)
                 )
                 Icon(
-                    imageVector = Icons.Rounded.MoreVert,
+                    painter = painterResource(R.drawable.more_vert),
                     contentDescription = "Menu",
                     tint = textSecondary,
                     modifier = Modifier.size(20.dp).clickable(onClick = onMenuClick)
@@ -242,7 +236,7 @@ fun FoldPlayer(
         ) {
             // Previous
             Icon(
-                imageVector = Icons.Rounded.SkipPrevious,
+                painter = painterResource(R.drawable.skip_previous),
                 contentDescription = "Previous",
                 tint = if (canSkipPrevious) Color(0xFF404040) else Color(0xFFC0C0C0),
                 modifier = Modifier
@@ -261,7 +255,7 @@ fun FoldPlayer(
                 )
             } else {
                 Icon(
-                    imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                    painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
                     contentDescription = "Play/Pause",
                     tint = Color(0xFF2E3345),
                     modifier = Modifier
@@ -274,7 +268,7 @@ fun FoldPlayer(
 
             // Next
             Icon(
-                imageVector = Icons.Rounded.SkipNext,
+                painter = painterResource(R.drawable.skip_next),
                 contentDescription = "Next",
                 tint = if (canSkipNext) Color(0xFF404040) else Color(0xFFC0C0C0),
                 modifier = Modifier

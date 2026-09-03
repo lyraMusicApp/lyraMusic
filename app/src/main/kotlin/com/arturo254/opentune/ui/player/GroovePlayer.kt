@@ -250,10 +250,12 @@ fun GroovePlayer(
                 }
 
                 IconButton(onClick = onRepeatClick) {
+                    val repeatIcon = when (repeatMode) {
+                        Player.REPEAT_MODE_ONE -> R.drawable.repeat_one_on
                         Player.REPEAT_MODE_ALL -> R.drawable.repeat_on
                         else -> R.drawable.repeat
                     }
-                    val repeatTint = if (repeatMode != Player.REPEAT_MODE_OFF) accentColor else Color(0xFF8A8F9E)
+                    val repeatTint = if (repeatMode != Player.REPEAT_MODE_OFF) accentColor else textSecondary
                     Icon(
                         painter = painterResource(repeatIcon),
                         contentDescription = "Repeat",
@@ -262,151 +264,8 @@ fun GroovePlayer(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1.25f)) // More weight below to push controls up
-            Spacer(modifier = Modifier.height(80.dp)) // Padding to account for the queue cards at the bottom
-        }
-
-        // Floating Vertical Stack (Custom Animated Deck)
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .offset(y = 75.dp) // Adjusted for taller cards
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f))
-                    )
-                ),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            // Render up to 5 cards to allow smooth transition of leaving and entering cards
-            val visibleIndices = (currentWindowIndex - 1 .. currentWindowIndex + 4).filter { it in queueWindows.indices }
-            
-            // Render from back to front (highest index first)
-            val sortedIndices = visibleIndices.sortedByDescending { it }
-            
-            sortedIndices.forEach { index ->
-                key(index) {
-                    val window = queueWindows[index]
-                    
-                    val isFlying = flyingCardIndex == index
-                    val flyProgress by animateFloatAsState(
-                        targetValue = if (isFlying) 1f else 0f,
-                        animationSpec = tween(durationMillis = 800, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-                        finishedListener = {
-                            if (it == 1f && isFlying) {
-                                flyingCardIndex = null
-                                playerConnection.player.seekToDefaultPosition(index)
-                                playerConnection.player.play()
-                            }
-                        }
-                    )
-                    
-                    // Smoothly animate the card's offset relative to the current playing index
-                    // By subtracting 1, the currently playing song is pushed to offset -1 (hidden),
-                    // and the NEXT song sits at offset 0 (front of stack).
-                    val targetOffset = (index - currentWindowIndex - 1).toFloat()
-                    val offsetInfo by animateFloatAsState(
-                        targetValue = targetOffset,
-                        animationSpec = tween(durationMillis = 500)
-                    )
-                    
-                    val absoluteOffset = kotlin.math.abs(offsetInfo)
-                    
-                    // Math for the 3-card stack
-                    val stackScale = if (offsetInfo > 0) {
-                        1f - (offsetInfo * 0.12f).coerceIn(0f, 1f) // Increased shrink rate so back cards are smaller
-                    } else {
-                        1f + (absoluteOffset * 0.1f)
-                    }
-
-                    // Translation Y: future items move UP (stacking vertically). Past items move DOWN and fall away.
-                    val stackTransY = if (offsetInfo > 0) {
-                        -offsetInfo * 42f * density // Decreased push up so back cards stick out less
-                    } else {
-                        absoluteOffset * 80f * density // drop down fast
-                    }
-
-                    // Alpha: Front card fully lit, behind cards lower lit ("low lighten")
-                    val stackAlpha = if (offsetInfo > 2.5f) {
-                        0f // Hide cards beyond the 3rd
-                    } else if (offsetInfo > 0) {
-                        1f - (offsetInfo * 0.35f).coerceIn(0f, 1f)
-                    } else {
-                        1f - (absoluteOffset * 1.5f).coerceIn(0f, 1f)
-                    }
-
-                    // Interpolate towards flying state!
-                    val finalScale = stackScale + (1f - stackScale) * flyProgress
-                    val finalTransY = stackTransY + (-480f * density - stackTransY) * flyProgress
-                    val finalRotationX = 360f * flyProgress
-                    val finalAlpha = stackAlpha + (1f - stackAlpha) * flyProgress
-                    val finalZIndex = -offsetInfo + (100f - (-offsetInfo)) * flyProgress
-
-                    // Morph dimensions
-                    val cardWidth = 300.dp + (220.dp - 300.dp) * flyProgress
-                    val cardHeight = 140.dp + (220.dp - 140.dp) * flyProgress
-                    val cornerRadius = 22.dp + (110.dp - 22.dp) * flyProgress
-
-                    Box(
-                        modifier = Modifier
-                            .width(cardWidth)
-                            .height(cardHeight)
-                            .zIndex(finalZIndex)
-                            .graphicsLayer {
-                                scaleX = finalScale
-                                scaleY = finalScale
-                                rotationX = finalRotationX
-                                translationY = finalTransY
-                                alpha = finalAlpha
-                                cameraDistance = 12f * density
-                                shape = RoundedCornerShape(cornerRadius)
-                                clip = true
-                            }
-                            .clickable {
-                                if (flyingCardIndex == null) {
-                                    flyingCardIndex = index
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        // Soft blur behind carousel element
-                        AsyncImage(
-                            model = window.mediaItem.mediaMetadata.artworkUri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .blur(16.dp)
-                        )
-                        
-                        // Actual thumbnail
-                        AsyncImage(
-                            model = window.mediaItem.mediaMetadata.artworkUri,
-                            contentDescription = "Queue Thumbnail",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(22.dp))
-                        )
-                        
-                        // Dimming overlay for cards behind to enhance the "low lighten" effect
-                        val overlayAlpha = if (offsetInfo > 0) (offsetInfo * 0.25f).coerceIn(0f, 0.6f) else 0f
-                        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = overlayAlpha)))
-                    }
-                }
-            }
         }
     }
-}
-
-private fun formatTime(ms: Long): String {
-    if (ms < 0) return "0:00"
-    val totalSeconds = ms / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
 }
 
 

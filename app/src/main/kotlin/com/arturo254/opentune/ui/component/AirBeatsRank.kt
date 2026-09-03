@@ -1,5 +1,19 @@
 package com.arturo254.opentune.ui.component
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
 /**
  * Enum representing user rank based on total listening hours.
  * The enum name matches the display name used in storage (e.g., "Echo").
@@ -31,28 +45,28 @@ enum class AirBeatsRank(val thresholdHours: Int) {
          * Returns the highest rank for which the given total listening hours meet the threshold.
          */
         fun fromHours(hours: Int): AirBeatsRank {
-            return values().lastOrNull { it.thresholdHours <= hours } ?: Echo
+            return entries.lastOrNull { it.thresholdHours <= hours } ?: Echo
         }
     }
 }
 
-@androidx.compose.runtime.Composable
+@Composable
 fun RankBadge(
     rank: AirBeatsRank,
-    modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier,
-    size: androidx.compose.ui.unit.Dp = 16.dp,
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp,
 ) {
-    androidx.compose.material3.Surface(
-        shape = androidx.compose.foundation.shape.CircleShape,
-        color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
-        modifier = modifier.androidx.compose.foundation.layout.size(size)
+    Surface(
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = modifier.size(size)
     ) {
-        androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
-            androidx.compose.material3.Text(
+        Box(contentAlignment = Alignment.Center) {
+            Text(
                 text = rank.name.take(1),
-                fontSize = 10.androidx.compose.ui.unit.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }

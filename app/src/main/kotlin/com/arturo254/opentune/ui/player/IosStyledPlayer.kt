@@ -162,7 +162,7 @@ fun IosStyledPlayer(
                     navController = navController,
                     state = state,
                     menuState = menuState,
-                    onShowDetailsDialog = { showDetailsDialog = true },
+                    onShowDetailsDialog = {},
                     onSliderValueChange = onSeek,
                     onSliderValueChangeFinished = onSeekFinished,
                     nextUpMetadata = nextUpMetadata,

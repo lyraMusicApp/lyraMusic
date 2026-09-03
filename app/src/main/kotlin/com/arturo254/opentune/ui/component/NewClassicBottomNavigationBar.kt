@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.component
+package com.arturo254.opentune.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -191,7 +191,7 @@ fun NewClassicBottomNavigationBar(
                             text = { Text("Library") },
                             onClick = {
                                 overflowExpanded = false
-                                val libraryIndex = items.indexOfFirst { it.titleId == R.string.library }
+                                val libraryIndex = items.indexOfFirst { it.titleId == R.string.filter_library }
                                 if (libraryIndex != -1) onItemSelected(libraryIndex) else onNavigateRoute("library")
                             },
                             leadingIcon = {

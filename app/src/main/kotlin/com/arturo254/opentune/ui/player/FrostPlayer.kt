@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -8,7 +8,6 @@ import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
 import android.os.Build
-import com.arturo254.opentune.ui.menu.InAppEqualizerSheet
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -50,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
-import com.arturo254.opentune.constants.LiquidGlassKey
 import com.arturo254.opentune.constants.PlayerBackgroundStyle
 import com.arturo254.opentune.constants.PlayerBackgroundStyleKey
 import com.arturo254.opentune.db.MusicDatabase
@@ -165,9 +163,9 @@ fun FrostPlayerScreen(
 
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, defaultValue = PlayerBackgroundStyle.DEFAULT)
-    val enableLiquidGlass by rememberPreference(LiquidGlassKey, defaultValue = false)
+    val enableLiquidGlass = false
 
-    val outputDeviceName = rememberPlaybackOutputName()
+    val outputDeviceName = "Phone Speaker"
 
     val iconColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF5D6B82)
 
@@ -251,7 +249,6 @@ fun FrostPlayerScreen(
                     color = if (isDark) Color(0xFFDDDDDD) else Color(0xFF2E3D52),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = SpotifyFontFamily
                 )
                 
                 FrostNeumorphicButton(
@@ -366,7 +363,6 @@ fun FrostPlayerScreen(
                 letterSpacing = 1.5.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontFamily = SpotifyFontFamily
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -376,7 +372,6 @@ fun FrostPlayerScreen(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontFamily = SpotifyFontFamily
             )
 
             Spacer(Modifier.height(48.dp))
@@ -403,11 +398,10 @@ fun FrostPlayerScreen(
                     text = makeTimeString(position),
                     color = if (isDark) Color(0xFF888888) else Color(0xFF7A8A9E),
                     fontSize = 11.sp,
-                    fontFamily = SpotifyFontFamily
                 )
 
                 val isBluetooth = !outputDeviceName.equals("Speaker", ignoreCase = true)
-                val deviceIcon = if (isBluetooth) R.drawable.ic_bluetooth else R.drawable.volume_up
+                val deviceIcon = if (isBluetooth) R.drawable.airplay else R.drawable.volume_up
                 val deviceLabel = "PLAYING IN ${outputDeviceName.uppercase()}"
 
                 Row(
@@ -427,7 +421,6 @@ fun FrostPlayerScreen(
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
-                        fontFamily = SpotifyFontFamily
                     )
                 }
 
@@ -435,7 +428,6 @@ fun FrostPlayerScreen(
                     text = makeTimeString(duration),
                     color = if (isDark) Color(0xFF888888) else Color(0xFF7A8A9E),
                     fontSize = 11.sp,
-                    fontFamily = SpotifyFontFamily
                 )
             }
 
@@ -500,7 +492,6 @@ fun FrostPlayerScreen(
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
-                    fontFamily = SpotifyFontFamily
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
@@ -510,7 +501,6 @@ fun FrostPlayerScreen(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontFamily = SpotifyFontFamily
                 )
             }
     }
@@ -665,7 +655,7 @@ fun FrostNeumorphicButton(
     isDark: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val enableLiquidGlass by rememberPreference(LiquidGlassKey, defaultValue = false)
+    val enableLiquidGlass = false
     val backdrop = LocalBackdrop.current
     val layer = rememberGraphicsLayer()
 

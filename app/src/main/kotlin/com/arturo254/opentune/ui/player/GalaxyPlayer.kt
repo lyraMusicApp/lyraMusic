@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.utils.rememberEnumPreference
 import com.arturo254.opentune.ui.component.PlayerSliderTrack
@@ -83,7 +83,6 @@ import kotlin.math.sign
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import com.arturo254.opentune.constants.ShowGalaxySliderKey
 import com.arturo254.opentune.ui.utils.highQualityThumbnail
 import com.arturo254.opentune.utils.rememberPreference
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -145,8 +144,8 @@ fun GalaxyPlayer(
     state: BottomSheetState
 ) {
     val scope = rememberCoroutineScope()
-    val showGalaxySlider by rememberPreference(ShowGalaxySliderKey, defaultValue = true)
-    val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.SQUIGGLY)
+    val showGalaxySlider = true
+    val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.Wavy)
     var isDraggingSlider by remember { mutableStateOf(false) }
     var draggingSliderValue by remember { mutableStateOf(0f) }
     var selectedTab by remember { mutableIntStateOf(1) } // 0: Lyrics, 1: Browse, 2: Queue
@@ -335,7 +334,7 @@ fun GalaxyPlayer(
                         .padding(bottom = 8.dp)
                 ) {
                     when (sliderStyle) {
-                        SliderStyle.SQUIGGLY -> SquigglySlider(
+                        SliderStyle.Wavy -> SquigglySlider(
                             value = displayValue,
                             valueRange = valueRange,
                             onValueChange = {
@@ -354,7 +353,7 @@ fun GalaxyPlayer(
                                 strokeWidth = 3.dp
                             )
                         )
-                        SliderStyle.SLIM -> Slider(
+                        SliderStyle.Simple -> Slider(
                             value = displayValue,
                             valueRange = valueRange,
                             onValueChange = {
@@ -375,7 +374,7 @@ fun GalaxyPlayer(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        SliderStyle.DEFAULT -> Slider(
+                        else -> Slider(
                             value = displayValue,
                             valueRange = valueRange,
                             onValueChange = {
@@ -802,7 +801,7 @@ private fun GalaxyTopPill(
                 onClick = { onSelectTab(0) }
             )
             TopPillButton(
-                icon = R.drawable.explore,
+                icon = R.drawable.explore_outlined,
                 text = "Browse",
                 isSelected = selectedTab == 1,
                 onClick = { onSelectTab(1) }

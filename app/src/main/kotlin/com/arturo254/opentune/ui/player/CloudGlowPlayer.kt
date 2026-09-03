@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.toArgb
 import coil3.compose.AsyncImage
 import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
-import com.arturo254.opentune.constants.LiquidGlassKey
 import com.arturo254.opentune.constants.PlayerBackgroundStyle
 import com.arturo254.opentune.constants.PlayerBackgroundStyleKey
 import com.arturo254.opentune.models.MediaMetadata
@@ -99,9 +98,9 @@ fun CloudGlowPlayerScreen(
 
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, defaultValue = PlayerBackgroundStyle.DEFAULT)
-    val sliderStyle by rememberEnumPreference(SliderStyleKey, defaultValue = SliderStyle.SQUIGGLY)
+    val sliderStyle by rememberEnumPreference(SliderStyleKey, defaultValue = SliderStyle.Wavy)
 
-    val enableLiquidGlass by rememberPreference(LiquidGlassKey, defaultValue = false)
+    val enableLiquidGlass = false
     val backdrop = LocalBackdrop.current
     val layer = rememberGraphicsLayer()
     val luminanceAnimation = remember { Animatable(0.3f) }
@@ -185,7 +184,6 @@ fun CloudGlowPlayerScreen(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.5.sp,
-                    fontFamily = SpotifyFontFamily
                 )
                 
                 NeumorphicButton(onClick = onOpenMenu, size = 44.dp, isDark = isDark) {
@@ -233,7 +231,6 @@ fun CloudGlowPlayerScreen(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontFamily = SpotifyFontFamily
             )
             Spacer(Modifier.height(6.dp))
             Text(
@@ -243,7 +240,6 @@ fun CloudGlowPlayerScreen(
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontFamily = SpotifyFontFamily
             )
 
             Spacer(Modifier.height(36.dp))
@@ -260,33 +256,18 @@ fun CloudGlowPlayerScreen(
                     text = makeTimeString(position),
                     color = if (isDark) Color(0xFF888888) else Color(0xFF7A8A9E),
                     fontSize = 11.sp,
-                    fontFamily = SpotifyFontFamily
                 )
                 Text(
                     text = makeTimeString(duration),
                     color = if (isDark) Color(0xFF888888) else Color(0xFF7A8A9E),
                     fontSize = 11.sp,
-                    fontFamily = SpotifyFontFamily
                 )
             }
             
             Spacer(Modifier.height(4.dp))
             
             when (sliderStyle) {
-                SliderStyle.DEFAULT -> {
-                    Slider(
-                        value = sliderProgress,
-                        onValueChange = { onSeek((it * duration).toLong()) },
-                        onValueChangeFinished = onSeekFinished,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = SliderDefaults.colors(
-                            thumbColor = Color(0xFF755DFF),
-                            activeTrackColor = Color(0xFF755DFF),
-                            inactiveTrackColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5EBF5)
-                        )
-                    )
-                }
-                SliderStyle.SQUIGGLY -> {
+                SliderStyle.Wavy -> {
                     SquigglySlider(
                         value = sliderProgress,
                         onValueChange = { onSeek((it * duration).toLong()) },
@@ -303,7 +284,7 @@ fun CloudGlowPlayerScreen(
                         )
                     )
                 }
-                SliderStyle.SLIM -> {
+                SliderStyle.Simple -> {
                     Slider(
                         value = sliderProgress,
                         onValueChange = { onSeek((it * duration).toLong()) },
@@ -319,6 +300,19 @@ fun CloudGlowPlayerScreen(
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                else -> {
+                    Slider(
+                        value = sliderProgress,
+                        onValueChange = { onSeek((it * duration).toLong()) },
+                        onValueChangeFinished = onSeekFinished,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color(0xFF755DFF),
+                            activeTrackColor = Color(0xFF755DFF),
+                            inactiveTrackColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5EBF5)
+                        )
                     )
                 }
             }
@@ -488,7 +482,7 @@ fun NeumorphicButton(
     isDark: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val enableLiquidGlass by rememberPreference(LiquidGlassKey, defaultValue = false)
+    val enableLiquidGlass = false
     val backdrop = LocalBackdrop.current
     val layer = rememberGraphicsLayer()
 
@@ -555,7 +549,7 @@ fun NeumorphicArtworkFrame(
     isDark: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val enableLiquidGlass by rememberPreference(LiquidGlassKey, defaultValue = false)
+    val enableLiquidGlass = false
     val backdrop = LocalBackdrop.current
     val layer = rememberGraphicsLayer()
 

@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -26,14 +26,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arturo254.opentune.R
-import com.arturo254.opentune.constants.ColourfullPlayerColorKey
 import com.arturo254.opentune.constants.SliderStyle
 import com.arturo254.opentune.constants.PlayerBackgroundStyle
 import com.arturo254.opentune.ui.component.PlayerSliderTrack
 import me.saket.squiggles.SquigglySlider
 import com.arturo254.opentune.models.MediaMetadata
 import com.arturo254.opentune.utils.makeTimeString
-import com.arturo254.opentune.utils.rememberPreference
+import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,26 +60,7 @@ fun ColourfullPlayer(
     onRepeatClick: () -> Unit,
     onQueueClick: () -> Unit
 ) {
-    val (colorInt, _) = rememberPreference(ColourfullPlayerColorKey, defaultValue = 0xFF4CAF50.toInt())
-    
-    var autoColor by remember { mutableStateOf<Color?>(null) }
-    val context = LocalContext.current
-    val thumbnailUrl = mediaMetadata?.thumbnailUrl
-    
-    LaunchedEffect(colorInt, thumbnailUrl) {
-        if (colorInt == 0 && thumbnailUrl != null) {
-            val result = ImageLoader(context).execute(
-                ImageRequest.Builder(context)
-                    .data(thumbnailUrl)
-                    .allowHardware(false)
-                    .build()
-            )
-            val bitmap = (result.drawable as? BitmapDrawable)?.bitmap
-            autoColor = bitmap?.extractThemeColor()
-        }
-    }
-
-    val bgColor = if (colorInt == 0) (autoColor ?: Color(0xFF4CAF50)) else Color(colorInt)
+    val bgColor = Color(0xFF4CAF50)
     val textPrimary = Color.Black
     val textSecondary = Color.Black.copy(alpha = 0.6f)
 
@@ -147,13 +127,13 @@ fun ColourfullPlayer(
                     .aspectRatio(1f)
                     .padding(horizontal = 16.dp)
             ) {
-                Thumbnail(
-                    sliderPositionProvider = { position },
-                    onOpenFullscreenLyrics = onOpenFullscreenLyrics,
-                    modifier = Modifier.fillMaxSize(),
-                    shape = RoundedCornerShape(32.dp),
-                    showPlayingFrom = false,
-                    artworkScale = 1.0f
+                AsyncImage(
+                    model = mediaMetadata?.thumbnailUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(32.dp)),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
             }
 
@@ -217,17 +197,7 @@ fun ColourfullPlayer(
                 )
 
                 when (sliderStyle) {
-                    SliderStyle.DEFAULT -> {
-                        Slider(
-                            value = sliderValue,
-                            valueRange = valueRange,
-                            onValueChange = { onSeek(it.toLong()) },
-                            onValueChangeFinished = onSeekFinished,
-                            colors = sliderColors,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                    SliderStyle.SQUIGGLY -> {
+                    SliderStyle.Wavy -> {
                         SquigglySlider(
                             value = sliderValue,
                             valueRange = valueRange,
@@ -241,7 +211,7 @@ fun ColourfullPlayer(
                             )
                         )
                     }
-                    SliderStyle.SLIM -> {
+                    SliderStyle.Simple -> {
                         Slider(
                             value = sliderValue,
                             valueRange = valueRange,
@@ -254,6 +224,16 @@ fun ColourfullPlayer(
                                     colors = sliderColors,
                                 )
                             },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    else -> {
+                        Slider(
+                            value = sliderValue,
+                            valueRange = valueRange,
+                            onValueChange = { onSeek(it.toLong()) },
+                            onValueChangeFinished = onSeekFinished,
+                            colors = sliderColors,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
