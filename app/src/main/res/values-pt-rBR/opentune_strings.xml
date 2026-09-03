@@ -24,7 +24,7 @@
   <string name="sync_playlist">Sincronizar playlist</string>
   <string name="sync_disabled">Sincronização desabilitada</string>
   <string name="elements_selected">%1$d elementos selecionados</string>
-  <string name="allows_for_sync_witch_youtube">Observação: Isso permite a sincronização com o YouTube Music. Essa configuração N�fO poderá ser alterada posteriormente.</string>
+  <string name="allows_for_sync_witch_youtube">Observação: Isso permite a sincronização com o YouTube Music. Essa configuração NÒO poderá ser alterada posteriormente.</string>
   <string name="generating_image">Gerando imagem</string>
   <string name="please_wait">Por favor, aguarde</string>
   <string name="cancel">Cancelar</string>
@@ -121,7 +121,7 @@
   <string name="advanced_login">Login com token</string>
   <string name="token_hidden">Toque para mostrar o token</string>
   <string name="token_shown">Toque novamente para copiar ou editar</string>
-  <string name="token_adv_login_description">Este é um método de login AVAN�?ADO. Como alternativa ao portal web, você pode inserir ou atualizar seu token de login diretamente aqui. Por exemplo, isso pode agilizar o login em vários dispositivos. Observe que quaisquer formatos de token inválidos que o aplicativo não conseguir analisar não serão aceitos</string>
+  <string name="token_adv_login_description">Este é um método de login AVANÇADO. Como alternativa ao portal web, você pode inserir ou atualizar seu token de login diretamente aqui. Por exemplo, isso pode agilizar o login em vários dispositivos. Observe que quaisquer formatos de token inválidos que o aplicativo não conseguir analisar não serão aceitos</string>
   <string name="ytm_sync">Sincronizar com sua conta do YouTube Music automaticamente</string>
   <string name="yt_sync">Sincronização automática com a conta</string>
   <string name="more_content">Mais conteúdo</string>
@@ -159,7 +159,7 @@
   <string name="open_app_settings_error">Não foi possível abrir as configurações do aplicativo</string>
   <string name="release_notes">Notas de lançamento</string>
   <string name="all_time">O tempo todo</string>
-  <string name="past_24_hours">�sltimas 24 horas</string>
+  <string name="past_24_hours">Últimas 24 horas</string>
   <string name="past_week">Semana passada</string>
   <string name="past_month">Mês passado</string>
   <string name="past_year">Ano passado</string>
