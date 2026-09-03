@@ -320,7 +320,7 @@ object YTPlayerUtils {
             var selectedFormat: PlayerResponse.StreamingData.Format? = null
             var selectedUrl: String? = null
 
-            for (candidate in candidates.asSequence().take(6)) {
+            for (candidate in candidates) {
                 if (isLoggedIn && expectedDurationMs != null && isLikelyPreview(candidate, expectedDurationMs)) continue
                 if (shouldSkipCipheredWebCandidate(client, candidate)) continue
                 val cacheKey = buildCacheKey(videoId, candidate.itag)
@@ -349,13 +349,25 @@ object YTPlayerUtils {
             if (valid) {
                 Timber.tag(logTag).i("Stream validated successfully with client: ${client.clientName}")
                 break
+            } else {
+                Timber.tag(logTag).w("Stream validation failed with client: ${client.clientName}, continuing check but retaining format as backup")
             }
+        }
 
-            Timber.tag(logTag).w("Stream validation failed with client: ${client.clientName}, trying next fallback")
-            format = null
-            streamUrl = null
-            streamExpiresInSeconds = null
-            streamPlayerResponse = null
+        if (format == null || streamUrl == null) {
+            val emergencyResponse = streamPlayerResponse ?: metadataPlayerResponse ?: YouTube.player(videoId, playlistId, client = MAIN_CLIENT).getOrNull()
+            if (emergencyResponse?.streamingData != null) {
+                val emergencyCandidates = selectAudioFormatCandidates(emergencyResponse, AudioQuality.AUTO, false)
+                for (cand in emergencyCandidates) {
+                    val url = findUrlOrNull(cand, videoId, MAIN_CLIENT)
+                    if (url != null) {
+                        format = cand
+                        streamUrl = url
+                        streamPlayerResponse = emergencyResponse
+                        break
+                    }
+                }
+            }
         }
 
         if (streamPlayerResponse == null) {
@@ -467,17 +479,29 @@ object YTPlayerUtils {
     ): List<PlayerResponse.StreamingData.Format> {
         Timber.tag(logTag).i("Finding format with audioQuality: $audioQuality, network metered: $networkMetered")
 
-        val audioFormats =
-            playerResponse.streamingData?.adaptiveFormats
-                ?.asSequence()
-                ?.filter { it.isAudio && it.bitrate > 0 }
-                ?.filter { it.url != null || it.signatureCipher != null || it.cipher != null }
-                ?.filter { format ->
+        val allAdaptive = playerResponse.streamingData?.adaptiveFormats.orEmpty()
+        val allNormal = playerResponse.streamingData?.formats.orEmpty()
+        val allFormats = allAdaptive + allNormal
+
+        var audioFormats =
+            allFormats
+                .asSequence()
+                .filter { it.isAudio || it.mimeType.contains("audio", ignoreCase = true) || it.audioQuality != null }
+                .filter { it.bitrate > 0 }
+                .filter { it.url != null || it.signatureCipher != null || it.cipher != null }
+                .filter { format ->
                     val codec = extractCodec(format.mimeType)?.lowercase()
                     codec == null || codec !in avoidCodecs
                 }
-                ?.toList()
-                .orEmpty()
+                .toList()
+
+        if (audioFormats.isEmpty()) {
+            audioFormats = allFormats.filter { (it.isAudio || it.mimeType.contains("audio", ignoreCase = true) || it.audioQuality != null) && it.bitrate > 0 }
+        }
+
+        if (audioFormats.isEmpty()) {
+            audioFormats = allFormats.filter { it.url != null || it.signatureCipher != null || it.cipher != null }
+        }
 
         if (audioFormats.isEmpty()) return emptyList()
 
