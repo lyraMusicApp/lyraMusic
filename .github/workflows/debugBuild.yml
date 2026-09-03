@@ -3,9 +3,11 @@ name: Nightly Universal APK
 on:
   push:
     branches:
+      - lyra
       - master
     paths-ignore:
       - '*.md'
+  workflow_dispatch:
 
 concurrency:
   group: nightly-build
@@ -30,28 +32,24 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v5
 
-      # 🔥 SOLO UNIVERSAL
-      - name: Build Universal APK
-        run: ./gradlew assembleUniversalDebug
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      # 🔍 Ver qué se generó
       - name: List outputs
         run: ls -R app/build/outputs/apk/
 
-      # ✅ Encontrar APK correcto
       - name: Get APK
         run: |
-          APK_PATH=$(find app/build/outputs/apk/universal/debug -name "*.apk" | head -n 1)
-          echo "APK encontrado en: $APK_PATH"
-          cp "$APK_PATH" app-universal.apk
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
+          echo "APK found at: $APK_PATH"
+          cp "$APK_PATH" app-nightly-universal.apk
 
-      # 🚀 Release nightly
       - name: Upload Nightly
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly
           name: Nightly Build (Universal)
           prerelease: true
-          files: app-universal.apk
+          files: app-nightly-universal.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
