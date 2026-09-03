@@ -447,9 +447,9 @@ private fun FloatingNavigationToolbarItem(
     Box(
         modifier =
             Modifier
-                .padding(horizontal = 2.dp, vertical = 4.dp)
+                .padding(horizontal = 4.dp, vertical = 2.dp)
                 .scale(scale)
-                .size(40.dp)
+                .size(36.dp)
                 .clip(CircleShape)
                 .background(color = containerColor, shape = CircleShape)
                 .clickable(
@@ -464,7 +464,7 @@ private fun FloatingNavigationToolbarItem(
             painter = painterResource(if (selected) screen.iconIdActive else screen.iconIdInactive),
             contentDescription = stringResource(screen.titleId),
             tint = contentColor,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }

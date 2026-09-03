@@ -1247,29 +1247,6 @@ class MainActivity : ComponentActivity() {
                                                             contentDescription = stringResource(R.string.new_release_albums)
                                                         )
                                                     }
-                                                    IconButton(onClick = { showAccountDialog = true }) {
-                                                        BadgedBox(badge = {
-                                                            if (!Updater.isSameVersion(latestVersionName, BuildConfig.VERSION_NAME)) {
-                                                                Badge()
-                                                            }
-                                                        }) {
-                                                            if (accountImageUrl != null) {
-                                                                AsyncImage(
-                                                                    model = accountImageUrl,
-                                                                    contentDescription = stringResource(R.string.account),
-                                                                    modifier = Modifier
-                                                                        .size(24.dp)
-                                                                        .clip(CircleShape)
-                                                                )
-                                                            } else {
-                                                                Icon(
-                                                                    painter = painterResource(R.drawable.account),
-                                                                    contentDescription = stringResource(R.string.account),
-                                                                    modifier = Modifier.size(24.dp)
-                                                                )
-                                                            }
-                                                        }
-                                                    }
                                                 },
                                                 scrollBehavior = if (shouldUseFloatingTopBar) searchBarScrollBehavior else topAppBarScrollBehavior,
                                                 colors = TopAppBarDefaults.topAppBarColors(

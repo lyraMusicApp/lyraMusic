@@ -323,7 +323,7 @@ private fun HeroCard(shimmerBrush: Brush) {
     }
 }
 
-// ── Social card ────────────────────────────────────────────────────────────
+// ── Social card (Classic 3-button horizontal layout) ──────────────────────
 
 @Composable
 private fun SocialCard(
@@ -388,94 +388,47 @@ private fun SocialCard(
                 )
             }
 
-            // Sleek Social Link Rows (Liquid Glass)
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                links.forEach { link ->
-                    SocialTile(
-                        iconRes = link.iconRes,
-                        label = link.label,
-                        handle = link.handle,
-                        onClick = { onLinkClick(link.url) },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SocialTile(
-    iconRes: Int,
-    label: String,
-    handle: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1B202D).copy(alpha = 0.65f))
-            .border(
-                width = 0.8.dp,
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color.White.copy(alpha = 0.14f),
-                        Color.White.copy(alpha = 0.02f)
-                    )
-                ),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+            // 3-button horizontal row
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.08f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(iconRes),
-                        contentDescription = label,
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-                Column {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                links.forEach { link ->
+                    FilledTonalButton(
+                        onClick = { onLinkClick(link.url) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = Color(0xFF282D3D).copy(alpha = 0.85f),
+                            contentColor = Color.White
                         )
-                    )
-                    if (handle.isNotBlank()) {
-                        Text(
-                            text = handle,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = Color(0xFF9CA3AF)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(link.iconRes),
+                                contentDescription = link.label,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
                             )
-                        )
+                            Text(
+                                text = link.label,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
-            Icon(
-                painter = painterResource(R.drawable.arrow_forward),
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.4f),
-                modifier = Modifier.size(16.dp),
-            )
         }
     }
 }

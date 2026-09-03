@@ -164,11 +164,7 @@ fun AccountSettings(
                 accountImageUrl = accountImageUrl,
                 onAccountClick = {
                     onClose()
-                    if (isLoggedIn) {
-                        navController.navigate("account")
-                    } else {
-                        navController.navigate(buildLoginRoute())
-                    }
+                    navController.navigate("account")
                 },
                 onLogout = {
                     onInnerTubeCookieChange("")
