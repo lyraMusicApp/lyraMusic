@@ -463,16 +463,16 @@ fun SpotifyExploreScreen(
             SpotifySectionTitle(stringResource(R.string.new_release_albums))
             SpotifyYtRow(explorePage?.newReleaseAlbums.orEmpty(), navController, playerConnection)
         }
-        moodAndGenres?.forEach { group ->
+        moodAndGenres?.let { list ->
             item {
-                SpotifySectionTitle(group.title)
+                SpotifySectionTitle("Moods & Genres")
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     val localConfiguration = androidx.compose.ui.platform.LocalConfiguration.current
                     val itemsPerRow = if (localConfiguration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
-                    group.items.chunked(itemsPerRow).forEach { row ->
+                    list.chunked(itemsPerRow).forEach { row ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             row.forEach { item ->
                                 SpotifyBrowseTile(
@@ -496,88 +496,7 @@ fun SpotifyExploreScreen(
 
 @Composable
 fun SpotifyLibraryScreen(navController: NavController) {
-    var filterType by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS) }
-
-    SpotifyScaffold(
-        title = stringResource(R.string.library),
-        subtitle = "Saved music in AirBeats",
-        actions = {
-            androidx.compose.material3.IconButton(onClick = { navController.navigate(Screens.Search.route) }) {
-                androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.search), contentDescription = null, tint = SpotifyText, modifier = Modifier.size(24.dp))
-            }
-            androidx.compose.material3.IconButton(onClick = { navController.navigate("settings") }) {
-                androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.settings), contentDescription = null, tint = SpotifyText, modifier = Modifier.size(24.dp))
-            }
-        }
-    ) {
-        item {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                item {
-                    SpotifyChip(text = stringResource(R.string.playlists), isSelected = filterType == com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS) {
-                        filterType = com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS
-                    }
-                }
-                item {
-                    SpotifyChip(text = stringResource(R.string.songs), isSelected = filterType == com.arturo254.opentune.constants.LibraryFilter.SONGS) {
-                        filterType = com.arturo254.opentune.constants.LibraryFilter.SONGS
-                    }
-                }
-                item {
-                    SpotifyChip(text = stringResource(R.string.albums), isSelected = filterType == com.arturo254.opentune.constants.LibraryFilter.ALBUMS) {
-                        filterType = com.arturo254.opentune.constants.LibraryFilter.ALBUMS
-                    }
-                }
-                item {
-                    SpotifyChip(text = stringResource(R.string.artists), isSelected = filterType == com.arturo254.opentune.constants.LibraryFilter.ARTISTS) {
-                        filterType = com.arturo254.opentune.constants.LibraryFilter.ARTISTS
-                    }
-                }
-                item {
-                    SpotifyChip(text = stringResource(R.string.local_files), isSelected = filterType == com.arturo254.opentune.constants.LibraryFilter.LOCAL) {
-                        filterType = com.arturo254.opentune.constants.LibraryFilter.LOCAL
-                    }
-                }
-                item {
-                    SpotifyChip(text = stringResource(R.string.history), isSelected = false) {
-                        navController.navigate("history")
-                    }
-                }
-            }
-        }
-        item {
-            val insets = com.arturo254.opentune.LocalPlayerAwareWindowInsets.current
-            val density = androidx.compose.ui.platform.LocalDensity.current
-            val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-            val bottom = insets.getBottom(density)
-            val left = insets.getLeft(density, layoutDirection)
-            val right = insets.getRight(density, layoutDirection)
-            val customInsets = androidx.compose.foundation.layout.WindowInsets(left, 0, right, 0)
-            
-            androidx.compose.runtime.CompositionLocalProvider(
-                com.arturo254.opentune.LocalPlayerAwareWindowInsets provides customInsets
-            ) {
-                Box(Modifier.fillParentMaxSize()) {
-                    when (filterType) {
-                        com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS ->
-                            com.arturo254.opentune.ui.screens.library.LibraryPlaylistsScreen(navController = navController, filterContent = {}, onLocalClick = { filterType = com.arturo254.opentune.constants.LibraryFilter.LOCAL })
-                        com.arturo254.opentune.constants.LibraryFilter.SONGS ->
-                            com.arturo254.opentune.ui.screens.library.LibrarySongsScreen(navController = navController, onDeselect = { filterType = com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS })
-                        com.arturo254.opentune.constants.LibraryFilter.ALBUMS ->
-                            com.arturo254.opentune.ui.screens.library.LibraryAlbumsScreen(navController = navController, onDeselect = { filterType = com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS })
-                        com.arturo254.opentune.constants.LibraryFilter.ARTISTS ->
-                            com.arturo254.opentune.ui.screens.library.LibraryArtistsScreen(navController = navController, onDeselect = { filterType = com.arturo254.opentune.constants.LibraryFilter.PLAYLISTS })
-                        com.arturo254.opentune.constants.LibraryFilter.LOCAL ->
-                            com.arturo254.opentune.ui.screens.library.LocalSongsScreen(navController = navController)
-                        else -> {}
-                    }
-                }
-            }
-        }
-    }
+    com.arturo254.opentune.ui.screens.library.LibraryScreen(navController = navController)
 }
 
 @Composable
@@ -711,10 +630,7 @@ private fun SpotifyHeader(
                         if (isAtTop) {
                             Modifier.background(Color.Transparent)
                         } else if (hazeState != null) {
-                            Modifier.hazeChild(
-                                state = hazeState,
-                                style = dev.chrisbanes.haze.materials.HazeMaterials.ultraThin()
-                            )
+                            Modifier.hazeChild(state = hazeState)
                         } else {
                             Modifier.background(SpotifyBg.copy(alpha = 0.95f))
                         }
@@ -739,17 +655,11 @@ private fun SpotifyHeader(
                     androidx.compose.material3.Text(title, color = SpotifyText, fontSize = 22.sp, fontWeight = FontWeight.Black)
                     if (subtitle.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            var showNameDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-                            val context = androidx.compose.ui.platform.LocalContext.current
-                            val namePrefMgr = androidx.compose.runtime.remember { com.arturo254.opentune.ui.component.NamePreferenceManager(context) }
-                            val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-
                             androidx.compose.material3.Text(
                                 text = subtitle, 
                                 color = SpotifyText.copy(alpha = 0.7f), 
                                 fontSize = 14.sp, 
                                 maxLines = 1,
-                                modifier = if (subtitle.startsWith("Good ")) Modifier.clickable { showNameDialog = true } else Modifier
                             )
                             
                             if (subtitle.startsWith("Good ")) {
