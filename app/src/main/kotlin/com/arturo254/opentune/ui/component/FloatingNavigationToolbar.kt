@@ -88,14 +88,10 @@ fun FloatingNavigationToolbar(
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
-    val toolbarContainerColor = floatingToolbarContainerColor(pureBlack = pureBlack, liquidGlass = liquidGlass)
-    val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
-        toolbarContainerColor = toolbarContainerColor,
-    )
     val hasOverflowAction = onShuffleClick != null && shuffleIconRes != null
     val hasFabAction = onFabClick != null && fabIconRes != null
 
-    // Modificador para el efecto Liquid Glass: borde con gradiente de luz y overlay sutil
+    // Liquid Glass border & light refraction
     val glassModifier = if (liquidGlass) {
         Modifier.liquidGlassStyle(pureBlack = pureBlack)
     } else {
@@ -108,10 +104,35 @@ fun FloatingNavigationToolbar(
     ) {
         val showSelectedLabels = maxWidth >= 360.dp
 
-        if (hasOverflowAction) {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
+        Surface(
+            shape = RoundedCornerShape(32.dp),
+            color = if (pureBlack) Color.Black else Color(0xEE141722),
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .widthIn(max = 440.dp)
+                .height(54.dp)
+                .then(glassModifier)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items.forEach { screen ->
+                    val selected = isSelected(screen)
+                    FloatingNavigationToolbarItem(
+                        screen = screen,
+                        selected = selected,
+                        showSelectedLabel = showSelectedLabels,
+                        pureBlack = pureBlack,
+                        liquidGlass = liquidGlass,
+                        onClick = { onItemClick(screen, selected) },
+                    )
+                }
+
+                if (hasOverflowAction) {
                     FloatingToolbarOverflowAction(
                         pureBlack = pureBlack,
                         liquidGlass = liquidGlass,
@@ -121,70 +142,13 @@ fun FloatingNavigationToolbar(
                         onMusicRecognitionClick = onMusicRecognitionClick,
                         musicRecognitionContentDescription = musicRecognitionContentDescription,
                     )
-                },
-                modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .then(glassModifier),
-                colors = toolbarColors,
-            ) {
-                items.forEach { screen ->
-                    val selected = isSelected(screen)
-                    FloatingNavigationToolbarItem(
-                        screen = screen,
-                        selected = selected,
-                        showSelectedLabel = showSelectedLabels,
-                        pureBlack = pureBlack,
-                        liquidGlass = liquidGlass,
-                        onClick = { onItemClick(screen, selected) },
-                    )
-                }
-            }
-        } else if (hasFabAction) {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
+                } else if (hasFabAction) {
                     FloatingToolbarFabAction(
                         pureBlack = pureBlack,
                         liquidGlass = liquidGlass,
                         onClick = onFabClick,
                         iconRes = fabIconRes,
                         contentDescription = fabContentDescription,
-                    )
-                },
-                modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .then(glassModifier),
-                colors = toolbarColors,
-            ) {
-                items.forEach { screen ->
-                    val selected = isSelected(screen)
-                    FloatingNavigationToolbarItem(
-                        screen = screen,
-                        selected = selected,
-                        showSelectedLabel = showSelectedLabels,
-                        pureBlack = pureBlack,
-                        liquidGlass = liquidGlass,
-                        onClick = { onItemClick(screen, selected) },
-                    )
-                }
-            }
-        } else {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                modifier = Modifier
-                    .widthIn(max = 420.dp)
-                    .then(glassModifier),
-                colors = toolbarColors,
-            ) {
-                items.forEach { screen ->
-                    val selected = isSelected(screen)
-                    FloatingNavigationToolbarItem(
-                        screen = screen,
-                        selected = selected,
-                        showSelectedLabel = showSelectedLabels,
-                        pureBlack = pureBlack,
-                        liquidGlass = liquidGlass,
-                        onClick = { onItemClick(screen, selected) },
                     )
                 }
             }
@@ -194,12 +158,6 @@ fun FloatingNavigationToolbar(
 
 // ── Efecto visual Liquid Glass ───────────────────────────────────────────────
 
-/**
- * Aplica el estilo Liquid Glass al toolbar:
- * - Borde superior más brillante (simula refracción de luz en el borde del vidrio)
- * - Borde inferior más sutil (reflejo secundario)
- * - Overlay de highlight en la parte superior (brillo tipo lente)
- */
 private fun Modifier.liquidGlassStyle(
     pureBlack: Boolean,
     shape: Shape = RoundedCornerShape(32.dp),
@@ -219,7 +177,7 @@ private fun Modifier.liquidGlassStyle(
         .drawWithContent {
             drawContent()
 
-            // 🔥 highlight horizontal (vidrio)
+            // highlight horizontal (vidrio)
             drawRoundRect(
                 brush = Brush.linearGradient(
                     colors = listOf(
@@ -237,7 +195,7 @@ private fun Modifier.liquidGlassStyle(
                 )
             )
 
-            // 🔥 brillo superior
+            // brillo superior
             drawRoundRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -255,8 +213,6 @@ private fun Modifier.liquidGlassStyle(
             )
         }
 
-
-
 // ── Subcomponentes ───────────────────────────────────────────────────────────
 
 @Composable
@@ -270,40 +226,39 @@ private fun FloatingToolbarOverflowAction(
     musicRecognitionContentDescription: String,
 ) {
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
-
-    val fabShape = RoundedCornerShape(16.dp)
-
-    val glassModifier = if (liquidGlass) {
-        Modifier.liquidGlassStyle(
-            pureBlack = pureBlack,
-            shape = fabShape
-        )
-    } else Modifier
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "overflowScale",
+    )
 
     Box {
-        // 🔥 FAB con glass consistente
         Box(
-            modifier = glassModifier
+            modifier = Modifier
+                .scale(scale)
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFD4E84B))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClick = { fabMenuExpanded = !fabMenuExpanded }
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            FloatingToolbarDefaults.VibrantFloatingActionButton(
-                onClick = { fabMenuExpanded = !fabMenuExpanded },
-                containerColor = floatingToolbarFabContainerColor(
-                    pureBlack = pureBlack,
-                    liquidGlass = liquidGlass
-                ),
-                contentColor = floatingToolbarFabContentColor(
-                    pureBlack = pureBlack,
-                    liquidGlass = liquidGlass
-                ),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.more_horiz),
-                    contentDescription =
-                        shuffleContentDescription.ifEmpty {
-                            stringResource(R.string.more)
-                        },
-                )
-            }
+            Icon(
+                painter = painterResource(R.drawable.more_horiz),
+                contentDescription = shuffleContentDescription.ifEmpty {
+                    stringResource(R.string.more)
+                },
+                tint = Color(0xFF111827),
+                modifier = Modifier.size(20.dp)
+            )
         }
 
         DropdownMenu(
@@ -392,18 +347,37 @@ private fun FloatingToolbarFabAction(
     contentDescription: String,
 ) {
     if (onClick == null || iconRes == null) return
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "fabScale",
+    )
 
-    FloatingToolbarDefaults.VibrantFloatingActionButton(
-        onClick = onClick,
-        containerColor = floatingToolbarFabContainerColor(pureBlack = pureBlack, liquidGlass = liquidGlass),
-        contentColor = floatingToolbarFabContentColor(pureBlack = pureBlack, liquidGlass = liquidGlass),
+    Box(
+        modifier = Modifier
+            .scale(scale)
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(Color(0xFFD4E84B))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             painter = painterResource(iconRes),
-            contentDescription =
-                contentDescription.ifEmpty {
-                    stringResource(R.string.create_playlist)
-                },
+            contentDescription = contentDescription.ifEmpty {
+                stringResource(R.string.create_playlist)
+            },
+            tint = Color(0xFF111827),
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -418,25 +392,25 @@ private fun FloatingNavigationToolbarItem(
     onClick: () -> Unit,
 ) {
     val containerColor by animateColorAsState(
-        targetValue =
-            when {
-                selected -> Color(0xFFD4E84B) // Lime green highlight
-                else -> Color.Transparent
-            },
+        targetValue = if (selected) Color(0xFFD4E84B) else Color.Transparent,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
         label = "tabContainer",
     )
     val contentColor by animateColorAsState(
-        targetValue =
-            when {
-                selected -> Color(0xFF111827) // Black icon on lime green pill
-                else -> Color.White.copy(alpha = 0.82f)
-            },
+        targetValue = if (selected) Color(0xFF111827) else Color.White.copy(alpha = 0.85f),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "tabContent",
     )
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
+        targetValue = if (isPressed) 0.88f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium,
@@ -445,19 +419,17 @@ private fun FloatingNavigationToolbarItem(
     )
 
     Box(
-        modifier =
-            Modifier
-                .padding(horizontal = 4.dp, vertical = 2.dp)
-                .scale(scale)
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(color = containerColor, shape = CircleShape)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current,
-                    role = Role.Tab,
-                    onClick = onClick,
-                ),
+        modifier = Modifier
+            .scale(scale)
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(color = containerColor, shape = CircleShape)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                role = Role.Tab,
+                onClick = onClick,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

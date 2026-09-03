@@ -210,21 +210,23 @@ fun SettingsScreen(
                     },
                     scrollBehavior = scrollBehavior,
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                        scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                     ),
                 )
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             if (!showSearchBar) {
                 AdaptiveSettingsLayout(
                     state = contentState,
                     listState = listState,
-                    topPadding = innerPadding.calculateTopPadding(),
+                    topPadding = innerPadding.calculateTopPadding() + 8.dp,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
