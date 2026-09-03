@@ -54,6 +54,7 @@ import com.arturo254.opentune.constants.ShowHomeCategoryChipsKey
 import com.arturo254.opentune.ui.component.ChipsRow
 import com.arturo254.opentune.ui.component.LocalBottomSheetPageState
 import com.arturo254.opentune.ui.component.LocalMenuState
+import com.arturo254.opentune.ui.component.NavigationTitle
 import com.arturo254.opentune.ui.utils.SnapLayoutInfoProvider
 import com.arturo254.opentune.utils.rememberPreference
 import com.arturo254.opentune.innertube.models.WatchEndpoint
