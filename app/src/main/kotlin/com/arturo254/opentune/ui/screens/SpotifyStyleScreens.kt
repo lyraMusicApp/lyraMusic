@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.screens
+package com.arturo254.opentune.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -752,64 +752,12 @@ private fun SpotifyHeader(
                                 modifier = if (subtitle.startsWith("Good ")) Modifier.clickable { showNameDialog = true } else Modifier
                             )
                             
-                            if (showNameDialog) {
-                                com.arturo254.opentune.ui.component.NameSetupDialog(
-                                    onNameConfirmed = { newName ->
-                                        if (newName.isNotBlank()) {
-                                            coroutineScope.launch {
-                                                namePrefMgr.saveUserName(newName)
-                                                try {
-                                                    com.arturo254.opentune.utils.AirBeatsStatsCloudSync.syncDaily(
-                                                        context = com.arturo254.opentune.App.instance,
-                                                        database = com.arturo254.opentune.App.instance.database,
-                                                        namePreferenceManager = namePrefMgr,
-                                                    )?.onFailure {
-                                                        timber.log.Timber.e(it, "Failed to sync stats after name confirmation")
-                                                    }
-                                                } catch (e: Exception) {
-                                                    timber.log.Timber.e(e, "Exception syncing stats after name confirmation")
-                                                }
-                                            }
-                                        }
-                                        showNameDialog = false
-                                    }
-                                )
-                            }
                             if (subtitle.startsWith("Good ")) {
-                                val context = androidx.compose.ui.platform.LocalContext.current
-                                val statsViewModel = com.arturo254.opentune.ui.utils.safeHiltViewModel<com.arturo254.opentune.viewmodels.StatsViewModel>()
-                                val totalHours by (statsViewModel?.totalListenHours ?: kotlinx.coroutines.flow.flowOf(0.0)).collectAsState(initial = 0.0)
-                                val currentRank = androidx.compose.runtime.remember(totalHours) {
-                                    if (totalHours >= 1.0) com.arturo254.opentune.ui.component.AirBeatsRank.fromHours(totalHours.toInt()) else null
-                                }
-                                val rankPrefMgr = androidx.compose.runtime.remember { com.arturo254.opentune.ui.component.RankPreferenceManager(context) }
-                                val displayedRank by rankPrefMgr.displayedRank.collectAsState(initial = null)
-
-                                currentRank?.let { rank ->
-                                    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-                                    var showBadgeSelector by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    com.arturo254.opentune.ui.component.RankBadge(
-                                        rank = rank, 
-                                        displayedRank = displayedRank, 
-                                        size = 16.dp,
-                                        modifier = Modifier.clickable { showBadgeSelector = true }
-                                    )
-                                    if (showBadgeSelector) {
-                                        val unlocked = com.arturo254.opentune.ui.component.unlockedRanksFromHours(totalHours)
-                                        com.arturo254.opentune.ui.component.BadgeSelector(
-                                            unlockedRanks = unlocked,
-                                            currentDisplayed = displayedRank,
-                                            onSelect = { selectedRank ->
-                                                coroutineScope.launch {
-                                                    rankPrefMgr.saveDisplayedRank(selectedRank)
-                                                }
-                                                showBadgeSelector = false
-                                            },
-                                            onDismiss = { showBadgeSelector = false }
-                                        )
-                                    }
-                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                com.arturo254.opentune.ui.component.RankBadge(
+                                    rank = com.arturo254.opentune.ui.component.AirBeatsRank.Echo,
+                                    size = 16.dp,
+                                )
                             }
                         }
                     }

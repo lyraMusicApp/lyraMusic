@@ -35,3 +35,25 @@ enum class AirBeatsRank(val thresholdHours: Int) {
         }
     }
 }
+
+@androidx.compose.runtime.Composable
+fun RankBadge(
+    rank: AirBeatsRank,
+    modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier,
+    size: androidx.compose.ui.unit.Dp = 16.dp,
+) {
+    androidx.compose.material3.Surface(
+        shape = androidx.compose.foundation.shape.CircleShape,
+        color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
+        modifier = modifier.androidx.compose.foundation.layout.size(size)
+    ) {
+        androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+            androidx.compose.material3.Text(
+                text = rank.name.take(1),
+                fontSize = 10.androidx.compose.ui.unit.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}

@@ -89,8 +89,6 @@ import com.arturo254.opentune.extensions.toMediaItem
 import com.arturo254.opentune.viewmodels.HomeViewModel
 import com.arturo254.opentune.viewmodels.MoodAndGenresViewModel
 import com.arturo254.opentune.viewmodels.OnlineSearchSuggestionViewModel
-import com.arturo254.opentune.ui.component.AvatarPreferenceManager
-import com.arturo254.opentune.ui.component.AvatarSelection
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
@@ -178,12 +176,6 @@ fun AppleHeader(
     profileUrl: String? = null,
     onProfileClick: () -> Unit
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val avatarManager = remember { AvatarPreferenceManager(context) }
-    val currentSelection by avatarManager
-        .getAvatarSelection
-        .collectAsState(initial = AvatarSelection.Default)
-
     Box(modifier = modifier.fillMaxWidth()) {
         AnimatedContent(
             targetState = isAtTop,
@@ -200,10 +192,7 @@ fun AppleHeader(
                         if (isAtTopState) {
                             Modifier.background(Color.Transparent)
                         } else if (hazeState != null) {
-                            Modifier.hazeChild(
-                                state = hazeState,
-                                style = dev.chrisbanes.haze.materials.HazeMaterials.ultraThin()
-                            )
+                            Modifier.hazeChild(state = hazeState)
                         } else {
                             Modifier.background(AppleBg.copy(alpha = 0.95f))
                         }
@@ -229,45 +218,20 @@ fun AppleHeader(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                when (val selection = currentSelection) {
-                    is AvatarSelection.Custom -> {
-                        AsyncImage(
-                            model = selection.uri.toUri(),
-                            contentDescription = "Profile",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    is AvatarSelection.DiceBear -> {
-                        AsyncImage(
-                            model = selection.url,
-                            contentDescription = "Profile",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    else -> {
-                        if (profileUrl != null) {
-                            AsyncImage(
-                                model = coil3.request.ImageRequest.Builder(context)
-                                    .data(profileUrl)
-                                    .diskCachePolicy(coil3.request.CachePolicy.ENABLED)
-                                    .diskCacheKey(profileUrl)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = "Profile",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Icon(
-                                painter = painterResource(R.drawable.person),
-                                contentDescription = "Profile",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
+                if (profileUrl != null) {
+                    AsyncImage(
+                        model = profileUrl,
+                        contentDescription = "Profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.person),
+                        contentDescription = "Profile",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
