@@ -17,14 +17,14 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace = "com.arturo254.opentune"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.shnwazdeveloper.lyramusic"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 139
-        versionName = "3.1.0-pre3"
+        targetSdk = 34
+        versionCode = 140
+        versionName = "3.1.0-pre4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
