@@ -58,6 +58,9 @@ import com.arturo254.opentune.ui.component.NavigationTitle
 import com.arturo254.opentune.ui.utils.SnapLayoutInfoProvider
 import com.arturo254.opentune.utils.rememberPreference
 import com.arturo254.opentune.innertube.models.WatchEndpoint
+import com.arturo254.opentune.innertube.models.SongItem
+import com.arturo254.opentune.innertube.models.AlbumItem
+import com.arturo254.opentune.innertube.models.PlaylistItem
 import com.arturo254.opentune.playback.queues.YouTubeQueue
 import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.viewmodels.HomeViewModel
@@ -261,19 +264,63 @@ fun HomeScreen(
                 }
 
                 // 3. Featured Hero Carousel Slider (Image media_1788413527256.jpg)
-                val heroSongs = (quickPicks?.takeIf { it.isNotEmpty() } ?: speedDialSongs)
-                heroSongs?.takeIf { it.isNotEmpty() }?.let { songs ->
+                val heroItems = remember(quickPicks, speedDialSongs, homePage, explorePage) {
+                    val localSongs = (quickPicks?.takeIf { it.isNotEmpty() } ?: speedDialSongs.takeIf { it.isNotEmpty() })
+                    if (localSongs != null && localSongs.isNotEmpty()) {
+                        localSongs.take(12).map { song ->
+                            HomeHeroItem(
+                                id = song.id,
+                                title = song.title,
+                                subtitle = song.artists.joinToString { it.name },
+                                thumbnailUrl = song.thumbnailUrl,
+                                onClick = {
+                                    playerConnection.playQueue(
+                                        YouTubeQueue(
+                                            WatchEndpoint(videoId = song.id),
+                                            song.toMediaMetadata()
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    } else {
+                        val ytItems = homePage?.sections?.flatMap { it.items }?.takeIf { it.isNotEmpty() }
+                            ?: explorePage?.newReleaseAlbums
+                        ytItems?.take(12)?.map { item ->
+                            HomeHeroItem(
+                                id = item.id,
+                                title = item.title,
+                                subtitle = when (item) {
+                                    is SongItem -> item.artists.joinToString { it.name }
+                                    is AlbumItem -> item.artists?.joinToString { it.name } ?: "Album"
+                                    is PlaylistItem -> item.author?.name ?: "Playlist"
+                                    else -> ""
+                                },
+                                thumbnailUrl = item.thumbnail,
+                                onClick = {
+                                    when (item) {
+                                        is SongItem -> {
+                                            playerConnection.playQueue(
+                                                YouTubeQueue(
+                                                    item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                                    item.toMediaMetadata()
+                                                )
+                                            )
+                                        }
+                                        is AlbumItem -> navController.navigate("album/${item.id}")
+                                        is PlaylistItem -> navController.navigate("online_playlist/${item.id}")
+                                        else -> {}
+                                    }
+                                }
+                            )
+                        } ?: emptyList()
+                    }
+                }
+
+                if (heroItems.isNotEmpty()) {
                     item {
                         HomeHeroCarousel(
-                            items = songs.take(12),
-                            onItemClick = { song ->
-                                playerConnection.playQueue(
-                                    YouTubeQueue(
-                                        WatchEndpoint(videoId = song.id),
-                                        song.toMediaMetadata()
-                                    )
-                                )
-                            }
+                            items = heroItems,
                         )
                     }
                 }

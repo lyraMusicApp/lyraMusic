@@ -1585,11 +1585,18 @@ fun TopDailyPlaylistsSection(
     }
 }
 
+data class HomeHeroItem(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val thumbnailUrl: String?,
+    val onClick: () -> Unit,
+)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeHeroCarousel(
-    items: List<Song>,
-    onItemClick: (Song) -> Unit,
+    items: List<HomeHeroItem>,
     modifier: Modifier = Modifier,
 ) {
     if (items.isEmpty()) return
@@ -1612,7 +1619,7 @@ fun HomeHeroCarousel(
                 .fillMaxWidth()
                 .height(260.dp)
         ) { page ->
-            val song = items.getOrNull(page) ?: return@HorizontalPager
+            val heroItem = items.getOrNull(page) ?: return@HorizontalPager
 
             val pageOffset = (
                 (pagerState.currentPage - page) + pagerState
@@ -1631,12 +1638,12 @@ fun HomeHeroCarousel(
                     }
                     .fillMaxSize()
                     .clip(RoundedCornerShape(28.dp))
-                    .clickable { onItemClick(song) }
+                    .clickable { heroItem.onClick() }
             ) {
                 // Background Album Cover Art
                 AsyncImage(
-                    model = song.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
-                    contentDescription = song.title,
+                    model = heroItem.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
+                    contentDescription = heroItem.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -1665,7 +1672,7 @@ fun HomeHeroCarousel(
                         .padding(horizontal = 20.dp, vertical = 18.dp)
                 ) {
                     Text(
-                        text = song.title,
+                        text = heroItem.title,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -1673,15 +1680,17 @@ fun HomeHeroCarousel(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = song.artists.joinToString { it.name },
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.White.copy(alpha = 0.85f)
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    if (heroItem.subtitle.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = heroItem.subtitle,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.White.copy(alpha = 0.85f)
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }

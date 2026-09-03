@@ -243,9 +243,9 @@ private fun FloatingToolbarOverflowAction(
         Box(
             modifier = Modifier
                 .scale(scale)
-                .size(38.dp)
+                .size(36.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFD4E84B))
+                .background(if (pureBlack) Color(0xFF222222) else Color(0x33FFFFFF))
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
@@ -258,7 +258,7 @@ private fun FloatingToolbarOverflowAction(
                 contentDescription = shuffleContentDescription.ifEmpty {
                     stringResource(R.string.more)
                 },
-                tint = Color(0xFF111827),
+                tint = Color.White,
                 modifier = Modifier.size(20.dp)
             )
         }
