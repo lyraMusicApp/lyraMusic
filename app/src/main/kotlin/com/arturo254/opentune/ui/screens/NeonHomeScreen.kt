@@ -37,11 +37,8 @@ import com.arturo254.opentune.LocalPlayerConnection
 import com.arturo254.opentune.R
 import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.playback.queues.YouTubeQueue
-import com.arturo254.opentune.ui.component.LocalUserName
-import com.arturo254.opentune.ui.component.RankPreferenceManager
+import com.arturo254.opentune.ui.component.AirBeatsRank
 import com.arturo254.opentune.ui.component.RankBadge
-import com.arturo254.opentune.ui.component.BadgeSelector
-import com.arturo254.opentune.ui.component.unlockedRanksFromHours
 import com.arturo254.opentune.ui.utils.highQualityThumbnail
 import com.arturo254.opentune.viewmodels.HomeViewModel
 import com.arturo254.opentune.viewmodels.StatsViewModel

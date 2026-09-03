@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import com.arturo254.opentune.ui.component.BottomSheetState
 import com.arturo254.opentune.ui.component.bottomSheetDraggable
@@ -18,19 +18,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Pause
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -78,8 +70,8 @@ fun GroovePlayer(
     onMenuClick: () -> Unit,
 ) {
     val density = androidx.compose.ui.platform.LocalDensity.current.density
-    val accentColor = Color(0xFF00C2FF) // Vibrant, bright cyan-blue instead of pale system primary
-    val backgroundColor = Color.White // Keeping it white to match screenshot
+    val accentColor = Color(0xFF00C2FF)
+    val backgroundColor = Color.White
     val textPrimary = Color(0xFF2E3345)
     val textSecondary = Color(0xFF8A8F9E)
 
@@ -108,7 +100,7 @@ fun GroovePlayer(
             ) {
                 IconButton(onClick = onCollapse) {
                     Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowDown,
+                        painter = painterResource(R.drawable.expand_more),
                         contentDescription = "Collapse",
                         tint = textPrimary
                     )
@@ -121,7 +113,7 @@ fun GroovePlayer(
                 )
                 IconButton(onClick = onMenuClick) {
                     Icon(
-                        imageVector = Icons.Rounded.MoreVert,
+                        painter = painterResource(R.drawable.more_vert),
                         contentDescription = "Menu",
                         tint = textPrimary
                     )
@@ -138,275 +130,126 @@ fun GroovePlayer(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = formatTime(position),
-                    fontSize = 12.sp,
+                    text = com.arturo254.opentune.utils.makeTimeString(position),
                     color = textSecondary,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = formatTime(duration),
-                    fontSize = 12.sp,
+                    text = com.arturo254.opentune.utils.makeTimeString(duration),
                     color = textSecondary,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Halo Artwork
+            // Disc / Center Animation Area
             Box(
                 modifier = Modifier
-                    .size(280.dp),
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                // Background shadow glow
-                Box(
-                    modifier = Modifier
-                        .size(300.dp)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(accentColor.copy(alpha = 0.4f), Color.Transparent)
-                            )
+                if (mediaMetadata != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(260.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFF0F0F0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = mediaMetadata.thumbnailUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = ContentScale.Crop
                         )
-                )
-
-                // Artwork with 3D pulse on change
-                var artworkScale by remember { mutableStateOf(1f) }
-                LaunchedEffect(mediaMetadata) {
-                    artworkScale = 1.1f
-                    kotlinx.coroutines.delay(150)
-                    artworkScale = 1f
-                }
-                val animatedArtworkScale by animateFloatAsState(
-                    targetValue = artworkScale,
-                    animationSpec = tween(400, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                )
-
-                AsyncImage(
-                    model = mediaMetadata?.thumbnailUrl,
-                    contentDescription = "Artwork",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(220.dp)
-                        .graphicsLayer {
-                            scaleX = animatedArtworkScale
-                            scaleY = animatedArtworkScale
-                        }
-                        .clip(CircleShape)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onLyricsClick
-                        )
-                )
-
-                // Interactive Progress Ring (Circular Slider)
-                var dragProgress by remember { mutableStateOf<Float?>(null) }
-                val progress = if (duration > 0) position.toFloat() / duration.toFloat() else 0f
-                val activeProgress = dragProgress ?: progress
-                val currentAngle = activeProgress * 360f
-
-                Canvas(
-                    modifier = Modifier
-                        .size(260.dp)
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragStart = { offset ->
-                                    val center = Offset(size.width / 2f, size.height / 2f)
-                                    val dx = offset.x - center.x
-                                    val dy = offset.y - center.y
-                                    var angle = (atan2(dy, dx) * (180f / PI)).toFloat() + 90f
-                                    if (angle < 0) angle += 360f
-                                    dragProgress = angle / 360f
-                                },
-                                onDrag = { change, _ ->
-                                    val center = Offset(size.width / 2f, size.height / 2f)
-                                    val dx = change.position.x - center.x
-                                    val dy = change.position.y - center.y
-                                    var angle = (atan2(dy, dx) * (180f / PI)).toFloat() + 90f
-                                    if (angle < 0) angle += 360f
-                                    val newProgress = angle / 360f
-                                    dragProgress = newProgress
-                                    onSliderPositionChange((newProgress * duration).toLong())
-                                },
-                                onDragEnd = {
-                                    dragProgress?.let { finalProgress ->
-                                        onSliderPositionChange((finalProgress * duration).toLong())
-                                        onSliderPositionChangeFinished()
-                                    }
-                                    dragProgress = null
-                                },
-                                onDragCancel = { dragProgress = null }
-                            )
-                        }
-                ) {
-                    // Draw track
-                    drawArc(
-                        color = Color(0xFFF0F0F0),
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(width = 4.dp.toPx())
-                    )
-                    // Draw active progress arc
-                    drawArc(
-                        color = accentColor,
-                        startAngle = -90f,
-                        sweepAngle = currentAngle,
-                        useCenter = false,
-                        style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                    
-                    // Draw draggable thumb
-                    val angleRad = (currentAngle - 90f) * (PI / 180f)
-                    val radius = size.width / 2f
-                    val thumbX = center.x + radius * cos(angleRad).toFloat()
-                    val thumbY = center.y + radius * sin(angleRad).toFloat()
-                    
-                    // Thumb shadow
-                    drawCircle(
-                        color = Color.Black.copy(alpha = 0.2f),
-                        radius = 12.dp.toPx(),
-                        center = Offset(thumbX, thumbY + 4.dp.toPx())
-                    )
-                    // Thumb ball
-                    drawCircle(
-                        color = Color.White,
-                        radius = 10.dp.toPx(),
-                        center = Offset(thumbX, thumbY)
-                    )
-                    // Inner accent dot
-                    drawCircle(
-                        color = accentColor,
-                        radius = 4.dp.toPx(),
-                        center = Offset(thumbX, thumbY)
-                    )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            // Song Info
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = mediaMetadata?.title.orEmpty(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = mediaMetadata?.artists?.joinToString { it.name }.orEmpty(),
+                    fontSize = 14.sp,
+                    color = textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
-            // Title and Artist
-            Text(
-                text = mediaMetadata?.title ?: "Unknown Title",
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                color = textPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = mediaMetadata?.artists?.joinToString { it.name } ?: "Unknown Artist",
-                fontSize = 14.sp,
-                color = textSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Spacer(modifier = Modifier.weight(0.75f)) // Less weight above to pull controls up
-
-            // Playback Controls
+            // Bottom Controls Bar
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 IconButton(onClick = onShuffleClick) {
                     Icon(
                         painter = painterResource(if (shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle),
                         contentDescription = "Shuffle",
-                        tint = if (shuffleModeEnabled) accentColor else Color(0xFF8A8F9E),
-                        modifier = Modifier.size(24.dp)
+                        tint = textPrimary
                     )
                 }
 
-                Spacer(modifier = Modifier.width(20.dp)) // Bring side control closer
+                IconButton(onClick = onPrevious, enabled = canSkipPrevious) {
+                    Icon(
+                        painter = painterResource(R.drawable.skip_previous),
+                        contentDescription = "Previous",
+                        tint = if (canSkipPrevious) textPrimary else textSecondary.copy(alpha = 0.4f)
+                    )
+                }
 
-                // Central Pill + Play Button
-                Box(contentAlignment = Alignment.Center) {
-                    // Pill shape background for Previous and Next
-                    Row(
-                        modifier = Modifier
-                            .width(230.dp) // Increased width
-                            .height(56.dp)
-                            .border(1.dp, Color(0xFFF0F0F0), CircleShape)
-                            .background(Color.White, CircleShape),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(enabled = canSkipPrevious, onClick = onPrevious),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.SkipPrevious,
-                                contentDescription = "Previous",
-                                tint = if (canSkipPrevious) Color(0xFF8A8F9E) else Color(0xFFE0E0E0),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(80.dp)) // Increased space for central play button
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(enabled = canSkipNext, onClick = onNext),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.SkipNext,
-                                contentDescription = "Next",
-                                tint = if (canSkipNext) Color(0xFF8A8F9E) else Color(0xFFE0E0E0),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-
-                    // Play/Pause Button overlapping the pill
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(CircleShape)
-                            .background(accentColor)
-                            .clickable(onClick = onPlayPause),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        // Glow effect for button
-                        Box(modifier = Modifier.fillMaxSize()
-                                .blur(16.dp)
-                                .background(accentColor, CircleShape)
+                FloatingActionButton(
+                    onClick = onPlayPause,
+                    shape = CircleShape,
+                    containerColor = accentColor,
+                    contentColor = Color.White,
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(28.dp),
+                            strokeWidth = 3.dp
                         )
-                        
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(32.dp),
-                                strokeWidth = 3.dp
-                            )
-                        } else {
-                            Icon(
-                                imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                                contentDescription = "Play/Pause",
-                                tint = Color.White,
-                                modifier = Modifier.size(36.dp)
-                            )
-                        }
+                    } else {
+                        Icon(
+                            painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
+                            contentDescription = "Play/Pause",
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(20.dp)) // Bring side control closer
+                IconButton(onClick = onNext, enabled = canSkipNext) {
+                    Icon(
+                        painter = painterResource(R.drawable.skip_next),
+                        contentDescription = "Next",
+                        tint = if (canSkipNext) textPrimary else textSecondary.copy(alpha = 0.4f)
+                    )
+                }
 
                 IconButton(onClick = onRepeatClick) {
-                    val repeatIcon = when (repeatMode) {
-                        Player.REPEAT_MODE_ONE -> R.drawable.repeat_one_on
                         Player.REPEAT_MODE_ALL -> R.drawable.repeat_on
                         else -> R.drawable.repeat
                     }

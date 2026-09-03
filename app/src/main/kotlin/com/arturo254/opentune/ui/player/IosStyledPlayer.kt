@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.player
+package com.arturo254.opentune.ui.player
 
 import android.content.Context
 import android.content.Intent
@@ -46,12 +46,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.arturo254.opentune.ui.component.SongDetailsDialog
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -125,15 +121,6 @@ fun IosStyledPlayer(
     playerVolume: Float,
     onVolumeChange: (Float) -> Unit,
 ) {
-    var showDetailsDialog by rememberSaveable { mutableStateOf(false) }
-
-    if (showDetailsDialog) {
-        SongDetailsDialog(
-            mediaMetadata = mediaMetadata,
-            onDismiss = { showDetailsDialog = false }
-        )
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         V8PlayerBackdrop(
             thumbnailUrl = mediaMetadata?.thumbnailUrl,
@@ -442,14 +429,14 @@ private fun V8PlayerControlsContent(
 
         Spacer(Modifier.height(4.dp))
 
-        PlayerTimeLabel(
+        IosPlayerTimeLabel(
             sliderPosition = sliderPosition,
             position = position,
             duration = duration,
             textBackgroundColor = textBackgroundColor,
             showRemainingTime = true,
-            centerContent = currentFormat?.let { format ->
-                {
+            centerContent = {
+                currentFormat?.let { format ->
                     val codec = format.mimeType.substringAfter("/").uppercase()
                     val label = when {
                         codec.contains("FLAC") || codec.contains("ALAC") -> "Lossless"
@@ -557,7 +544,7 @@ private fun V8PlayerControlsContent(
 }
 
 @Composable
-private fun PlayerTimeLabel(
+private fun IosPlayerTimeLabel(
     sliderPosition: Long?,
     position: Long,
     duration: Long,
@@ -672,7 +659,7 @@ private fun V8DeviceSelector(
     val availableDevices = remember { getAvailableDevices(context) }
     val activeDevice = remember(availableDevices) { getActiveDevice(availableDevices) }
     val isBluetooth = activeDevice?.isBluetoothOutput() == true
-    val deviceIcon = if (isBluetooth) R.drawable.ic_bluetooth else R.drawable.airplay
+    val deviceIcon = R.drawable.airplay
 
     Surface(
         onClick = { showDeviceSheet = true },
@@ -742,7 +729,7 @@ private fun DeviceSelectionBottomSheet(
 
                 availableDevices.forEach { device ->
                     val isActive = device.id == activeDevice?.id
-                    val iconRes = if (device.isBluetoothOutput()) R.drawable.ic_bluetooth else R.drawable.airplay
+                    val iconRes = R.drawable.airplay
                     Surface(
                         onClick = onDismiss,
                         shape = RoundedCornerShape(12.dp),

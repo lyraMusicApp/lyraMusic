@@ -237,6 +237,58 @@ fun HomeScreen(
                 )
             }
 
+            val heroItems = remember(quickPicks, speedDialSongs, homePage) {
+                val localSongs = (quickPicks?.takeIf { it.isNotEmpty() } ?: speedDialSongs.takeIf { it.isNotEmpty() })
+                if (localSongs != null && localSongs.isNotEmpty()) {
+                    localSongs.take(12).map { song ->
+                        HomeHeroItem(
+                            id = song.id,
+                            title = song.title,
+                            subtitle = song.artists.joinToString { it.name },
+                            thumbnailUrl = song.thumbnailUrl,
+                            onClick = {
+                                playerConnection.playQueue(
+                                    YouTubeQueue(
+                                        WatchEndpoint(videoId = song.id),
+                                        song.toMediaMetadata()
+                                    )
+                                )
+                            }
+                        )
+                    }
+                } else {
+                    val ytItems = homePage?.sections?.flatMap { it.items }?.takeIf { it.isNotEmpty() }
+                    ytItems?.take(12)?.map { item ->
+                        HomeHeroItem(
+                            id = item.id,
+                            title = item.title,
+                            subtitle = when (item) {
+                                is SongItem -> item.artists.joinToString { it.name }
+                                is AlbumItem -> item.artists?.joinToString { it.name } ?: "Album"
+                                is PlaylistItem -> item.author?.name ?: "Playlist"
+                                else -> ""
+                            },
+                            thumbnailUrl = item.thumbnail,
+                            onClick = {
+                                when (item) {
+                                    is SongItem -> {
+                                        playerConnection.playQueue(
+                                            YouTubeQueue(
+                                                item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                                item.toMediaMetadata()
+                                            )
+                                        )
+                                    }
+                                    is AlbumItem -> navController.navigate("album/${item.id}")
+                                    is PlaylistItem -> navController.navigate("online_playlist/${item.id}")
+                                    else -> {}
+                                }
+                            }
+                        )
+                    } ?: emptyList()
+                }
+            }
+
             LazyColumn(
                 state = lazylistState,
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
@@ -264,59 +316,6 @@ fun HomeScreen(
                 }
 
                 // 3. Featured Hero Carousel Slider (Image media_1788413527256.jpg)
-                val heroItems = remember(quickPicks, speedDialSongs, homePage, explorePage) {
-                    val localSongs = (quickPicks?.takeIf { it.isNotEmpty() } ?: speedDialSongs.takeIf { it.isNotEmpty() })
-                    if (localSongs != null && localSongs.isNotEmpty()) {
-                        localSongs.take(12).map { song ->
-                            HomeHeroItem(
-                                id = song.id,
-                                title = song.title,
-                                subtitle = song.artists.joinToString { it.name },
-                                thumbnailUrl = song.thumbnailUrl,
-                                onClick = {
-                                    playerConnection.playQueue(
-                                        YouTubeQueue(
-                                            WatchEndpoint(videoId = song.id),
-                                            song.toMediaMetadata()
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    } else {
-                        val ytItems = homePage?.sections?.flatMap { it.items }?.takeIf { it.isNotEmpty() }
-                            ?: explorePage?.newReleaseAlbums
-                        ytItems?.take(12)?.map { item ->
-                            HomeHeroItem(
-                                id = item.id,
-                                title = item.title,
-                                subtitle = when (item) {
-                                    is SongItem -> item.artists.joinToString { it.name }
-                                    is AlbumItem -> item.artists?.joinToString { it.name } ?: "Album"
-                                    is PlaylistItem -> item.author?.name ?: "Playlist"
-                                    else -> ""
-                                },
-                                thumbnailUrl = item.thumbnail,
-                                onClick = {
-                                    when (item) {
-                                        is SongItem -> {
-                                            playerConnection.playQueue(
-                                                YouTubeQueue(
-                                                    item.endpoint ?: WatchEndpoint(videoId = item.id),
-                                                    item.toMediaMetadata()
-                                                )
-                                            )
-                                        }
-                                        is AlbumItem -> navController.navigate("album/${item.id}")
-                                        is PlaylistItem -> navController.navigate("online_playlist/${item.id}")
-                                        else -> {}
-                                    }
-                                }
-                            )
-                        } ?: emptyList()
-                    }
-                }
-
                 if (heroItems.isNotEmpty()) {
                     item {
                         HomeHeroCarousel(
