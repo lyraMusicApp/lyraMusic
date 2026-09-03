@@ -1112,6 +1112,7 @@ fun HomeModernHeader(
     modifier: Modifier = Modifier
 ) {
     val openSearch = com.arturo254.opentune.LocalOpenSearch.current
+    val openAccountDialog = com.arturo254.opentune.LocalOpenAccountDialog.current
     val greeting = remember {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
         when (hour) {
@@ -1143,7 +1144,7 @@ fun HomeModernHeader(
                     .clip(CircleShape)
                     .background(Color(0xFF2A2D37))
                     .border(1.5.dp, Color(0xFFD4E84B), CircleShape)
-                    .clickable { navController.navigate("account") },
+                    .clickable { openAccountDialog() },
                 contentAlignment = Alignment.Center
             ) {
                 if (!accountImageUrl.isNullOrEmpty()) {

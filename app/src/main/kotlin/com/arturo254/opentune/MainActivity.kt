@@ -1089,6 +1089,7 @@ class MainActivity : ComponentActivity() {
                         LocalSyncUtils provides syncUtils,
                         LocalBottomSheetPageState provides bottomSheetPageState,
                         LocalMenuState provides menuState,
+                        LocalOpenAccountDialog provides { showAccountDialog = true },
                         LocalOpenSearch provides {
                             onActiveChange(true)
                             try {
@@ -1861,3 +1862,4 @@ val LocalPlayerAwareWindowInsets =
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }
 val LocalOpenSearch = staticCompositionLocalOf<() -> Unit> { {} }
+val LocalOpenAccountDialog = staticCompositionLocalOf<() -> Unit> { {} }

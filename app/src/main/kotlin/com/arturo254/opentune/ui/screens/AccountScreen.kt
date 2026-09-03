@@ -118,40 +118,33 @@ fun AccountScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (!isLoggedIn) {
-            // Modern Glassmorphic Login & Integrations Hub
+            // Liquid Glass Login & Integrations Hub
             LazyColumn(
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    // Hero Branding Header Card
+                    Spacer(modifier = Modifier.height(4.dp))
+                    // Hero Branding Header Card (Liquid Glass)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(26.dp))
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color(0xFF1F2432),
-                                        Color(0xFF141722)
-                                    )
-                                )
-                            )
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color(0xFF141722).copy(alpha = 0.92f))
                             .border(
-                                width = 1.dp,
-                                brush = Brush.linearGradient(
+                                width = 0.8.dp,
+                                brush = Brush.verticalGradient(
                                     listOf(
-                                        Color.White.copy(alpha = 0.18f),
+                                        Color.White.copy(alpha = 0.20f),
                                         Color.White.copy(alpha = 0.04f)
                                     )
                                 ),
-                                shape = RoundedCornerShape(26.dp)
+                                shape = RoundedCornerShape(24.dp)
                             )
-                            .padding(24.dp),
+                            .padding(22.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -160,24 +153,26 @@ fun AccountScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(68.dp)
+                                    .size(62.dp)
                                     .clip(CircleShape)
-                                    .background(
-                                        Brush.radialGradient(
+                                    .background(Color(0xFF1E222B))
+                                    .border(
+                                        width = 1.dp,
+                                        brush = Brush.linearGradient(
                                             listOf(
-                                                Color(0xFFD4E84B).copy(alpha = 0.25f),
-                                                Color(0xFF1E222B)
+                                                Color.White.copy(alpha = 0.30f),
+                                                Color.White.copy(alpha = 0.06f)
                                             )
-                                        )
-                                    )
-                                    .border(1.5.dp, Color(0xFFD4E84B), CircleShape),
+                                        ),
+                                        shape = CircleShape
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.account),
                                     contentDescription = null,
                                     tint = Color(0xFFD4E84B),
-                                    modifier = Modifier.size(36.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
 
@@ -195,7 +190,7 @@ fun AccountScreen(
                                     color = Color(0xFF9CA3AF)
                                 ),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 8.dp)
+                                modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
                     }
@@ -262,7 +257,7 @@ fun AccountScreen(
                         iconBgColor = Color(0xFF00D2C4),
                         actionText = "Configure",
                         isConnected = false,
-                        onClick = { navController.navigate("settings/potoken") }
+                        onClick = { navController.navigate("settings/po_token") }
                     )
                 }
 
@@ -496,19 +491,19 @@ private fun IntegrationLoginCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF161922))
+            .background(Color(0xFF141722).copy(alpha = 0.90f))
             .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
+                width = 0.8.dp,
+                brush = Brush.verticalGradient(
                     listOf(
-                        Color.White.copy(alpha = 0.12f),
+                        Color.White.copy(alpha = 0.16f),
                         Color.White.copy(alpha = 0.03f)
                     )
                 ),
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable(onClick = onClick)
-            .padding(16.dp)
+            .padding(14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -521,19 +516,29 @@ private fun IntegrationLoginCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
-                        .background(iconBgColor.copy(alpha = if (isConnected) 0.9f else 0.2f)),
+                        .background(Color(0xFF1E222B))
+                        .border(
+                            width = 0.8.dp,
+                            brush = Brush.verticalGradient(
+                                listOf(
+                                    Color.White.copy(alpha = 0.22f),
+                                    Color.White.copy(alpha = 0.04f)
+                                )
+                            ),
+                            shape = CircleShape
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = if (isConnected) Color.White else iconBgColor,
-                        modifier = Modifier.size(24.dp)
+                        tint = iconBgColor,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = title,
@@ -541,8 +546,8 @@ private fun IntegrationLoginCard(
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        maxLines = 2,
+                        softWrap = true
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -555,7 +560,7 @@ private fun IntegrationLoginCard(
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
@@ -564,7 +569,7 @@ private fun IntegrationLoginCard(
                         else Color(0xFFD4E84B)
                     )
                     .clickable(onClick = onClick)
-                    .padding(horizontal = 16.dp, vertical = 9.dp),
+                    .padding(horizontal = 14.dp, vertical = 7.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

@@ -84,22 +84,38 @@ fun <E> ChipsRow(
             val isSelected = currentValue == value
             val iconRes = icons[value]
 
-            val pillContainerColor = if (isSelected) {
-                Color(0xFFD4E84B)
-            } else {
-                Color(0xFF1E222A).copy(alpha = 0.85f)
-            }
-            val pillTextColor = if (isSelected) {
-                Color(0xFF111827)
-            } else {
-                Color(0xFFE5E7EB)
-            }
+            val pillContainerColor by androidx.compose.animation.animateColorAsState(
+                targetValue = if (isSelected) Color(0xFFD4E84B) else Color(0xFF1E222A).copy(alpha = 0.85f),
+                animationSpec = androidx.compose.animation.core.tween(durationMillis = 200),
+                label = "pillBg"
+            )
+            val pillTextColor by androidx.compose.animation.animateColorAsState(
+                targetValue = if (isSelected) Color(0xFF111827) else Color(0xFFE5E7EB),
+                animationSpec = androidx.compose.animation.core.tween(durationMillis = 200),
+                label = "pillText"
+            )
+
+            val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val scale by androidx.compose.animation.core.animateFloatAsState(
+                targetValue = if (isPressed) 0.94f else 1f,
+                animationSpec = androidx.compose.animation.core.spring(
+                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+                ),
+                label = "chipScale"
+            )
 
             Box(
                 modifier = Modifier
+                    .androidx.compose.ui.draw.scale(scale)
                     .clip(CircleShape)
                     .background(pillContainerColor)
-                    .clickable { onValueUpdate(value) }
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = androidx.compose.foundation.LocalIndication.current,
+                        onClick = { onValueUpdate(value) }
+                    )
                     .padding(horizontal = 16.dp, vertical = 9.dp),
                 contentAlignment = Alignment.Center
             ) {

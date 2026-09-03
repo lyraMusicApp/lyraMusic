@@ -190,24 +190,17 @@ private fun HeroCard(shimmerBrush: Brush) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp))
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        Color(0xFF1F2432),
-                        Color(0xFF141722)
-                    )
-                )
-            )
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFF141722).copy(alpha = 0.92f))
             .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
+                width = 0.8.dp,
+                brush = Brush.verticalGradient(
                     listOf(
-                        Color.White.copy(alpha = 0.18f),
+                        Color.White.copy(alpha = 0.20f),
                         Color.White.copy(alpha = 0.04f)
                     )
                 ),
-                shape = RoundedCornerShape(26.dp)
+                shape = RoundedCornerShape(24.dp)
             )
             .padding(24.dp),
     ) {
@@ -216,11 +209,11 @@ private fun HeroCard(shimmerBrush: Brush) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // App icon with glowing container
+            // App icon with glowing gradient container
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .size(76.dp)
+                    .clip(RoundedCornerShape(22.dp))
                     .background(
                         Brush.linearGradient(
                             listOf(
@@ -228,6 +221,16 @@ private fun HeroCard(shimmerBrush: Brush) {
                                 Color(0xFF8B5CF6)
                             )
                         )
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            listOf(
+                                Color.White.copy(alpha = 0.35f),
+                                Color.White.copy(alpha = 0.08f)
+                            )
+                        ),
+                        shape = RoundedCornerShape(22.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -235,7 +238,7 @@ private fun HeroCard(shimmerBrush: Brush) {
                     painter = painterResource(R.drawable.opentune_monochrome),
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(46.dp),
                 )
             }
 
@@ -248,25 +251,25 @@ private fun HeroCard(shimmerBrush: Brush) {
                 )
             )
 
-            // Version + build badges
+            // Version + build badges (Liquid Glass)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 VersionBadge(
                     text = "v${BuildConfig.VERSION_NAME}",
-                    containerColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
+                    containerColor = Color(0xFF3B82F6).copy(alpha = 0.20f),
                     contentColor = Color(0xFF93C5FD),
                 )
                 VersionBadge(
                     text = "#${BuildConfig.VERSION_CODE}",
-                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.25f),
+                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.20f),
                     contentColor = Color(0xFFC4B5FD),
                 )
                 if (BuildConfig.DEBUG) {
                     VersionBadge(
                         text = "DEBUG",
-                        containerColor = Color(0xFFEF4444).copy(alpha = 0.25f),
+                        containerColor = Color(0xFFEF4444).copy(alpha = 0.20f),
                         contentColor = Color(0xFFFCA5A5),
                     )
                 }
@@ -289,7 +292,16 @@ private fun HeroCard(shimmerBrush: Brush) {
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .border(1.5.dp, Color(0xFFD4E84B), CircleShape),
+                        .border(
+                            width = 1.dp,
+                            brush = Brush.verticalGradient(
+                                listOf(
+                                    Color.White.copy(alpha = 0.35f),
+                                    Color.White.copy(alpha = 0.08f)
+                                )
+                            ),
+                            shape = CircleShape
+                        ),
                 )
                 Column {
                     Text(
@@ -322,13 +334,13 @@ private fun SocialCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF161922))
+            .background(Color(0xFF141722).copy(alpha = 0.92f))
             .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
+                width = 0.8.dp,
+                brush = Brush.verticalGradient(
                     listOf(
-                        Color.White.copy(alpha = 0.12f),
-                        Color.White.copy(alpha = 0.03f)
+                        Color.White.copy(alpha = 0.20f),
+                        Color.White.copy(alpha = 0.04f)
                     )
                 ),
                 shape = RoundedCornerShape(24.dp)
@@ -347,7 +359,17 @@ private fun SocialCard(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF8B5CF6).copy(alpha = 0.2f)),
+                        .background(Color(0xFF8B5CF6).copy(alpha = 0.2f))
+                        .border(
+                            width = 0.8.dp,
+                            brush = Brush.verticalGradient(
+                                listOf(
+                                    Color.White.copy(alpha = 0.25f),
+                                    Color.White.copy(alpha = 0.05f)
+                                )
+                            ),
+                            shape = CircleShape
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -366,7 +388,7 @@ private fun SocialCard(
                 )
             }
 
-            // Sleek Social Link Rows
+            // Sleek Social Link Rows (Liquid Glass)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 links.forEach { link ->
                     SocialTile(
@@ -393,7 +415,17 @@ private fun SocialTile(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1F2432).copy(alpha = 0.7f))
+            .background(Color(0xFF1B202D).copy(alpha = 0.65f))
+            .border(
+                width = 0.8.dp,
+                brush = Brush.verticalGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.14f),
+                        Color.White.copy(alpha = 0.02f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
