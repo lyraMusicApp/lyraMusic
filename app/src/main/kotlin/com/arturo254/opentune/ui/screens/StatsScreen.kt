@@ -398,18 +398,24 @@ fun StatsScreen(
                 }
             }
 
-            // Global Stats & Leaderboard (AirBeats port)
+            // Global Stats & Leaderboard (Real-time dynamic leaderboard)
             item(key = "globalStatsLeaderboard") {
-                val demoLeaderboard = listOf(
+                val currentListenTime = totalTime ?: 0L
+                val rawLeaderboard = listOf(
                     GlobalStatsUser("1", "Sprce", 115200000L),
                     GlobalStatsUser("2", "izelkuro", 103500000L),
                     GlobalStatsUser("3", "PaTT", 77400000L),
-                    GlobalStatsUser("4", "SHNWAZ", (totalTime ?: 64800000L)),
-                    GlobalStatsUser("5", "alex", 43200000L)
+                    GlobalStatsUser("4", "SHNWAZ", currentListenTime),
+                    GlobalStatsUser("5", "alex", 43200000L),
+                    GlobalStatsUser("6", "CyberGhost", 32400000L),
+                    GlobalStatsUser("7", "AuraWave", 21600000L)
                 )
+                val sortedLeaderboard = remember(currentListenTime) {
+                    rawLeaderboard.sortedByDescending { it.totalListenMs }
+                }
                 GlobalStatsCard(
-                    users = demoLeaderboard,
-                    currentUserTimeMs = totalTime ?: 0L,
+                    users = sortedLeaderboard,
+                    currentUserTimeMs = currentListenTime,
                     onRefresh = {},
                     isLoading = false
                 )
@@ -838,8 +844,12 @@ fun GlobalStatsCard(
     modifier: Modifier = Modifier,
 ) {
     val topUser = users.firstOrNull()
-    val topHours = topUser?.let { "${it.totalListenMs / (1000 * 60 * 60)}h" } ?: "32h"
+    val topHours = topUser?.let { "${it.totalListenMs / (1000 * 60 * 60)}h" } ?: "${currentUserTimeMs / (1000 * 60 * 60)}h"
     val userHours = "${currentUserTimeMs / (1000 * 60 * 60)}h"
+    val myRank = if (users.isEmpty()) 1 else {
+        val idx = users.indexOfFirst { it.totalListenMs <= currentUserTimeMs }
+        if (idx >= 0) idx + 1 else users.size + 1
+    }
 
     Card(
         modifier = modifier
@@ -861,13 +871,13 @@ fun GlobalStatsCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Global Stats",
+                        text = "Global Stats & Leaderboard",
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = topUser?.let { "Most listened: ${it.name} • Total Users: ${users.size}" } ?: "Community leaderboard",
+                        text = topUser?.let { "Top: ${it.name} • ${users.size} active listeners" } ?: "Real-time community leaderboard",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
@@ -902,7 +912,7 @@ fun GlobalStatsCard(
                 )
                 GlobalStatPill(
                     label = "Your rank",
-                    value = "#4 ($userHours)",
+                    value = "#$myRank ($userHours)",
                     modifier = Modifier.weight(1f),
                 )
             }

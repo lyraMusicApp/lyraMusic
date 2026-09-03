@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.screens
+package com.arturo254.opentune.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -68,17 +68,7 @@ fun NeonHomeScreen(
     val homePage by viewModel.homePage.collectAsState()
     
     val playerConnection = LocalPlayerConnection.current ?: return
-    val statsViewModel = com.arturo254.opentune.ui.utils.safeHiltViewModel<StatsViewModel>()
-    val coroutineScope = rememberCoroutineScope()
-    
-    val context = LocalContext.current
-    val rankPrefMgr = remember { RankPreferenceManager(context) }
-    val displayedRank by rankPrefMgr.displayedRank.collectAsState(initial = null)
-    val currentRank by (statsViewModel?.currentRank ?: kotlinx.coroutines.flow.flowOf(null)).collectAsState(initial = null)
-    val totalHours by (statsViewModel?.totalListenHours ?: kotlinx.coroutines.flow.flowOf(0.0)).collectAsState(initial = 0.0)
-    
-    val userName = LocalUserName.current
-    val displayName = if (userName.isNotEmpty()) userName else "Friend"
+    val displayName = "Friend"
     
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val greetingText = when {
@@ -133,7 +123,7 @@ fun NeonHomeScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "AirBeats",
+                        text = "Lyra Music",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -142,9 +132,10 @@ fun NeonHomeScreen(
                 
                 IconButton(onClick = { navController.navigate("settings") }) {
                     Icon(
-                        painter = painterResource(R.drawable.settings),
+                        painter = painterResource(R.drawable.settings), 
                         contentDescription = "Settings",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -159,30 +150,11 @@ fun NeonHomeScreen(
                     color = if (isDarkTheme) Color.LightGray else Color.DarkGray
                 )
                 
-                currentRank?.let { rank ->
-                    Spacer(modifier = Modifier.width(8.dp))
-                    var showBadgeSelector by remember { mutableStateOf(false) }
-                    RankBadge(
-                        rank = rank,
-                        displayedRank = displayedRank,
-                        size = 20.dp,
-                        modifier = Modifier.clickable { showBadgeSelector = true }
-                    )
-                    if (showBadgeSelector) {
-                        val unlocked = unlockedRanksFromHours(totalHours)
-                        BadgeSelector(
-                            unlockedRanks = unlocked,
-                            currentDisplayed = displayedRank,
-                            onSelect = { selectedRank ->
-                                coroutineScope.launch {
-                                    rankPrefMgr.saveDisplayedRank(selectedRank)
-                                }
-                                showBadgeSelector = false
-                            },
-                            onDismiss = { showBadgeSelector = false }
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.width(8.dp))
+                RankBadge(
+                    rank = AirBeatsRank.Echo,
+                    size = 20.dp,
+                )
             }
             
             Text(

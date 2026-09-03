@@ -112,7 +112,7 @@ private val SpotifyCard @Composable get() = if (isAppInDarkTheme()) Color(0xFF18
 private val SpotifyPill @Composable get() = if (isAppInDarkTheme()) Color(0xFF2A2A2A) else Color(0xFFE5E5E5)
 private val SpotifyText @Composable get() = if (isAppInDarkTheme()) Color.White else Color.Black
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class, dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi::class)
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun SpotifyHomeScreen(
     navController: NavController,
@@ -125,10 +125,7 @@ fun SpotifyHomeScreen(
     val accountPlaylists by viewModel.accountPlaylists.collectAsState()
     val similarRecommendations by viewModel.similarRecommendations.collectAsState()
     val homePage by viewModel.homePage.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val namePrefMgr = androidx.compose.runtime.remember { com.arturo254.opentune.ui.component.NamePreferenceManager(context) }
-    val rawUserName by namePrefMgr.userName.collectAsState(initial = "")
-    val accountName = rawUserName.takeIf { it.isNotBlank() } ?: "Guest"
+    val accountName = "Friend"
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val pullRefreshState = rememberPullToRefreshState()
@@ -244,12 +241,6 @@ fun SpotifyHomeScreen(
         } // Close BoxWithConstraints
         } // Close hazeSource Box
 
-        val enableLiquidGlass by com.arturo254.opentune.utils.rememberPreference(
-            com.arturo254.opentune.constants.LiquidGlassKey,
-            defaultValue = false
-        )
-        val backdrop = com.arturo254.opentune.ui.component.LocalBackdrop.current
-
         val isAtTop by androidx.compose.runtime.remember {
             androidx.compose.runtime.derivedStateOf {
                 lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
@@ -257,7 +248,7 @@ fun SpotifyHomeScreen(
         }
 
         SpotifyHeader(
-            title = "AirBeats",
+            title = "Lyra Music",
             subtitle = greeting(accountName),
             isAtTop = isAtTop,
             hazeState = hazeState,
@@ -269,11 +260,11 @@ fun SpotifyHomeScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     val chipItems = listOf(
-                        "history" to context.getString(R.string.history),
-                        "liked" to context.getString(R.string.liked),
-                        "offline" to context.getString(R.string.offline),
-                        "stats" to context.getString(R.string.stats),
-                        "search" to context.getString(R.string.search)
+                        "history" to "History",
+                        "liked" to "Liked Songs",
+                        "offline" to "Downloads",
+                        "stats" to "Stats",
+                        "search" to "Search"
                     )
                     items(chipItems) { (route, label) ->
                         androidx.compose.material3.ElevatedFilterChip(
@@ -304,7 +295,7 @@ fun SpotifyHomeScreen(
             }
         ) {
             androidx.compose.material3.IconButton(onClick = { navController.navigate("new_release") }) {
-                androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.notification_on), contentDescription = null, tint = SpotifyText, modifier = Modifier.size(24.dp))
+                androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.notifications), contentDescription = null, tint = SpotifyText, modifier = Modifier.size(24.dp))
             }
             androidx.compose.material3.IconButton(onClick = { navController.navigate("history") }) {
                 androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.history), contentDescription = null, tint = SpotifyText, modifier = Modifier.size(24.dp))

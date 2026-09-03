@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.screens
+package com.arturo254.opentune.ui.screens
 import android.annotation.SuppressLint
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
@@ -9,8 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -170,64 +168,32 @@ fun PlayfulHomeScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val userName = com.arturo254.opentune.ui.component.LocalUserName.current
-                            val displayName = if (userName.isNotEmpty()) userName else stringResource(R.string.friend)
-                            val context = androidx.compose.ui.platform.LocalContext.current
-                            val rankPrefMgr = remember { com.arturo254.opentune.ui.component.RankPreferenceManager(context) }
-                            val displayedRank by rankPrefMgr.displayedRank.collectAsState(initial = null)
-                            val statsViewModel = com.arturo254.opentune.ui.utils.safeHiltViewModel<com.arturo254.opentune.viewmodels.StatsViewModel>()
-                            val currentRank by (statsViewModel?.currentRank ?: kotlinx.coroutines.flow.flowOf(null)).collectAsState(initial = null)
-                            val totalHours by (statsViewModel?.totalListenHours ?: kotlinx.coroutines.flow.flowOf(0.0)).collectAsState(initial = 0.0)
-                            val coroutineScope = rememberCoroutineScope()
-
-                            val greatVibesFontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.arturo254.opentune.R.font.great_vibes))
-
+                            val displayName = "Friend"
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = stringResource(R.string.greeting_prefix),
-                                    fontSize = 36.sp,
+                                    text = "Hello, ",
+                                    fontSize = 32.sp,
                                     fontWeight = FontWeight.Bold,
-                                    fontFamily = greatVibesFontFamily,
                                     color = Color.Black
                                 )
                                 Text(
                                     text = displayName,
-                                    fontSize = 36.sp,
+                                    fontSize = 32.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    fontFamily = greatVibesFontFamily,
                                     color = Color.Black
                                 )
 
-                                currentRank?.let { rank ->
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    var showBadgeSelector by remember { mutableStateOf(false) }
-                                    com.arturo254.opentune.ui.component.RankBadge(
-                                        rank = rank,
-                                        displayedRank = displayedRank,
-                                        size = 28.dp,
-                                        modifier = Modifier.clickable { showBadgeSelector = true }
-                                    )
-                                    if (showBadgeSelector) {
-                                        val unlocked = com.arturo254.opentune.ui.component.unlockedRanksFromHours(totalHours)
-                                        com.arturo254.opentune.ui.component.BadgeSelector(
-                                            unlockedRanks = unlocked,
-                                            currentDisplayed = displayedRank,
-                                            onSelect = { selectedRank ->
-                                                coroutineScope.launch {
-                                                    rankPrefMgr.saveDisplayedRank(selectedRank)
-                                                }
-                                                showBadgeSelector = false
-                                            },
-                                            onDismiss = { showBadgeSelector = false }
-                                        )
-                                    }
-                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                com.arturo254.opentune.ui.component.RankBadge(
+                                    rank = com.arturo254.opentune.ui.component.AirBeatsRank.Echo,
+                                    size = 28.dp,
+                                )
                             }
                             IconButton(onClick = { navController.navigate("settings") }) {
                                 Icon(
-                                    imageVector = Icons.Default.Menu,
+                                    painter = painterResource(R.drawable.settings),
                                     contentDescription = "Settings",
                                     tint = Color.Black,
                                     modifier = Modifier.size(28.dp)
@@ -506,7 +472,7 @@ fun PlayfulHomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(onClick = { navController.navigate("home") { launchSingleTop = true } }) {
-                                    Icon(painterResource(R.drawable.home), null, tint = Color(0xFFE5A93D))
+                                    Icon(painterResource(R.drawable.music_note), null, tint = Color(0xFFE5A93D))
                                 }
                                 IconButton(onClick = { navController.navigate("explore") { launchSingleTop = true } }) {
                                     Icon(painterResource(R.drawable.explore_outlined), null, tint = Color.Black)
