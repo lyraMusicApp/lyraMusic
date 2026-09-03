@@ -1,4 +1,4 @@
-﻿package com.arturo254.opentune.ui.screens.apple
+package com.arturo254.opentune.ui.screens.apple
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -89,7 +89,7 @@ import com.arturo254.opentune.ui.screens.library.LibraryPlaylistsScreen
 import com.arturo254.opentune.ui.screens.library.LibrarySongsScreen
 import com.arturo254.opentune.ui.screens.library.LocalSongsScreen
 import com.arturo254.opentune.ui.screens.settings.DarkMode
-import com.arturo254.opentune.ui.utils.highQualityThumbnail
+import com.arturo254.opentune.ui.utils.highQualityThumbnailUrlOrNull
 import com.arturo254.opentune.utils.rememberEnumPreference
 import com.arturo254.opentune.extensions.toMediaItem
 import com.arturo254.opentune.viewmodels.HomeViewModel
@@ -399,7 +399,7 @@ fun AppleLocalRow(items: List<Song>, playerConnection: com.arturo254.opentune.pl
             AppleTile(
                 title = song.title,
                 subtitle = song.artists.joinToString { it.name },
-                thumbnailUrl = song.thumbnailUrl?.highQualityThumbnail(),
+                thumbnailUrl = song.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
                 onClick = {
                     playerConnection.playQueue(
                         com.arturo254.opentune.playback.queues.ListQueue(
@@ -430,7 +430,7 @@ fun AppleYtRow(items: List<YTItem>, navController: NavController, playerConnecti
                     is ArtistItem -> "Artist"
                     else -> ""
                 },
-                thumbnailUrl = item.thumbnail?.highQualityThumbnail() ?: "",
+                thumbnailUrl = item.thumbnail?.highQualityThumbnailUrlOrNull() ?: "",
                 onClick = {
                     when (item) {
                         is SongItem -> {
@@ -803,7 +803,6 @@ fun AppleStatsScreen(
     navController: NavController,
     viewModel: com.arturo254.opentune.viewmodels.StatsViewModel = hiltViewModel(),
 ) {
-    val globalStats by viewModel.globalStats.collectAsState()
     val mostPlayedSongsStats by viewModel.mostPlayedSongsStats.collectAsState()
     val mostPlayedArtists by viewModel.mostPlayedArtists.collectAsState()
     val mostPlayedAlbums by viewModel.mostPlayedAlbums.collectAsState()
@@ -814,115 +813,6 @@ fun AppleStatsScreen(
         title = "Stats",
         navController = navController
     ) {
-        val topUser = globalStats.board.users.firstOrNull()
-        val currentUser = globalStats.board.users.firstOrNull { it.id == globalStats.currentUserId }
-
-        item {
-            AppleSectionTitle("Global Rankings")
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(AppleBg.copy(alpha = 0.5f))
-                    .padding(16.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.leaderboard), color = AppleText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        Text(stringResource(R.string.top_users, globalStats.board.users.size), color = AppleText.copy(alpha = 0.7f), fontSize = 14.sp)
-                    }
-                    androidx.compose.material3.Button(
-                        onClick = { viewModel.refreshGlobalStats() },
-                        enabled = !globalStats.isLoading,
-                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFFFA233B), contentColor = Color.White)
-                    ) {
-                        Text(if (globalStats.isLoading) "Syncing" else "Refresh")
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    androidx.compose.foundation.layout.Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(AppleBg.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                            .padding(12.dp)
-                    ) {
-                        Text(stringResource(R.string.top_listener), color = AppleText.copy(alpha = 0.7f), fontSize = 12.sp)
-                        val topHours = topUser?.totalListenMs?.let { it / (3600.0 * 1000.0) }?.toInt()
-                        Text(if (topUser != null) "${topHours}h" else "--", color = AppleText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                    androidx.compose.foundation.layout.Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(AppleBg.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                            .padding(12.dp)
-                    ) {
-                        Text(stringResource(R.string.your_rank), color = AppleText.copy(alpha = 0.7f), fontSize = 12.sp)
-                        Text(if (currentUser != null) "#${currentUser.rank}" else "--", color = AppleText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                Spacer(Modifier.height(14.dp))
-
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)
-                ) {
-                    items(globalStats.board.users, key = { it.id }) { user ->
-                        val isCurrentUser = user.id == globalStats.currentUserId
-                        val userHours = user.totalListenMs.toDouble() / (3600.0 * 1000.0)
-                        
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .background(
-                                    if (isCurrentUser) Color(0xFFFA233B).copy(alpha = 0.2f) else AppleBg.copy(alpha = 0.3f),
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "#${user.rank}",
-                                modifier = Modifier.width(36.dp),
-                                color = AppleText,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 14.sp
-                            )
-                            coil.compose.AsyncImage(
-                                model = user.profileUrl ?: R.drawable.person,
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.Gray.copy(alpha=0.3f)),
-                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Text(
-                                text = user.name,
-                                color = AppleText,
-                                modifier = Modifier.weight(1f),
-                                maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                fontWeight = if (isCurrentUser) FontWeight.Black else FontWeight.SemiBold,
-                                fontSize = 14.sp
-                            )
-                            Text(
-                                text = "${userHours.toInt()}h",
-                                color = AppleText.copy(alpha = 0.7f),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
         if (mostPlayedSongsStats.isNotEmpty()) {
             item {
                 AppleSectionTitle("Your Top Songs")
@@ -936,7 +826,7 @@ fun AppleStatsScreen(
                         AppleTile(
                             title = songStat.title,
                             subtitle = "${songStat.songCountListened} plays",
-                            thumbnailUrl = songStat.thumbnailUrl?.highQualityThumbnail(),
+                            thumbnailUrl = songStat.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
                             onClick = {
                                 if (song != null) {
                                     playerConnection.playQueue(
@@ -964,7 +854,7 @@ fun AppleStatsScreen(
                         AppleTile(
                             title = artist.artist.name,
                             subtitle = "${artist.songCount} plays",
-                            thumbnailUrl = artist.artist.thumbnailUrl?.highQualityThumbnail(),
+                            thumbnailUrl = artist.artist.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
                             onClick = {
                                 navController.navigate("artist/${artist.id}")
                             }
@@ -985,7 +875,7 @@ fun AppleStatsScreen(
                         AppleTile(
                             title = album.album.title,
                             subtitle = "${album.songCountListened} plays",
-                            thumbnailUrl = album.album.thumbnailUrl?.highQualityThumbnail(),
+                            thumbnailUrl = album.album.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
                             onClick = {
                                 navController.navigate("album/${album.id}")
                             }

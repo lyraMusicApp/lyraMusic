@@ -44,6 +44,8 @@ fun String?.highQualityThumbnailUrlOrNull(): String? =
         ?.takeIf { it.isNotBlank() }
         ?.highQualityThumbnailUrl()
 
+fun String?.highQualityThumbnail(): String? = this.highQualityThumbnailUrlOrNull()
+
 private fun String.rewriteYouTubeVideoThumbnail(): String? {
     val match = youtubeVideoThumbnailRegex.matchEntire(this) ?: return null
     val prefix = match.groupValues[1]
