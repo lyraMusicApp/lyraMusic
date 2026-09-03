@@ -67,7 +67,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.math.absoluteValue
-import com.arturo254.opentune.ui.utils.highQualityThumbnail
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -1636,7 +1635,7 @@ fun HomeHeroCarousel(
             ) {
                 // Background Album Cover Art
                 AsyncImage(
-                    model = song.thumbnailUrl?.highQualityThumbnail(),
+                    model = song.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
                     contentDescription = song.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

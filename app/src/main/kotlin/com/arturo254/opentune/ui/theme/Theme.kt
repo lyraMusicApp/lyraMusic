@@ -11,6 +11,7 @@ package com.arturo254.opentune.ui.theme
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Base64
+import com.arturo254.opentune.constants.AppFont
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -50,8 +51,6 @@ data class ThemeSeedPalette(
     val tertiary: Color,
     val neutral: Color,
 )
-
-import com.arturo254.opentune.constants.AppFont
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

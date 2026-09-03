@@ -348,8 +348,8 @@ fun AppearanceSettings(
             .verticalScroll(rememberScrollState()),
     ) {
         EnumListPreference(
-            title = { Text(stringResource(R.string.home_screen_style)) },
-            icon = { Icon(painterResource(R.drawable.home), null) },
+            title = { Text("Home screen style") },
+            icon = { Icon(painterResource(R.drawable.home_filled), null) },
             selectedValue = homeScreenStyle,
             onValueSelected = onHomeScreenStyleChange,
             valueText = {
@@ -364,8 +364,8 @@ fun AppearanceSettings(
         )
 
         EnumListPreference(
-            title = { Text(stringResource(R.string.navigation_bar_style)) },
-            icon = { Icon(painterResource(R.drawable.menu), null) },
+            title = { Text("Navigation bar style") },
+            icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             selectedValue = navBarStyle,
             onValueSelected = onNavBarStyleChange,
             valueText = {
