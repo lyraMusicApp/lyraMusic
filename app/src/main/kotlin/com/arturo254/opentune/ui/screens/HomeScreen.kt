@@ -56,7 +56,8 @@ import com.arturo254.opentune.ui.component.LocalBottomSheetPageState
 import com.arturo254.opentune.ui.component.LocalMenuState
 import com.arturo254.opentune.ui.component.NavigationTitle
 import com.arturo254.opentune.ui.utils.SnapLayoutInfoProvider
-import com.arturo254.opentune.utils.rememberPreference
+import com.arturo254.opentune.innertube.models.WatchEndpoint
+import com.arturo254.opentune.playback.queues.YouTubeQueue
 import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.viewmodels.HomeViewModel
 
@@ -253,6 +254,24 @@ fun HomeScreen(
                             selectedChip = selectedChip,
                             onChipSelected = { chip ->
                                 viewModel.toggleChip(chip)
+                            }
+                        )
+                    }
+                }
+
+                // 3. Featured Hero Carousel Slider (Image media_1788413527256.jpg)
+                val heroSongs = (quickPicks?.takeIf { it.isNotEmpty() } ?: speedDialSongs)
+                heroSongs?.takeIf { it.isNotEmpty() }?.let { songs ->
+                    item {
+                        HomeHeroCarousel(
+                            items = songs.take(12),
+                            onItemClick = { song ->
+                                playerConnection.playQueue(
+                                    YouTubeQueue(
+                                        WatchEndpoint(videoId = song.id),
+                                        song.toMediaMetadata()
+                                    )
+                                )
                             }
                         )
                     }

@@ -154,6 +154,8 @@ import kotlinx.coroutines.launch
 import com.arturo254.opentune.utils.PreferenceStore
 import kotlinx.coroutines.withContext
 import com.arturo254.opentune.constants.AppBarHeight
+import com.arturo254.opentune.constants.AppFont
+import com.arturo254.opentune.constants.AppFontKey
 import com.arturo254.opentune.constants.AppLanguageKey
 import com.arturo254.opentune.constants.CustomThemeColorKey
 import com.arturo254.opentune.constants.DarkModeKey
@@ -639,12 +641,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            val appFontKey by rememberPreference(AppFontKey, defaultValue = AppFont.LINOTTE.key)
+            val appFont = remember(appFontKey) { AppFont.fromKey(appFontKey) }
+
             OpenTuneTheme(
                 darkTheme = useDarkTheme,
                 pureBlack = pureBlack,
                 themeColor = themeColor,
                 seedPalette = if (!enableDynamicTheme) customThemeSeedPalette else null,
                 useSystemFont = useSystemFont,
+                appFont = appFont,
             ) {
                 BoxWithConstraints(
                     modifier =

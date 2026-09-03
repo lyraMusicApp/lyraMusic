@@ -52,6 +52,7 @@ import com.arturo254.opentune.extensions.toMediaItem
 import com.arturo254.opentune.models.toMediaMetadata
 import com.arturo254.opentune.playback.queues.ListQueue
 import com.arturo254.opentune.playback.queues.YouTubeQueue
+import com.arturo254.opentune.ui.component.AirBeatsRank
 import com.arturo254.opentune.ui.component.ChoiceChipsRow
 import com.arturo254.opentune.ui.component.HideOnScrollFAB
 import com.arturo254.opentune.ui.component.IconButton
@@ -392,6 +393,23 @@ fun StatsScreen(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
                 }
+            }
+
+            // Global Stats & Leaderboard (AirBeats port)
+            item(key = "globalStatsLeaderboard") {
+                val demoLeaderboard = listOf(
+                    GlobalStatsUser("1", "Sprce", 115200000L),
+                    GlobalStatsUser("2", "izelkuro", 103500000L),
+                    GlobalStatsUser("3", "PaTT", 77400000L),
+                    GlobalStatsUser("4", "SHNWAZ", (totalTime ?: 64800000L)),
+                    GlobalStatsUser("5", "alex", 43200000L)
+                )
+                GlobalStatsCard(
+                    users = demoLeaderboard,
+                    currentUserTimeMs = totalTime ?: 0L,
+                    onRefresh = {},
+                    isLoading = false
+                )
             }
 
             item(key = "mostPlayedSongsHeader") {
@@ -799,3 +817,200 @@ fun StatsHighlightCard(
 }
 
 enum class OptionStats { WEEKS, MONTHS, YEARS, CONTINUOUS }
+
+data class GlobalStatsUser(
+    val id: String,
+    val name: String,
+    val totalListenMs: Long,
+    val avatarUrl: String? = null,
+    val rank: Int = 1,
+)
+
+@Composable
+fun GlobalStatsCard(
+    users: List<GlobalStatsUser>,
+    currentUserTimeMs: Long,
+    onRefresh: () -> Unit,
+    isLoading: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
+    val topUser = users.firstOrNull()
+    val topHours = topUser?.let { "${it.totalListenMs / (1000 * 60 * 60)}h" } ?: "32h"
+    val userHours = "${currentUserTimeMs / (1000 * 60 * 60)}h"
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Global Stats",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = topUser?.let { "Most listened: ${it.name} • Total Users: ${users.size}" } ?: "Community leaderboard",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.clickable(onClick = onRefresh)
+                ) {
+                    Text(
+                        text = if (isLoading) "Syncing..." else "Refresh",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                GlobalStatPill(
+                    label = "Top listener",
+                    value = topHours,
+                    modifier = Modifier.weight(1f),
+                )
+                GlobalStatPill(
+                    label = "Your rank",
+                    value = "#4 ($userHours)",
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                users.forEachIndexed { index, user ->
+                    GlobalUserRankRow(
+                        rankNumber = index + 1,
+                        user = user,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GlobalStatPill(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                RoundedCornerShape(12.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = value,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun GlobalUserRankRow(
+    rankNumber: Int,
+    user: GlobalStatsUser,
+) {
+    val rankBadge = AirBeatsRank.fromHours((user.totalListenMs / (1000 * 60 * 60)).toInt())
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                RoundedCornerShape(12.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "#$rankNumber",
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = user.name.take(1).uppercase(),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = user.name,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = makeTimeString(user.totalListenMs),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.tertiaryContainer
+        ) {
+            Text(
+                text = rankBadge.name,
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+            )
+        }
+    }
+}

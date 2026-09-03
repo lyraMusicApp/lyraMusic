@@ -106,12 +106,46 @@ import com.arturo254.opentune.utils.rememberPreference
 import kotlin.math.roundToInt
 import timber.log.Timber
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import com.arturo254.opentune.constants.AppFont
+import com.arturo254.opentune.constants.AppFontKey
+import com.arturo254.opentune.constants.HomeScreenStyle
+import com.arturo254.opentune.constants.HomeScreenStyleKey
+import com.arturo254.opentune.constants.NavBarStyle
+import com.arturo254.opentune.constants.NavBarStyleKey
+import com.arturo254.opentune.constants.PlayerScreenStyle
+import com.arturo254.opentune.constants.PlayerScreenStyleKey
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppearanceSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
+    val (homeScreenStyle, onHomeScreenStyleChange) = rememberEnumPreference(
+        HomeScreenStyleKey,
+        defaultValue = HomeScreenStyle.CLASSIC
+    )
+    val (navBarStyle, onNavBarStyleChange) = rememberEnumPreference(
+        NavBarStyleKey,
+        defaultValue = NavBarStyle.CLASSIC
+    )
+    val (playerScreenStyle, onPlayerScreenStyleChange) = rememberEnumPreference(
+        PlayerScreenStyleKey,
+        defaultValue = PlayerScreenStyle.CLASSIC
+    )
+    val (appFontKey, onAppFontKeyChange) = rememberPreference(
+        AppFontKey,
+        defaultValue = AppFont.LINOTTE.key
+    )
+    val selectedFont = remember(appFontKey) { AppFont.fromKey(appFontKey) }
+    var showFontDialog by rememberSaveable { mutableStateOf(false) }
+
     val (dynamicTheme, onDynamicThemeChange) = rememberPreference(
         DynamicThemeKey,
         defaultValue = true
@@ -313,8 +347,44 @@ fun AppearanceSettings(
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
             .verticalScroll(rememberScrollState()),
     ) {
-        PreferenceGroupTitle(
-            title = stringResource(R.string.theme),
+        EnumListPreference(
+            title = { Text(stringResource(R.string.home_screen_style)) },
+            icon = { Icon(painterResource(R.drawable.home), null) },
+            selectedValue = homeScreenStyle,
+            onValueSelected = onHomeScreenStyleChange,
+            valueText = {
+                when (it) {
+                    HomeScreenStyle.CLASSIC -> "Classic"
+                    HomeScreenStyle.PLAYFUL -> "Playful"
+                    HomeScreenStyle.NEON -> "Neon"
+                    HomeScreenStyle.SPOTIFY -> "Spotify"
+                    HomeScreenStyle.APPLE -> "Apple"
+                }
+            },
+        )
+
+        EnumListPreference(
+            title = { Text(stringResource(R.string.navigation_bar_style)) },
+            icon = { Icon(painterResource(R.drawable.menu), null) },
+            selectedValue = navBarStyle,
+            onValueSelected = onNavBarStyleChange,
+            valueText = {
+                when (it) {
+                    NavBarStyle.CLASSIC -> "Classic"
+                    NavBarStyle.LIQUID_GLASS -> "Liquid Glass"
+                    NavBarStyle.SPOTIFY -> "Spotify"
+                    NavBarStyle.APPLE -> "Apple"
+                    NavBarStyle.NEON -> "Neon"
+                    NavBarStyle.NEW_CLASSIC -> "New Classic"
+                }
+            },
+        )
+
+        PreferenceEntry(
+            title = { Text("Fonts") },
+            description = selectedFont.title,
+            icon = { Icon(painterResource(R.drawable.text_fields), null) },
+            onClick = { showFontDialog = true }
         )
 
         SwitchPreference(
@@ -384,6 +454,32 @@ fun AppearanceSettings(
 
         PreferenceGroupTitle(
             title = stringResource(R.string.player),
+        )
+
+        EnumListPreference(
+            title = { Text("Player screen style") },
+            icon = { Icon(painterResource(R.drawable.play), null) },
+            selectedValue = playerScreenStyle,
+            onValueSelected = onPlayerScreenStyleChange,
+            valueText = {
+                when (it) {
+                    PlayerScreenStyle.PAPER -> "Paper player"
+                    PlayerScreenStyle.CLASSIC -> "Classic player"
+                    PlayerScreenStyle.IMMERSIVE -> "Immersive player"
+                    PlayerScreenStyle.SPOTIFY -> "Spotify player"
+                    PlayerScreenStyle.LIQUID -> "Liquid player"
+                    PlayerScreenStyle.CLOUDGLOW -> "CloudGlow"
+                    PlayerScreenStyle.FROST -> "Frost"
+                    PlayerScreenStyle.FOLD -> "Fold"
+                    PlayerScreenStyle.GROOVE -> "Groove"
+                    PlayerScreenStyle.POPSY -> "Popsy"
+                    PlayerScreenStyle.MINIMAL -> "Minimal"
+                    PlayerScreenStyle.COLOURFULL -> "Colourfull"
+                    PlayerScreenStyle.APPLE -> "Apple"
+                    PlayerScreenStyle.GALAXY -> "Galaxy"
+                    PlayerScreenStyle.IOS_STYLED -> "iOS Styled"
+                }
+            },
         )
 
         EnumListPreference(
@@ -924,6 +1020,63 @@ fun AppearanceSettings(
             }
         }
     )
+
+    if (showFontDialog) {
+        AlertDialog(
+            onDismissRequest = { showFontDialog = false },
+            title = { Text("Fonts", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    AppFont.entries.forEach { font ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    onAppFontKeyChange(font.key)
+                                    showFontDialog = false
+                                }
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (font == selectedFont),
+                                onClick = {
+                                    onAppFontKeyChange(font.key)
+                                    showFontDialog = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = font.title,
+                                    fontFamily = font.getFontFamily(),
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 15.sp
+                                )
+                                Text(
+                                    text = "The quick brown fox jumps over the lazy dog",
+                                    fontFamily = font.getFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showFontDialog = false }) {
+                    Text(stringResource(R.string.close))
+                }
+            }
+        )
+    }
 }
 
 @Composable

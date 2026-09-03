@@ -132,7 +132,13 @@ private fun buildTypography(fontFamily: FontFamily) =
         )
     )
 
-private val AppFontFamily = FontFamily(Font(R.font.poppins))
+import com.arturo254.opentune.constants.AppFont
+
+private val AppFontFamily = FontFamily(Font(R.font.linotte))
 val AppTypography = buildTypography(AppFontFamily)
 val SystemTypography = buildTypography(FontFamily.Default)
+
+fun buildAppTypography(appFont: AppFont): Typography {
+    return buildTypography(appFont.getFontFamily())
+}
 
