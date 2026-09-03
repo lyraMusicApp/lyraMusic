@@ -23,8 +23,8 @@ android {
         applicationId = "com.shnwazdeveloper.lyramusic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 137
-        versionName = "3.1.0-pre1"
+        versionCode = 138
+        versionName = "3.1.0-pre2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

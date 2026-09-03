@@ -417,11 +417,10 @@ private fun FloatingNavigationToolbarItem(
     liquidGlass: Boolean,
     onClick: () -> Unit,
 ) {
-    val shape = CircleShape
     val containerColor by animateColorAsState(
         targetValue =
             when {
-                selected -> Color(0xFFD4E84B) // Lime green highlight from Image 1
+                selected -> Color(0xFFD4E84B) // Lime green highlight
                 else -> Color.Transparent
             },
         label = "tabContainer",
@@ -437,20 +436,20 @@ private fun FloatingNavigationToolbarItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.91f else 1f,
+        targetValue = if (isPressed) 0.92f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium,
         ),
         label = "tabScale",
     )
-    val showLabel = false
 
     Box(
         modifier =
             Modifier
+                .padding(horizontal = 2.dp, vertical = 4.dp)
                 .scale(scale)
-                .size(48.dp)
+                .size(40.dp)
                 .clip(CircleShape)
                 .background(color = containerColor, shape = CircleShape)
                 .clickable(
@@ -465,7 +464,7 @@ private fun FloatingNavigationToolbarItem(
             painter = painterResource(if (selected) screen.iconIdActive else screen.iconIdInactive),
             contentDescription = stringResource(screen.titleId),
             tint = contentColor,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(22.dp)
         )
     }
 }

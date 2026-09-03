@@ -94,12 +94,11 @@ fun shimmerEffect(): Brush {
     )
 }
 
-// ── Data ───────────────────────────────────────────────────────────────────
-
-private data class SocialLink(
+data class SocialLink(
     val iconRes: Int,
     val url: String,
     val label: String,
+    val handle: String = "",
 )
 
 // ── Main screen ────────────────────────────────────────────────────────────
@@ -162,9 +161,9 @@ fun AboutScreen(
             item {
                 SocialCard(
                     links = listOf(
-                        SocialLink(R.drawable.github, "https://github.com/shnwazdeveloper", "GitHub"),
-                        SocialLink(R.drawable.telegram, "https://t.me/sexyafraid", "Telegram"),
-                        SocialLink(R.drawable.instagram, "https://www.instagram.com/sexyafraid/", "Instagram"),
+                        SocialLink(R.drawable.github, "https://github.com/shnwazdeveloper", "GitHub", "shnwazdeveloper"),
+                        SocialLink(R.drawable.telegram, "https://t.me/SHNWAZX", "Telegram", "SHNWAZX"),
+                        SocialLink(R.drawable.instagram, "https://www.instagram.com/shnwazxc/", "Instagram", "shnwazxc"),
                     ),
                     onLinkClick = { uriHandler.openUri(it) },
                 )
@@ -185,54 +184,65 @@ fun AboutScreen(
 
 @Composable
 private fun HeroCard(shimmerBrush: Brush) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(26.dp))
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFF1F2432),
+                        Color(0xFF141722)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.18f),
+                        Color.White.copy(alpha = 0.04f)
+                    )
+                ),
+                shape = RoundedCornerShape(26.dp)
+            )
+            .padding(24.dp),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // App icon with shimmer
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(80.dp),
+            // App icon with glowing container
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(
+                                Color(0xFF3B82F6),
+                                Color(0xFF8B5CF6)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Image(
-                        painter = painterResource(R.drawable.opentune_monochrome),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(
-                            MaterialTheme.colorScheme.onPrimaryContainer,
-                            BlendMode.SrcIn,
-                        ),
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                    )
-                    // Shimmer overlay
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(shimmerBrush),
-                    )
-                }
+                Icon(
+                    painter = painterResource(R.drawable.opentune_monochrome),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp),
+                )
             }
 
             // App name
             Text(
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             )
 
             // Version + build badges
@@ -242,57 +252,55 @@ private fun HeroCard(shimmerBrush: Brush) {
             ) {
                 VersionBadge(
                     text = "v${BuildConfig.VERSION_NAME}",
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
+                    contentColor = Color(0xFF93C5FD),
                 )
                 VersionBadge(
                     text = "#${BuildConfig.VERSION_CODE}",
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.25f),
+                    contentColor = Color(0xFFC4B5FD),
                 )
                 if (BuildConfig.DEBUG) {
                     VersionBadge(
                         text = "DEBUG",
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        containerColor = Color(0xFFEF4444).copy(alpha = 0.25f),
+                        contentColor = Color(0xFFFCA5A5),
                     )
                 }
             }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 4.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                color = Color.White.copy(alpha = 0.08f),
             )
 
             // Dev credit row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.tertiaryContainer,
-                ) {
-                    AsyncImage(
-                        model = "https://github.com/shnwazdeveloper.png",
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape),
-                    )
-                }
+                AsyncImage(
+                    model = "https://github.com/shnwazdeveloper.png",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .border(1.5.dp, Color(0xFFD4E84B), CircleShape),
+                )
                 Column {
                     Text(
                         text = "Dev by shnwaz",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     )
                     Text(
                         text = "GPL-3.0 License",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = Color(0xFF9CA3AF)
+                        )
                     )
                 }
             }
@@ -307,69 +315,132 @@ private fun SocialCard(
     links: List<SocialLink>,
     onLinkClick: (String) -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFF161922))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.12f),
+                        Color.White.copy(alpha = 0.03f)
+                    )
+                ),
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(20.dp),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             // Section header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF8B5CF6).copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(
-                        modifier = Modifier.size(40.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.link),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.link),
+                        contentDescription = null,
+                        tint = Color(0xFFC4B5FD),
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
                 Text(
                     text = stringResource(R.string.social_links),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 )
             }
 
-            // Social icons grid — two rows of 3
+            // Sleek Social Link Rows
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                links.chunked(3).forEach { rowLinks ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        rowLinks.forEach { link ->
-                            SocialPill(
-                                iconRes = link.iconRes,
-                                label = link.label,
-                                onClick = { onLinkClick(link.url) },
-                                modifier = Modifier.weight(1f),
+                links.forEach { link ->
+                    SocialTile(
+                        iconRes = link.iconRes,
+                        label = link.label,
+                        handle = link.handle,
+                        onClick = { onLinkClick(link.url) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SocialTile(
+    iconRes: Int,
+    label: String,
+    handle: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF1F2432).copy(alpha = 0.7f))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(iconRes),
+                        contentDescription = label,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                Column {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White
+                        )
+                    )
+                    if (handle.isNotBlank()) {
+                        Text(
+                            text = handle,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = Color(0xFF9CA3AF)
                             )
-                        }
-                        // Fill remaining cells if row is incomplete
-                        repeat(3 - rowLinks.size) {
-                            Spacer(Modifier.weight(1f))
-                        }
+                        )
                     }
                 }
             }
+            Icon(
+                painter = painterResource(R.drawable.arrow_forward),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.4f),
+                modifier = Modifier.size(16.dp),
+            )
         }
     }
 }
@@ -378,57 +449,64 @@ private fun SocialCard(
 
 @Composable
 private fun LicenseFooter(onLicenseClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        onClick = onLicenseClick,
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF161922))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.12f),
+                        Color.White.copy(alpha = 0.03f)
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable(onClick = onLicenseClick)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF3B82F6).copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier.size(36.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.policy),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                Icon(
+                    painter = painterResource(R.drawable.policy),
+                    contentDescription = null,
+                    tint = Color(0xFF93C5FD),
+                    modifier = Modifier.size(20.dp),
+                )
             }
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "GNU General Public License v3.0",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
                 )
                 Text(
                     text = stringResource(R.string.view_license),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Color(0xFF9CA3AF)
+                    )
                 )
             }
 
             Icon(
                 painter = painterResource(R.drawable.arrow_forward),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                tint = Color.White.copy(alpha = 0.4f),
                 modifier = Modifier.size(18.dp),
             )
         }
@@ -440,47 +518,21 @@ private fun LicenseFooter(onLicenseClick: () -> Unit) {
 @Composable
 private fun VersionBadge(
     text: String,
-    containerColor: androidx.compose.ui.graphics.Color,
-    contentColor: androidx.compose.ui.graphics.Color,
+    containerColor: Color,
+    contentColor: Color,
 ) {
-    Surface(
-        shape = RoundedCornerShape(50.dp),
-        color = containerColor,
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(containerColor)
+            .padding(horizontal = 12.dp, vertical = 5.dp)
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Medium,
-            color = contentColor,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun SocialPill(
-    iconRes: Int,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    FilledTonalButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(14.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-        modifier = modifier.height(48.dp),
-    ) {
-        Icon(
-            painter = painterResource(iconRes),
-            contentDescription = label,
-            modifier = Modifier.size(18.dp),
-        )
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = contentColor
+            )
         )
     }
 }

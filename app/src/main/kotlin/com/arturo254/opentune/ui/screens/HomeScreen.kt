@@ -258,6 +258,15 @@ fun HomeScreen(
                     }
                 }
 
+                // 3. Featured Hero Carousel (Curated & Trending)
+                item {
+                    CuratedTrendingHeroCard(
+                        onCardClick = { playlistId ->
+                            navController.navigate("online_playlist/$playlistId")
+                        }
+                    )
+                }
+
 
 
                 quickPicks?.takeIf { it.isNotEmpty() }?.let { picks ->

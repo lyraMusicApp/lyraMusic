@@ -1,4 +1,4 @@
-﻿/*
+/*
  * OpenTune Project Original (2026)
  * Arturo254 (github.com/Arturo254)
  * Licensed Under GPL-3.0 | see git history for contributors
@@ -378,7 +378,7 @@ fun Queue(
                     )
                 }
 
-                PlayerDesignStyle.V7 -> {
+                PlayerDesignStyle.V7, PlayerDesignStyle.V8 -> {
                     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager }
                     val activeDevice = remember(audioManager) {
                         audioManager.getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS)

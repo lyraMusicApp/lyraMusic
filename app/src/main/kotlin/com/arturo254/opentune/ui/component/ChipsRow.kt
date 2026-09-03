@@ -76,31 +76,46 @@ fun <E> ChipsRow(
             val isSelected = currentValue == value
             val iconRes = icons[value]
 
-            FilterChip(
-                selected = isSelected,
-                onClick = { onValueUpdate(value) },
-                label = { Text(label) },
-                leadingIcon = {
-                    if (isSelected) {
-                        Icon(
-                            painter = painterResource(R.drawable.done),
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize),
-                        )
-                    } else if (iconRes != null) {
+            val pillContainerColor = if (isSelected) {
+                Color(0xFFD4E84B)
+            } else {
+                Color(0xFF1E222A).copy(alpha = 0.85f)
+            }
+            val pillTextColor = if (isSelected) {
+                Color(0xFF111827)
+            } else {
+                Color(0xFFE5E7EB)
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(pillContainerColor)
+                    .clickable { onValueUpdate(value) }
+                    .padding(horizontal = 16.dp, vertical = 9.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (iconRes != null && !isSelected) {
                         Icon(
                             painter = painterResource(iconRes),
                             contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize),
+                            tint = pillTextColor,
+                            modifier = Modifier.size(16.dp),
                         )
                     }
-                },
-                shape = RoundedCornerShape(16.dp),
-                border = null,
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = containerColor,
-                ),
-            )
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = pillTextColor
+                        )
+                    )
+                }
+            }
 
             Spacer(Modifier.width(8.dp))
         }

@@ -813,6 +813,7 @@ Lyra Music will only extract your token, and everything else is stored locally.<
     <string name="view_license">View full license on GitHub</string>
     <string name="paste">Paste</string>
     <string name="player_design_v7">Immersive</string>
+    <string name="player_design_v8">Vinyl Dial</string>
     <string name="liquid_glass_navbar">Enable Liquid Glass</string>
     <string name="liquid_glass_navbar_desc">Apply frosted glass blur and vibrancy to the bottom navigation and miniplayer. Automatically forces dark theme.</string>
 

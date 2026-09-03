@@ -1111,19 +1111,32 @@ fun HomeModernHeader(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val openSearch = com.arturo254.opentune.LocalOpenSearch.current
+    val greeting = remember {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        when (hour) {
+            in 5..11 -> "Good morning"
+            in 12..16 -> "Good afternoon"
+            in 17..21 -> "Good evening"
+            else -> "Good night"
+        }
+    }
+    val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
+    val displayName = if (isLoggedIn) accountName else "Music Lover"
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 18.dp)
-            .padding(top = 14.dp, bottom = 8.dp)
+            .padding(top = 12.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Top row: Profile avatar on left, Search and Favorites buttons on right
+        // Left Profile Avatar + Greeting Column
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Profile avatar (clickable -> account/login)
             Box(
                 modifier = Modifier
                     .size(46.dp)
@@ -1150,56 +1163,61 @@ fun HomeModernHeader(
                 }
             }
 
-            // Top right action buttons
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Search Button - Opens Search Bar directly
-                val openSearch = com.arturo254.opentune.LocalOpenSearch.current
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable { openSearch() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.search),
-                        contentDescription = "Search",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
+            Column {
+                Text(
+                    text = "Hi, $displayName",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = greeting,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Color(0xFF9CA3AF)
                     )
-                }
-
-                // Favorites / Liked Button
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable { navController.navigate("library") },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.favorite_border),
-                        contentDescription = "Favorites",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        // Right Action Buttons
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Search Button
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                    .clickable { openSearch() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.search),
+                    contentDescription = "Search",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
 
-        // Dynamic greeting: Real user name when logged in, or clean welcome when not
-        val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
-        Text(
-            text = if (isLoggedIn) "Hi, $accountName" else "Welcome to Lyra Music",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        )
+            // Favorites / Liked Button
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                    .clickable { navController.navigate("library") },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.favorite_border),
+                    contentDescription = "Favorites",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
     }
 }
 

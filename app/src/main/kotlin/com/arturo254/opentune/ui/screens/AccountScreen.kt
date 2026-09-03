@@ -117,54 +117,84 @@ fun AccountScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (!isLoggedIn) {
-            // Quick-Access Login & Integrations Hub (Discussion #31)
+            // Modern Glassmorphic Login & Integrations Hub
             LazyColumn(
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    // Header card
-                    Card(
-                        shape = RoundedCornerShape(22.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
+                    Spacer(modifier = Modifier.height(6.dp))
+                    // Hero Branding Header Card
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(26.dp))
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        Color(0xFF1F2432),
+                                        Color(0xFF141722)
+                                    )
+                                )
+                            )
+                            .border(
+                                width = 1.dp,
+                                brush = Brush.linearGradient(
+                                    listOf(
+                                        Color.White.copy(alpha = 0.18f),
+                                        Color.White.copy(alpha = 0.04f)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(26.dp)
+                            )
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(64.dp)
+                                    .size(68.dp)
                                     .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                    .background(
+                                        Brush.radialGradient(
+                                            listOf(
+                                                Color(0xFFD4E84B).copy(alpha = 0.25f),
+                                                Color(0xFF1E222B)
+                                            )
+                                        )
+                                    )
+                                    .border(1.5.dp, Color(0xFFD4E84B), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.account),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    tint = Color(0xFFD4E84B),
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
+
                             Text(
                                 text = stringResource(R.string.account),
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+
                             Text(
-                                text = stringResource(R.string.not_logged_in_youtube),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = "Sign in to access your library, cloud playlists, Discord Presence, and Last.fm scrobbling.",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = Color(0xFF9CA3AF)
+                                ),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 8.dp)
                             )
                         }
                     }
@@ -173,7 +203,10 @@ fun AccountScreen(
                 item {
                     Text(
                         text = stringResource(R.string.integrations),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        ),
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                     )
                 }
@@ -182,8 +215,9 @@ fun AccountScreen(
                 item {
                     IntegrationLoginCard(
                         title = "Google / YouTube Music",
-                        description = "Sync liked songs, cloud playlists, library albums, and personalized recommendations",
+                        description = "Sync liked songs, cloud playlists, library & recommendations",
                         icon = R.drawable.google,
+                        iconBgColor = Color(0xFFEA4335),
                         actionText = stringResource(R.string.login),
                         isConnected = false,
                         onClick = { navController.navigate("login") }
@@ -197,6 +231,7 @@ fun AccountScreen(
                         title = "Discord Rich Presence",
                         description = if (isDiscordConnected) "Connected as @$discordUsername" else "Broadcast playback activity and real-time status to Discord",
                         icon = R.drawable.discord,
+                        iconBgColor = Color(0xFF5865F2),
                         actionText = if (isDiscordConnected) "Settings" else "Connect",
                         isConnected = isDiscordConnected,
                         onClick = { navController.navigate("settings/discord") }
@@ -210,6 +245,7 @@ fun AccountScreen(
                         title = "Last.fm Scrobbler",
                         description = if (isLastFMConnected) "Connected as $lastfmUsername" else "Track and scrobble music listening statistics to Last.fm",
                         icon = R.drawable.sync,
+                        iconBgColor = Color(0xFFD51007),
                         actionText = if (isLastFMConnected) "Settings" else "Connect",
                         isConnected = isLastFMConnected,
                         onClick = { navController.navigate("settings/lastfm") }
@@ -219,9 +255,10 @@ fun AccountScreen(
                 // 4. Advanced PoToken / Web Client Token
                 item {
                     IntegrationLoginCard(
-                        title = stringResource(R.string.po_token_generation),
-                        description = stringResource(R.string.po_token_generation_subtitle),
+                        title = "PO Token Generator",
+                        description = "Generate visitor data and tokens for YouTube playback",
                         icon = R.drawable.account,
+                        iconBgColor = Color(0xFF00D2C4),
                         actionText = "Configure",
                         isConnected = false,
                         onClick = { navController.navigate("settings/potoken") }
@@ -229,7 +266,7 @@ fun AccountScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         } else {
@@ -451,21 +488,29 @@ private fun IntegrationLoginCard(
     actionText: String,
     isConnected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconBgColor: Color = Color(0xFF262A36),
 ) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        ),
+    Box(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF161922))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color.White.copy(alpha = 0.12f),
+                        Color.White.copy(alpha = 0.03f)
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(onClick = onClick)
+            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -475,45 +520,59 @@ private fun IntegrationLoginCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(46.dp)
                         .clip(CircleShape)
-                        .background(
-                            if (isConnected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                            else MaterialTheme.colorScheme.surfaceVariant
-                        ),
+                        .background(iconBgColor.copy(alpha = if (isConnected) 0.9f else 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (isConnected) Color.White else iconBgColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(14.dp))
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = Color(0xFF9CA3AF)
+                        ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = onClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = if (isConnected) ButtonDefaults.filledTonalButtonColors() else ButtonDefaults.buttonColors()
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(
+                        if (isConnected) Color(0xFF2A3142)
+                        else Color(0xFFD4E84B)
+                    )
+                    .clickable(onClick = onClick)
+                    .padding(horizontal = 16.dp, vertical = 9.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(actionText)
+                Text(
+                    text = actionText,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = if (isConnected) Color.White else Color(0xFF111827)
+                    )
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 /*
  * OpenTune Project Original (2026)
  * Arturo254 (github.com/Arturo254)
@@ -621,7 +621,7 @@ fun PlayerTopActions(
             }
         }
 
-        PlayerDesignStyle.V7 -> {
+        PlayerDesignStyle.V7, PlayerDesignStyle.V8 -> {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -1586,7 +1586,7 @@ fun PlayerPlaybackControls(
             }
         }
 
-        PlayerDesignStyle.V7 -> {
+        PlayerDesignStyle.V7, PlayerDesignStyle.V8 -> {
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
