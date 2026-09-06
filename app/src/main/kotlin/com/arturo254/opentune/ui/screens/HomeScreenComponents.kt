@@ -13,6 +13,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -1113,37 +1115,34 @@ fun HomeModernHeader(
 ) {
     val openSearch = com.arturo254.opentune.LocalOpenSearch.current
     val openAccountDialog = com.arturo254.opentune.LocalOpenAccountDialog.current
-    val greeting = remember {
-        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-        when (hour) {
-            in 5..11 -> "Good morning"
-            in 12..16 -> "Good afternoon"
-            in 17..21 -> "Good evening"
-            else -> "Good night"
-        }
-    }
     val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
-    val displayName = if (isLoggedIn) accountName else "Music Lover"
+    val displayName = if (isLoggedIn) accountName else "Guest"
 
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp)
-            .padding(top = 12.dp, bottom = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 20.dp)
+            .padding(top = 16.dp, bottom = 12.dp)
     ) {
-        // Left Profile Avatar + Greeting Column
+        // Top Row: Avatar on Left, 3 Circular Action Buttons on Right
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Left Profile Avatar
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2A2D37))
-                    .border(1.5.dp, Color(0xFFD4E84B), CircleShape)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(
+                                Color(0xFF8E2DE2),
+                                Color(0xFF4A00E0)
+                            )
+                        )
+                    )
                     .clickable { openAccountDialog() },
                 contentAlignment = Alignment.Center
             ) {
@@ -1156,67 +1155,115 @@ fun HomeModernHeader(
                     )
                 } else {
                     Icon(
-                        painter = painterResource(R.drawable.account),
+                        painter = painterResource(R.drawable.person),
                         contentDescription = "Profile",
-                        tint = Color(0xFFD4E84B),
-                        modifier = Modifier.size(24.dp)
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
 
-            Column {
-                Text(
-                    text = "Hi, $displayName",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = greeting,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF9CA3AF)
+            // Right Action Buttons: Notifications, Search, Settings
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Notifications
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable { navController.navigate("new_release") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.notifications),
+                        contentDescription = "Notifications",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
-                )
+                }
+
+                // Search
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable { openSearch() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search),
+                        contentDescription = "Search",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                // Settings
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable { navController.navigate("settings") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.settings),
+                        contentDescription = "Settings",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
 
-        // Right Action Buttons
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            // Search Button
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                    .clickable { openSearch() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.search),
-                    contentDescription = "Search",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+        Spacer(modifier = Modifier.height(18.dp))
 
-            // Favorites / Liked Button
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                    .clickable { navController.navigate("library") },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.favorite_border),
-                    contentDescription = "Favorites",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
+        // Greeting: "Hi, <accountName>"
+        Text(
+            text = "Hi, $displayName",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Filter Pills: History, Stats, Liked, Downloaded
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            val filterChips = listOf(
+                Pair("History") { navController.navigate("history") },
+                Pair("Stats") { navController.navigate("stats") },
+                Pair("Liked") { navController.navigate("auto_playlist/liked") },
+                Pair("Downloaded") { navController.navigate("auto_playlist/downloaded") }
+            )
+
+            filterChips.forEach { (label, onClick) ->
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
+                        .clickable(onClick = onClick)
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFE5E7EB)
+                        )
+                    )
+                }
             }
         }
     }
@@ -1238,8 +1285,8 @@ fun HomePillChipsRow(
     ) {
         items(chips) { chip ->
             val isSelected = chip == selectedChip
-            val containerColor = if (isSelected) Color(0xFFD4E84B) else Color(0xFF1E222A).copy(alpha = 0.85f)
-            val textColor = if (isSelected) Color(0xFF111827) else Color(0xFFE5E7EB)
+            val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF1E222A).copy(alpha = 0.85f)
+            val textColor = if (isSelected) Color.White else Color(0xFFE5E7EB)
 
             Box(
                 modifier = Modifier
