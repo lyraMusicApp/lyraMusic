@@ -63,10 +63,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.ui.graphics.graphicsLayer
-import kotlin.math.absoluteValue
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -1579,118 +1575,6 @@ fun TopDailyPlaylistsSection(
                         tint = Color.White,
                         modifier = Modifier.size(18.dp)
                     )
-                }
-            }
-        }
-    }
-}
-
-data class HomeHeroItem(
-    val id: String,
-    val title: String,
-    val subtitle: String,
-    val thumbnailUrl: String?,
-    val onClick: () -> Unit,
-)
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun HomeHeroCarousel(
-    items: List<HomeHeroItem>,
-    modifier: Modifier = Modifier,
-) {
-    if (items.isEmpty()) return
-
-    val pagerState = rememberPagerState(
-        initialPage = (items.size / 2).coerceAtLeast(0),
-        pageCount = { items.size }
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp)
-    ) {
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 44.dp),
-            pageSpacing = 14.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-        ) { page ->
-            val heroItem = items.getOrNull(page) ?: return@HorizontalPager
-
-            val pageOffset = (
-                (pagerState.currentPage - page) + pagerState
-                    .currentPageOffsetFraction
-            ).absoluteValue.coerceIn(0f, 1f)
-            
-            val scale = 1f - (pageOffset * 0.12f)
-            val alpha = 1f - (pageOffset * 0.30f)
-
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        this.alpha = alpha
-                    }
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(28.dp))
-                    .clickable { heroItem.onClick() }
-            ) {
-                // Background Album Cover Art
-                AsyncImage(
-                    model = heroItem.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
-                    contentDescription = heroItem.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Dark Bottom Scrim Gradient
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.20f),
-                                    Color.Black.copy(alpha = 0.85f),
-                                    Color.Black.copy(alpha = 0.96f),
-                                ),
-                                startY = 100f
-                            )
-                        )
-                )
-
-                // Song Title & Artist info overlaid at the bottom
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = 20.dp, vertical = 18.dp)
-                ) {
-                    Text(
-                        text = heroItem.title,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    if (heroItem.subtitle.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = heroItem.subtitle,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.White.copy(alpha = 0.85f)
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
                 }
             }
         }

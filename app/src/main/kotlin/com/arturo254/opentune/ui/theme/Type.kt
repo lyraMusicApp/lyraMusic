@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.arturo254.opentune.constants.AppFont
 import com.arturo254.opentune.R
 
 // TODO: Define or import actual M3 Expressive font families if needed.
@@ -133,11 +132,7 @@ private fun buildTypography(fontFamily: FontFamily) =
         )
     )
 
-private val AppFontFamily = FontFamily(Font(R.font.linotte))
+private val AppFontFamily = FontFamily(Font(R.font.poppins))
 val AppTypography = buildTypography(AppFontFamily)
 val SystemTypography = buildTypography(FontFamily.Default)
-
-fun buildAppTypography(appFont: AppFont): Typography {
-    return buildTypography(appFont.getFontFamily())
-}
 

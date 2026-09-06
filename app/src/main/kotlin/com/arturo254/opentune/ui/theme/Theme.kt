@@ -11,7 +11,6 @@ package com.arturo254.opentune.ui.theme
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Base64
-import com.arturo254.opentune.constants.AppFont
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -60,15 +59,14 @@ fun OpenTuneTheme(
     themeColor: Color = DefaultThemeColor,
     seedPalette: ThemeSeedPalette? = null,
     useSystemFont: Boolean = false,
-    appFont: AppFont = AppFont.LINOTTE,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     val useSystemDynamicColor =
         (seedPalette == null && themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
 
-    val typography = remember(useSystemFont, appFont) {
-        if (useSystemFont) SystemTypography else buildAppTypography(appFont)
+    val typography = remember(useSystemFont) {
+        if (useSystemFont) SystemTypography else AppTypography
     }
 
     val appColorScheme =

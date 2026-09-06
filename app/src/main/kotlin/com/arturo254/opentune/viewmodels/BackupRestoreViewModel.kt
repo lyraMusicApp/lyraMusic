@@ -31,10 +31,12 @@ import com.arturo254.opentune.extensions.zipInputStream
 import com.arturo254.opentune.extensions.zipOutputStream
 import com.arturo254.opentune.playback.MusicService
 import com.arturo254.opentune.playback.MusicService.Companion.PERSISTENT_QUEUE_FILE
+import com.arturo254.opentune.utils.SpotifyImporter
 import com.arturo254.opentune.utils.dataStore
 import com.arturo254.opentune.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -715,6 +717,38 @@ class BackupRestoreViewModel @Inject constructor(
     ): SpotifyPlaylistImportResult {
         val result =
             withContext(Dispatchers.IO) {
+                // 1. Try full Web API unlimited pagination (1000+ tracks)
+                try {
+                    val spotifyResult = SpotifyImporter.fetchSpotifyPlaylist(url)
+                    if (spotifyResult.tracks.isNotEmpty()) {
+                        val songs = ArrayList<Song>(spotifyResult.tracks.size)
+                        for (track in spotifyResult.tracks) {
+                            val artists = if (track.artist.isNotBlank()) {
+                                listOf(ArtistEntity(id = "", name = track.artist))
+                            } else {
+                                listOf(ArtistEntity("", "Unknown Artist"))
+                            }
+                            songs.add(
+                                Song(
+                                    song = SongEntity(
+                                        id = "",
+                                        title = track.name,
+                                        duration = track.durationSeconds
+                                    ),
+                                    artists = artists
+                                )
+                            )
+                        }
+                        return@withContext SpotifyPlaylistImportResult(
+                            title = spotifyResult.title.ifBlank { "Spotify playlist" },
+                            songs = songs,
+                            totalCount = songs.size
+                        )
+                    }
+                } catch (e: Exception) {
+                    Timber.tag("BackupRestoreViewModel").w(e, "Spotify Web API import failed, falling back to HTML")
+                }
+
                 val playlistId =
                     extractSpotifyPlaylistId(url)
                         ?: throw IllegalArgumentException(context.getString(R.string.spotify_playlist_invalid_url))

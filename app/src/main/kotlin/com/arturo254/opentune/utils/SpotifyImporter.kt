@@ -33,7 +33,10 @@ data class SpotifyPlaylistResult(
 
 object SpotifyImporter {
 
-    private val client = OkHttpClient.Builder().build()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 
     fun extractSpotifyIdAndType(url: String): Pair<String, String>? {
         val trimmed = url.trim()
@@ -47,6 +50,21 @@ object SpotifyImporter {
         return null
     }
 
+    private fun getAccessToken(): String? {
+        return try {
+            val tokenReq = Request.Builder()
+                .url("https://open.spotify.com/get_access_token?reason=transport&productType=web_player")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                .build()
+            val tokenResp = client.newCall(tokenReq).execute()
+            val tokenBody = tokenResp.body?.string() ?: "{}"
+            val tokenJson = JSONObject(tokenBody)
+            tokenJson.optString("accessToken", "").takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     suspend fun fetchSpotifyPlaylist(url: String): SpotifyPlaylistResult = withContext(Dispatchers.IO) {
         val idAndType = extractSpotifyIdAndType(url)
             ?: throw IllegalArgumentException("Invalid Spotify URL. Example: https://open.spotify.com/playlist/...")
@@ -57,18 +75,11 @@ object SpotifyImporter {
         val tracks = mutableListOf<SpotifyTrackInfo>()
         var title = "Spotify Import"
 
-        // 1. Try official Spotify Web API with anonymous token to get unlimited tracks (no 100-track limit)
+        // 1. Try official Spotify Web API with anonymous token for unlimited 1000+ track imports
         try {
-            val tokenReq = Request.Builder()
-                .url("https://open.spotify.com/get_access_token?reason=transport&productType=web_player")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                .build()
-            val tokenResp = client.newCall(tokenReq).execute()
-            val tokenBody = tokenResp.body?.string() ?: "{}"
-            val tokenJson = JSONObject(tokenBody)
-            val accessToken = tokenJson.optString("accessToken", "")
+            var accessToken = getAccessToken()
 
-            if (accessToken.isNotBlank()) {
+            if (!accessToken.isNullOrBlank()) {
                 if (type == "playlist") {
                     var offset = 0
                     val limit = 100
@@ -89,33 +100,40 @@ object SpotifyImporter {
                             .header("Authorization", "Bearer $accessToken")
                             .build()
                         val tracksResp = client.newCall(tracksReq).execute()
+                        if (tracksResp.code == 401) {
+                            accessToken = getAccessToken()
+                            if (accessToken.isNullOrBlank()) break
+                            continue
+                        }
+                        if (!tracksResp.isSuccessful) break
+
                         val tracksJson = JSONObject(tracksResp.body?.string() ?: "{}")
                         val items = tracksJson.optJSONArray("items")
+                        val total = tracksJson.optInt("total", -1)
                         if (items != null && items.length() > 0) {
                             for (i in 0 until items.length()) {
                                 val item = items.optJSONObject(i) ?: continue
-                                val trackObj = item.optJSONObject("track") ?: continue
-                                val name = trackObj.optString("name", "")
+                                val trackObj = item.optJSONObject("track") ?: item.optJSONObject("item") ?: continue
+                                val name = trackObj.optString("name", "").trim()
+                                if (name.isBlank()) continue
                                 val artistsArr = trackObj.optJSONArray("artists")
                                 val artistNames = mutableListOf<String>()
                                 if (artistsArr != null) {
                                     for (j in 0 until artistsArr.length()) {
                                         val artistObj = artistsArr.optJSONObject(j)
-                                        val aName = artistObj?.optString("name", "") ?: ""
+                                        val aName = artistObj?.optString("name", "")?.trim() ?: ""
                                         if (aName.isNotBlank()) artistNames.add(aName)
                                     }
                                 }
-                                val artist = artistNames.joinToString(", ")
+                                val artist = artistNames.joinToString(", ").ifBlank { "Unknown Artist" }
                                 val albumObj = trackObj.optJSONObject("album")
                                 val album = albumObj?.optString("name", "") ?: ""
                                 val duration = trackObj.optInt("duration_ms", 0) / 1000
-                                if (name.isNotBlank()) {
-                                    tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = album, durationSeconds = duration))
-                                }
+                                tracks.add(SpotifyTrackInfo(name = name, artist = artist, album = album, durationSeconds = duration))
                             }
                             offset += items.length()
-                            val next = tracksJson.optString("next", "null")
-                            hasMore = next != "null" && next.isNotBlank() && items.length() == limit
+                            val next = tracksJson.optString("next", "")
+                            hasMore = (next.isNotBlank() && next != "null") || (total > 0 && offset < total)
                         } else {
                             hasMore = false
                         }

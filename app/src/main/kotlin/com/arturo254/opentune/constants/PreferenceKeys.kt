@@ -48,43 +48,17 @@ enum class SliderStyle {
     Simple,
 }
 
-enum class HomeScreenStyle {
-    CLASSIC,
-    PLAYFUL,
-    NEON,
-    SPOTIFY,
-    APPLE
-}
-
-enum class NavBarStyle {
-    CLASSIC,
-    LIQUID_GLASS,
-    SPOTIFY,
-    APPLE,
-    NEON,
-    NEW_CLASSIC
-}
-
-val HomeScreenStyleKey = stringPreferencesKey("homeScreenStyle")
-val NavBarStyleKey = stringPreferencesKey("navBarStyle")
-val AppFontKey = stringPreferencesKey("appFont")
-
 enum class PlayerScreenStyle {
     PAPER,
     CLASSIC,
-    IMMERSIVE,
+    MODERN,
     SPOTIFY,
-    LIQUID,
     CLOUDGLOW,
-    FROST,
     FOLD,
-    GROOVE,
     POPSY,
     MINIMAL,
     COLOURFULL,
-    APPLE,
-    GALAXY,
-    IOS_STYLED
+    APPLE
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"
