@@ -88,19 +88,12 @@ fun FloatingNavigationToolbar(
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
-    val toolbarContainerColor = floatingToolbarContainerColor(pureBlack = pureBlack, liquidGlass = liquidGlass)
+    val toolbarContainerColor = Color.Transparent
     val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
-        toolbarContainerColor = toolbarContainerColor,
+        toolbarContainerColor = Color.Transparent,
     )
     val hasOverflowAction = onShuffleClick != null && shuffleIconRes != null
     val hasFabAction = onFabClick != null && fabIconRes != null
-
-    // Modificador para el efecto Liquid Glass: borde con gradiente de luz y overlay sutil
-    val glassModifier = if (liquidGlass) {
-        Modifier.liquidGlassStyle(pureBlack = pureBlack)
-    } else {
-        Modifier
-    }
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth(),
@@ -114,7 +107,6 @@ fun FloatingNavigationToolbar(
         ) {
             HorizontalFloatingToolbar(
                 expanded = true,
-                modifier = Modifier.then(glassModifier),
                 colors = toolbarColors,
             ) {
                 items.forEach { screen ->
@@ -164,57 +156,7 @@ fun FloatingNavigationToolbar(
 private fun Modifier.liquidGlassStyle(
     pureBlack: Boolean,
     shape: Shape = CircleShape,
-): Modifier =
-    this
-        .clip(shape)
-        .border(
-            width = 0.8.dp,
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = if (pureBlack) 0.22f else 0.38f),
-                    Color.White.copy(alpha = if (pureBlack) 0.04f else 0.08f),
-                ),
-            ),
-            shape = shape,
-        )
-        .drawWithContent {
-            drawContent()
-
-            // highlight horizontal (vidrio)
-            drawRoundRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.White.copy(alpha = if (pureBlack) 0.10f else 0.18f),
-                        Color.Transparent,
-                    ),
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, 0f)
-                ),
-                size = size,
-                cornerRadius = CornerRadius(
-                    x = size.height / 2f,
-                    y = size.height / 2f
-                )
-            )
-
-            // brillo superior
-            drawRoundRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = if (pureBlack) 0.06f else 0.12f),
-                        Color.Transparent,
-                    ),
-                    startY = 0f,
-                    endY = size.height * 0.6f
-                ),
-                size = size,
-                cornerRadius = CornerRadius(
-                    x = size.height / 2f,
-                    y = size.height / 2f
-                )
-            )
-        }
+): Modifier = this
 
 
 
@@ -233,9 +175,11 @@ private fun FloatingToolbarOverflowAction(
     var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
     Box {
-        FloatingToolbarDefaults.VibrantFloatingActionButton(
+        Surface(
             onClick = { fabMenuExpanded = !fabMenuExpanded },
-            containerColor = floatingToolbarFabContainerColor(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = floatingToolbarFabContainerColor(
                 pureBlack = pureBlack,
                 liquidGlass = liquidGlass
             ),
@@ -243,14 +187,18 @@ private fun FloatingToolbarOverflowAction(
                 pureBlack = pureBlack,
                 liquidGlass = liquidGlass
             ),
+            shadowElevation = 0.dp,
         ) {
-            Icon(
-                painter = painterResource(R.drawable.more_horiz),
-                contentDescription =
-                    shuffleContentDescription.ifEmpty {
-                        stringResource(R.string.more)
-                    },
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(R.drawable.more_horiz),
+                    contentDescription =
+                        shuffleContentDescription.ifEmpty {
+                            stringResource(R.string.more)
+                        },
+                    modifier = Modifier.size(24.dp),
+                )
+            }
         }
 
         DropdownMenu(
@@ -340,18 +288,24 @@ private fun FloatingToolbarFabAction(
 ) {
     if (onClick == null || iconRes == null) return
 
-    FloatingToolbarDefaults.VibrantFloatingActionButton(
+    Surface(
         onClick = onClick,
-        containerColor = floatingToolbarFabContainerColor(pureBlack = pureBlack, liquidGlass = liquidGlass),
+        modifier = Modifier.size(48.dp),
+        shape = CircleShape,
+        color = floatingToolbarFabContainerColor(pureBlack = pureBlack, liquidGlass = liquidGlass),
         contentColor = floatingToolbarFabContentColor(pureBlack = pureBlack, liquidGlass = liquidGlass),
+        shadowElevation = 0.dp,
     ) {
-        Icon(
-            painter = painterResource(iconRes),
-            contentDescription =
-                contentDescription.ifEmpty {
-                    stringResource(R.string.create_playlist)
-                },
-        )
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription =
+                    contentDescription.ifEmpty {
+                        stringResource(R.string.create_playlist)
+                    },
+                modifier = Modifier.size(24.dp),
+            )
+        }
     }
 }
 
@@ -421,11 +375,7 @@ private fun FloatingNavigationToolbarItem(
 
 @Composable
 private fun floatingToolbarContainerColor(pureBlack: Boolean, liquidGlass: Boolean): Color {
-    return when {
-        pureBlack -> Color.Black
-        liquidGlass -> Color(0xD0161822)
-        else -> Color(0xEE181A22)
-    }
+    return Color.Transparent
 }
 
 @Composable

@@ -118,7 +118,6 @@ import com.arturo254.opentune.constants.PauseListenHistoryKey
 import com.arturo254.opentune.constants.PauseOnDeviceMuteKey
 import com.arturo254.opentune.constants.PermanentShuffleKey
 import com.arturo254.opentune.constants.PersistentQueueKey
-import com.arturo254.opentune.constants.LockScreenPlayerKey
 import com.arturo254.opentune.constants.PlayerStreamClient
 import com.arturo254.opentune.constants.PlayerStreamClientKey
 import com.arturo254.opentune.constants.PlayerVolumeKey
@@ -259,8 +258,6 @@ class MusicService :
     private var bluetoothReceiverRegistered = false
     private var wakeLock: PowerManager.WakeLock? = null
     private var wakelockEnabled = false
-    private var lockScreenPlayerEnabled = false
-    private var screenReceiverRegistered = false
 
     private var scopeJob = Job()
     private var scope = CoroutineScope(Dispatchers.Main + scopeJob)
@@ -812,18 +809,6 @@ class MusicService :
                     registerBluetoothReceiver()
                 } else {
                     unregisterBluetoothReceiver()
-                }
-            }
-
-        dataStore.data
-            .map { it[LockScreenPlayerKey] ?: false }
-            .distinctUntilChanged()
-            .collectLatest(scope) { enabled ->
-                lockScreenPlayerEnabled = enabled
-                if (enabled) {
-                    registerScreenReceiver()
-                } else {
-                    unregisterScreenReceiver()
                 }
             }
 
@@ -1471,50 +1456,6 @@ class MusicService :
             unregisterReceiver(bluetoothReceiver)
         } catch (_: Exception) {}
         bluetoothReceiverRegistered = false
-    }
-
-    private val screenReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == Intent.ACTION_SCREEN_ON) {
-                handleScreenOn()
-            }
-        }
-    }
-
-    private fun registerScreenReceiver() {
-        if (screenReceiverRegistered) return
-        val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(screenReceiver, filter)
-        }
-        screenReceiverRegistered = true
-    }
-
-    private fun unregisterScreenReceiver() {
-        if (!screenReceiverRegistered) return
-        try {
-            unregisterReceiver(screenReceiver)
-        } catch (_: Exception) {}
-        screenReceiverRegistered = false
-    }
-
-    private fun handleScreenOn() {
-        if (!lockScreenPlayerEnabled) return
-        if (!::player.isInitialized) return
-        if (!player.isPlaying && !player.playWhenReady) return
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? android.app.KeyguardManager
-        if (keyguardManager?.isKeyguardLocked != true) return
-
-        try {
-            val lockIntent = Intent(this, com.arturo254.opentune.ui.player.LockScreenPlayerActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }
-            startActivity(lockIntent)
-        } catch (e: Exception) {
-            Timber.tag("MusicService").e(e, "Failed to launch LockScreenPlayerActivity")
-        }
     }
 
     private fun waitOnNetworkError() {
@@ -4895,7 +4836,6 @@ class MusicService :
     override fun onDestroy() {
         super.onDestroy()
         unregisterBluetoothReceiver()
-        unregisterScreenReceiver()
         try {
             scope.launch { stopTogetherInternal() }
         } catch (_: Exception) {}

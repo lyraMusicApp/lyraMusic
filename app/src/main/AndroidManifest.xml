@@ -137,16 +137,6 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <activity
-            android:name=".ui.player.LockScreenPlayerActivity"
-            android:exported="false"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"
-            android:showOnLockScreen="true"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.OpenTune" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"

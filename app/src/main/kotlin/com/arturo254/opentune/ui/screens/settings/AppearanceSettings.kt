@@ -61,7 +61,6 @@ import com.arturo254.opentune.constants.LyricsTextPositionKey
 import com.arturo254.opentune.constants.PlayerDesignStyle
 import com.arturo254.opentune.constants.PlayerDesignStyleKey
 import com.arturo254.opentune.constants.UseNewMiniPlayerDesignKey
-import com.arturo254.opentune.constants.LockScreenPlayerKey
 import com.arturo254.opentune.constants.PlayerBackgroundStyle
 import com.arturo254.opentune.constants.PlayerBackgroundStyleKey
 import com.arturo254.opentune.constants.PureBlackKey
@@ -132,10 +131,6 @@ fun AppearanceSettings(
     val (useNewMiniPlayerDesign, onUseNewMiniPlayerDesignChange) = rememberPreference(
         UseNewMiniPlayerDesignKey,
         defaultValue = true
-    )
-    val (lockScreenPlayer, onLockScreenPlayerChange) = rememberPreference(
-        LockScreenPlayerKey,
-        defaultValue = false
     )
     val (useNewLibraryDesign, onUseNewLibraryDesignChange) = rememberPreference(
         key = com.arturo254.opentune.constants.UseNewLibraryDesignKey,
@@ -415,14 +410,6 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             checked = useNewMiniPlayerDesign,
             onCheckedChange = onUseNewMiniPlayerDesignChange,
-        )
-
-        SwitchPreference(
-            title = { Text("Lock Screen Player") },
-            description = "Show full lock screen player card when music is playing",
-            icon = { Icon(painterResource(R.drawable.lock), null) },
-            checked = lockScreenPlayer,
-            onCheckedChange = onLockScreenPlayerChange,
         )
 
         SwitchPreference(
