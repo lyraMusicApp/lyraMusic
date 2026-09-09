@@ -137,16 +137,20 @@ constructor(
             }.getOrThrow()
             val format = playbackData.format
 
+            val cleanMimeType = format.mimeType.split(";").firstOrNull() ?: format.mimeType
+            val cleanCodecs = format.mimeType.split("codecs=").getOrNull(1)?.removeSurrounding("\"")?.removeSurrounding(" ") ?: ""
+            val safeContentLength = format.contentLength ?: 0L
+
             database.query {
                 upsert(
                     FormatEntity(
                         id = mediaId,
                         itag = format.itag,
-                        mimeType = format.mimeType.split(";")[0],
-                        codecs = format.mimeType.split("codecs=")[1].removeSurrounding("\""),
+                        mimeType = cleanMimeType,
+                        codecs = cleanCodecs,
                         bitrate = format.bitrate,
                         sampleRate = format.audioSampleRate,
-                        contentLength = format.contentLength!!,
+                        contentLength = safeContentLength,
                         loudnessDb = playbackData.audioConfig?.loudnessDb,
                         perceptualLoudnessDb = playbackData.audioConfig?.perceptualLoudnessDb,
                         playbackUrl = playbackData.playbackTracking?.videostatsPlaybackUrl?.baseUrl

@@ -27,6 +27,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -68,15 +69,15 @@ constructor(
                 }
         }
 
-        // Suggestions flow: fetches from network independently
+        // Suggestions flow: fetches from network independently with fast debounce
         viewModelScope.launch {
             query
+                .debounce(150L)
                 .flatMapLatest { query ->
                     if (query.isEmpty()) {
                         flowOf<SearchSuggestions?>(null)
                     } else {
                         flow<SearchSuggestions?> {
-                            emit(null) // clear stale suggestions immediately
                             emit(YouTube.searchSuggestions(query).getOrNull())
                         }
                     }

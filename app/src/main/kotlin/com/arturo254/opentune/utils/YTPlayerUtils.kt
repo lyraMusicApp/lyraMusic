@@ -64,6 +64,9 @@ object YTPlayerUtils {
         }
         val client = OkHttpClient.Builder()
             .proxy(current)
+            .callTimeout(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+            .connectTimeout(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
+            .readTimeout(1500, java.util.concurrent.TimeUnit.MILLISECONDS)
             .build()
         streamClientPair = current to client
         return client
@@ -240,11 +243,11 @@ object YTPlayerUtils {
 
         Timber.tag(logTag).i("Fetching metadata response using client: ${metadataClient.clientName}")
         val metadataPlayerResponse =
-            YouTube.player(videoId, playlistId, metadataClient, signatureTimestamp).getOrThrow()
-        val audioConfig = metadataPlayerResponse.playerConfig?.audioConfig
-        val videoDetails = metadataPlayerResponse.videoDetails
-        val playbackTracking = metadataPlayerResponse.playbackTracking
-        val expectedDurationMs = videoDetails?.lengthSeconds?.toLongOrNull()?.takeIf { it > 0 }?.times(1000L)
+            YouTube.player(videoId, playlistId, metadataClient, signatureTimestamp).getOrNull()
+        var audioConfig = metadataPlayerResponse?.playerConfig?.audioConfig
+        var videoDetails = metadataPlayerResponse?.videoDetails
+        var playbackTracking = metadataPlayerResponse?.playbackTracking
+        var expectedDurationMs = videoDetails?.lengthSeconds?.toLongOrNull()?.takeIf { it > 0 }?.times(1000L)
 
         val streamClients =
             buildList {
@@ -261,6 +264,10 @@ object YTPlayerUtils {
 
         val botDetectedClients = mutableSetOf<String>()
         var gateFailure: PlaybackGateFailure? = null
+        var backupFormat: PlayerResponse.StreamingData.Format? = null
+        var backupStreamUrl: String? = null
+        var backupStreamExpiresInSeconds: Int? = null
+        var backupStreamPlayerResponse: PlayerResponse? = null
 
         for ((index, client) in streamClients.withIndex()) {
             format = null
@@ -278,7 +285,7 @@ object YTPlayerUtils {
             }
 
             streamPlayerResponse =
-                if (client == metadataClient) {
+                if (client == metadataClient && metadataPlayerResponse != null) {
                     metadataPlayerResponse
                 } else {
                     Timber.tag(logTag).i("Fetching player response for fallback client: ${client.clientName}")
@@ -305,6 +312,13 @@ object YTPlayerUtils {
                 }
                 continue
             }
+
+            if (audioConfig == null) audioConfig = streamPlayerResponse.playerConfig?.audioConfig
+            if (videoDetails == null) {
+                videoDetails = streamPlayerResponse.videoDetails
+                expectedDurationMs = videoDetails?.lengthSeconds?.toLongOrNull()?.takeIf { it > 0 }?.times(1000L)
+            }
+            if (playbackTracking == null) playbackTracking = streamPlayerResponse.playbackTracking
 
             val isMetered = networkMetered ?: connectivityManager.isActiveNetworkMetered
             val candidates =
@@ -345,12 +359,27 @@ object YTPlayerUtils {
             Timber.tag(logTag).i("Format found: ${format.mimeType}, bitrate: ${format.bitrate}")
             Timber.tag(logTag).v("Stream expires in: $streamExpiresInSeconds seconds")
 
-            val valid = validateStatus(streamUrl, client.userAgent)
+            val isDirectUrl = selectedFormat.url != null
+            val valid = if (isDirectUrl) true else validateStatus(streamUrl, client.userAgent)
             if (valid) {
                 Timber.tag(logTag).i("Stream validated successfully with client: ${client.clientName}")
                 break
             } else {
                 Timber.tag(logTag).w("Stream validation failed with client: ${client.clientName}, continuing check but retaining format as backup")
+                backupFormat = format
+                backupStreamUrl = streamUrl
+                backupStreamExpiresInSeconds = streamExpiresInSeconds
+                backupStreamPlayerResponse = streamPlayerResponse
+            }
+        }
+
+        if (format == null || streamUrl == null) {
+            if (backupFormat != null && backupStreamUrl != null) {
+                Timber.tag(logTag).w("Using unvalidated backup format as fallback after all validation probes failed")
+                format = backupFormat
+                streamUrl = backupStreamUrl
+                streamExpiresInSeconds = backupStreamExpiresInSeconds
+                if (streamPlayerResponse == null) streamPlayerResponse = backupStreamPlayerResponse
             }
         }
 
@@ -611,12 +640,7 @@ object YTPlayerUtils {
             val resolvedUserAgent = StreamClientUtils.resolveUserAgent(clientParam).ifEmpty { userAgent }
             val originReferer = StreamClientUtils.resolveOriginReferer(clientParam)
 
-            val probeRanges =
-                if (StreamClientUtils.isWebClient(clientParam)) {
-                    listOf("bytes=0-0", "bytes=262144-262145", "bytes=1048576-1048577")
-                } else {
-                    listOf("bytes=0-0")
-                }
+            val probeRanges = listOf("bytes=0-0")
 
             for (range in probeRanges) {
                 val rangeRequest =

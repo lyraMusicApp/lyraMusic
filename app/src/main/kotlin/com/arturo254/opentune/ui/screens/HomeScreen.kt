@@ -1,4 +1,4 @@
-/*
+﻿/*
  * OpenTune Project Original (2026)
  * Arturo254 (github.com/Arturo254)
  * Licensed Under GPL-3.0 | see git history for contributors
@@ -41,8 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -263,59 +261,70 @@ fun HomeScreen(
 
 
                 quickPicks?.takeIf { it.isNotEmpty() }?.let { picks ->
-                    item {
-                        Text(
-                            text = stringResource(R.string.quick_picks),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF67E8F9)
-                            ),
-                            modifier = Modifier
-                                .padding(horizontal = 20.dp, vertical = 12.dp)
-                                .animateItem()
-                        )
-                    }
+            /*
+                item {
+                    NavigationTitle(
+                        title = stringResource(R.string.quick_picks),
+                        modifier = Modifier.animateItem()
+                    )
+                }
+            */
 
-                    item {
-                        QuickPicksSection(
-                            quickPicks = picks,
-                            mediaMetadata = mediaMetadata,
-                            isPlaying = isPlaying,
-                            navController = navController,
-                            playerConnection = playerConnection,
-                            menuState = menuState,
-                            haptic = haptic
-                        )
-                    }
+                item {
+                    QuickPicksSection(
+                        quickPicks = picks,
+                        mediaMetadata = mediaMetadata,
+                        isPlaying = isPlaying,
+                        navController = navController,
+                        playerConnection = playerConnection,
+                        menuState = menuState,
+                        haptic = haptic
+                    )
+                }
+            }
+
+            speedDialSongs.takeIf { it.isNotEmpty() }?.let { songs ->
+                item {
+                    NavigationTitle(
+                        title = stringResource(R.string.speed_dial),
+                        modifier = Modifier.animateItem()
+                    )
                 }
 
-                keepListening?.takeIf { it.isNotEmpty() }?.let { items ->
-                    item {
-                        Text(
-                            text = stringResource(R.string.keep_listening),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF67E8F9)
-                            ),
-                            modifier = Modifier
-                                .padding(horizontal = 20.dp, vertical = 12.dp)
-                                .animateItem()
-                        )
-                    }
-
-                    item {
-                        KeepListeningSection(
-                            keepListening = items,
-                            mediaMetadata = mediaMetadata,
-                            isPlaying = isPlaying,
-                            navController = navController,
-                            playerConnection = playerConnection,
-                            menuState = menuState,
-                            haptic = haptic,
-                            scope = scope
-                        )
-                    }
+                item {
+                    SpeedDialSection(
+                        speedDialSongs = songs,
+                        mediaMetadata = mediaMetadata,
+                        isPlaying = isPlaying,
+                        navController = navController,
+                        playerConnection = playerConnection,
+                        menuState = menuState,
+                        haptic = haptic
+                    )
                 }
+            }
+
+            keepListening?.takeIf { it.isNotEmpty() }?.let { items ->
+                item {
+                    NavigationTitle(
+                        title = stringResource(R.string.keep_listening),
+                        modifier = Modifier.animateItem()
+                    )
+                }
+
+                item {
+                    KeepListeningSection(
+                        keepListening = items,
+                        mediaMetadata = mediaMetadata,
+                        isPlaying = isPlaying,
+                        navController = navController,
+                        playerConnection = playerConnection,
+                        menuState = menuState,
+                        haptic = haptic,
+                        scope = scope
+                    )
+                }
+            }
 
             AccountPlaylistsContainer(
                 viewModel = viewModel,

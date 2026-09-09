@@ -49,9 +49,9 @@ sealed class Screens(
     )
 
     object MoodAndGenres : Screens(
-        titleId = R.string.explore,
-        iconIdInactive = R.drawable.explore_outlined,
-        iconIdActive = R.drawable.explore_filled,
+        titleId = R.string.mood_and_genres,
+        iconIdInactive = R.drawable.style,
+        iconIdActive = R.drawable.style,
         route = "mood_and_genres"
     )
 
@@ -70,6 +70,6 @@ sealed class Screens(
     )
 
     companion object {
-        val MainScreens = listOf(Home, Stats, MoodAndGenres, Library, Search)
+        val MainScreens = listOf(Home, MoodAndGenres, History, Library, Settings)
     }
 }

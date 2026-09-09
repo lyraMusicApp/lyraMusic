@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -209,36 +210,30 @@ private fun HeroCard(shimmerBrush: Brush) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // App icon with glowing gradient container
+            // App icon with glowing lime border container
             Box(
                 modifier = Modifier
-                    .size(76.dp)
+                    .size(80.dp)
                     .clip(RoundedCornerShape(22.dp))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                Color(0xFF3B82F6),
-                                Color(0xFF8B5CF6)
-                            )
-                        )
-                    )
                     .border(
-                        width = 1.dp,
+                        width = 1.5.dp,
                         brush = Brush.verticalGradient(
                             listOf(
-                                Color.White.copy(alpha = 0.35f),
-                                Color.White.copy(alpha = 0.08f)
+                                Color(0xFFD4E84B),
+                                Color(0xFF88A020)
                             )
                         ),
                         shape = RoundedCornerShape(22.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.opentune_monochrome),
+                Image(
+                    painter = painterResource(R.drawable.lyra_logo),
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(46.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(22.dp)),
+                    contentScale = ContentScale.Crop,
                 )
             }
 

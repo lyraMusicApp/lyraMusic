@@ -66,24 +66,6 @@ fun buildIntegrationActions(
             onClick = { resetSearch(); navController.navigate("settings/backup_restore") },
             accentColor = Color(0xFF1DB954),
         ),
-        SettingsIntegrationAction(
-            icon = painterResource(R.drawable.discord),
-            label = stringResource(R.string.discord),
-            onClick = { resetSearch(); navController.navigate("settings/discord") },
-            accentColor = Color(0xFF5865F2),
-        ),
-        SettingsIntegrationAction(
-            icon = painterResource(R.drawable.integration),
-            label = stringResource(R.string.integration),
-            onClick = { resetSearch(); navController.navigate("settings/integration") },
-            accentColor = MaterialTheme.colorScheme.secondary,
-        ),
-        SettingsIntegrationAction(
-            icon = painterResource(R.drawable.fire),
-            label = stringResource(R.string.music_together),
-            onClick = { resetSearch(); navController.navigate("settings/music_together") },
-            accentColor = MaterialTheme.colorScheme.tertiary,
-        ),
     )
 
 @Composable

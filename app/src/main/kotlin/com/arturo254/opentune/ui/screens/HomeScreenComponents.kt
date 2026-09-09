@@ -1115,34 +1115,26 @@ fun HomeModernHeader(
 ) {
     val openSearch = com.arturo254.opentune.LocalOpenSearch.current
     val openAccountDialog = com.arturo254.opentune.LocalOpenAccountDialog.current
-    val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
-    val displayName = if (isLoggedIn) accountName else "Guest"
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .padding(top = 16.dp, bottom = 12.dp)
+            .padding(horizontal = 18.dp)
+            .padding(top = 14.dp, bottom = 8.dp)
     ) {
-        // Top Row: Avatar on Left, 3 Circular Action Buttons on Right
+        // Top row: Profile avatar on left, Search and Favorites buttons on right
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Left Profile Avatar
+            // Profile avatar (clickable -> account/login dialog)
             Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                Color(0xFF8E2DE2),
-                                Color(0xFF4A00E0)
-                            )
-                        )
-                    )
+                    .background(Color(0xFF2A2D37))
+                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     .clickable { openAccountDialog() },
                 contentAlignment = Alignment.Center
             ) {
@@ -1155,37 +1147,20 @@ fun HomeModernHeader(
                     )
                 } else {
                     Icon(
-                        painter = painterResource(R.drawable.person),
+                        painter = painterResource(R.drawable.account),
                         contentDescription = "Profile",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
 
-            // Right Action Buttons: Notifications, Search, Settings
+            // Top right action buttons
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Notifications
+                // Search Button
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable { navController.navigate("new_release") },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                // Search
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
+                        .size(42.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF1E222B).copy(alpha = 0.85f))
                         .clickable { openSearch() },
@@ -1199,18 +1174,18 @@ fun HomeModernHeader(
                     )
                 }
 
-                // Settings
+                // Favorites / Liked Button
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(42.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable { navController.navigate("settings") },
+                        .clickable { navController.navigate("library") },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.settings),
-                        contentDescription = "Settings",
+                        painter = painterResource(R.drawable.favorite_border),
+                        contentDescription = "Favorites",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
@@ -1218,54 +1193,17 @@ fun HomeModernHeader(
             }
         }
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
-        // Greeting: "Hi, <accountName>"
+        // Dynamic greeting: Real user name when logged in, or clean welcome when not
+        val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
         Text(
-            text = "Hi, $displayName",
+            text = if (isLoggedIn) "Hi, $accountName" else "Welcome to Lyra Music",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Filter Pills: History, Stats, Liked, Downloaded
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            val filterChips = listOf(
-                Pair("History") { navController.navigate("history") },
-                Pair("Stats") { navController.navigate("stats") },
-                Pair("Liked") { navController.navigate("auto_playlist/liked") },
-                Pair("Downloaded") { navController.navigate("auto_playlist/downloaded") }
             )
-
-            filterChips.forEach { (label, onClick) ->
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF1E222B).copy(alpha = 0.85f))
-                        .clickable(onClick = onClick)
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFE5E7EB)
-                        )
-                    )
-                }
-            }
-        }
+        )
     }
 }
 
@@ -1286,7 +1224,7 @@ fun HomePillChipsRow(
         items(chips) { chip ->
             val isSelected = chip == selectedChip
             val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF1E222A).copy(alpha = 0.85f)
-            val textColor = if (isSelected) Color.White else Color(0xFFE5E7EB)
+            val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else Color(0xFFE5E7EB)
 
             Box(
                 modifier = Modifier

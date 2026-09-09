@@ -612,14 +612,29 @@ class MainActivity : ComponentActivity() {
                     if (song != null) {
                         withContext(Dispatchers.Default) {
                             try {
-                                val result = imageLoader.execute(
-                                    ImageRequest
-                                        .Builder(this@MainActivity)
-                                        .data(song.thumbnailUrl.highQualityThumbnailUrlOrNull())
-                                        .allowHardware(false)
-                                        .build(),
-                                )
-                                val extractedColor = result.image?.toBitmap()?.extractThemeColor()
+                                var bitmap: android.graphics.Bitmap? = null
+                                val hqUrl = song.thumbnailUrl.highQualityThumbnailUrlOrNull()
+                                if (!hqUrl.isNullOrBlank()) {
+                                    val result = imageLoader.execute(
+                                        ImageRequest
+                                            .Builder(this@MainActivity)
+                                            .data(hqUrl)
+                                            .allowHardware(false)
+                                            .build(),
+                                    )
+                                    bitmap = result.image?.toBitmap()
+                                }
+                                if (bitmap == null && !song.thumbnailUrl.isNullOrBlank()) {
+                                    val result = imageLoader.execute(
+                                        ImageRequest
+                                            .Builder(this@MainActivity)
+                                            .data(song.thumbnailUrl)
+                                            .allowHardware(false)
+                                            .build(),
+                                    )
+                                    bitmap = result.image?.toBitmap()
+                                }
+                                val extractedColor = bitmap?.extractThemeColor()
                                 withContext(Dispatchers.Main) {
                                     themeColor = extractedColor ?: DefaultThemeColor
                                 }
@@ -630,10 +645,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            themeColor = DefaultThemeColor
-                        } else {
-                            themeColor = customThemeColor
+                        withContext(Dispatchers.Main) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                themeColor = DefaultThemeColor
+                            } else {
+                                themeColor = customThemeColor
+                            }
                         }
                     }
                 }

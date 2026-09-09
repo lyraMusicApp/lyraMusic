@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun SettingsIntegrationsSection(
@@ -43,15 +45,70 @@ fun SettingsIntegrationsSection(
 ) {
     if (integrations.isEmpty()) return
 
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        items(
-            count = integrations.size,
-            key = { integrations[it].label },
-        ) { index ->
-            IntegrationPill(action = integrations[index])
+    if (integrations.size == 1) {
+        val action = integrations.first()
+        val interactionSource = remember { MutableInteractionSource() }
+        val isPressed by interactionSource.collectIsPressedAsState()
+        val scale by animateFloatAsState(
+            targetValue = if (isPressed) SettingsAnimations.PressScale else 1f,
+            animationSpec = SettingsAnimations.pressSpring(),
+            label = "integrationScale",
+        )
+
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .scale(scale),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            onClick = action.onClick,
+            interactionSource = interactionSource,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(action.accentColor.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = action.icon,
+                        contentDescription = null,
+                        tint = action.accentColor,
+                        modifier = Modifier.size(26.dp),
+                    )
+                }
+
+                Text(
+                    text = action.label,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    } else {
+        LazyRow(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            items(
+                count = integrations.size,
+                key = { integrations[it].label },
+            ) { index ->
+                IntegrationPill(action = integrations[index])
+            }
         }
     }
 }
