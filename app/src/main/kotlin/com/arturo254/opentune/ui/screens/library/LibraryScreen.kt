@@ -8,244 +8,558 @@
 
 package com.arturo254.opentune.ui.screens.library
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import com.arturo254.opentune.LocalDatabase
 import com.arturo254.opentune.R
+import com.arturo254.opentune.constants.AppBarHeight
 import com.arturo254.opentune.constants.ChipSortTypeKey
+import com.arturo254.opentune.constants.DefaultLibraryFilterOrderPreference
 import com.arturo254.opentune.constants.DisableBlurKey
+import com.arturo254.opentune.constants.LibraryChipOrderKey
 import com.arturo254.opentune.constants.LibraryFilter
-import com.arturo254.opentune.constants.PlaylistTagsFilterKey
+import com.arturo254.opentune.constants.PlaylistTagOrderKey
+import com.arturo254.opentune.constants.ShowSpotifyPlaylistsKey
 import com.arturo254.opentune.constants.ShowTagsInLibraryKey
-import com.arturo254.opentune.ui.component.ChipsRow
-import com.arturo254.opentune.ui.component.TagsFilterChips
+import com.arturo254.opentune.constants.toLibraryFilterOrder
+import com.arturo254.opentune.constants.toPlaylistTagOrder
+import com.arturo254.opentune.db.entities.TagEntity
+import com.arturo254.opentune.ui.component.TagsManagementDialog
 import com.arturo254.opentune.utils.rememberEnumPreference
 import com.arturo254.opentune.utils.rememberPreference
 
+internal val LibraryHeaderContentPadding = 64.dp
+internal val LibraryPullToRefreshIndicatorOffset = 0.dp
+
 @Composable
 fun LibraryScreen(navController: NavController) {
-    var filterType by rememberEnumPreference(ChipSortTypeKey, LibraryFilter.LIBRARY)
-    val (disableBlur) = rememberPreference(DisableBlurKey, true)
-
+    val defaultFilter by rememberEnumPreference(ChipSortTypeKey, LibraryFilter.LIBRARY)
     val database = LocalDatabase.current
-    val (showTagsInLibrary) = rememberPreference(ShowTagsInLibraryKey, true)
-    val (selectedTagsFilter, onSelectedTagsFilterChange) = rememberPreference(PlaylistTagsFilterKey, "")
-    val selectedTagIds = remember(selectedTagsFilter) {
-        selectedTagsFilter.split(",").filter { it.isNotBlank() }.toSet()
+    val (selectedTagIds, onSelectedTagIdsChange) = rememberPlaylistTagFilterState(database)
+    val allTags by database.allTags().collectAsState(initial = emptyList())
+    val (showTagsInLibrary) = rememberPreference(ShowTagsInLibraryKey, defaultValue = true)
+    val (showSpotifyPlaylists) = rememberPreference(ShowSpotifyPlaylistsKey, defaultValue = false)
+    val (disableBlur) = rememberPreference(DisableBlurKey, false)
+    val (libraryChipOrderPreference) =
+        rememberPreference(
+            LibraryChipOrderKey,
+            defaultValue = DefaultLibraryFilterOrderPreference,
+        )
+    val (playlistTagOrderPreference) = rememberPreference(PlaylistTagOrderKey, defaultValue = "")
+    var showTagsManagementDialog by rememberSaveable { mutableStateOf(false) }
+    val activeSelectedTagIds = if (showTagsInLibrary) selectedTagIds else emptySet()
+    val orderedTags =
+        remember(allTags, playlistTagOrderPreference) {
+            val tagsById = allTags.associateBy(TagEntity::id)
+            playlistTagOrderPreference
+                .toPlaylistTagOrder(allTags.map(TagEntity::id))
+                .mapNotNull { tagId -> tagsById[tagId] }
+        }
+    val libraryFilters =
+        remember(showSpotifyPlaylists, libraryChipOrderPreference) {
+            libraryChipOrderPreference
+                .toLibraryFilterOrder()
+                .filter { filter -> filter != LibraryFilter.SPOTIFY }
+        }
+
+    if (showTagsManagementDialog) {
+        TagsManagementDialog(
+            database = database,
+            onDismiss = { showTagsManagementDialog = false },
+        )
     }
 
-    val filterContent = @Composable {
-        Column {
-            Row {
-                ChipsRow(
-                    chips =
-                    listOf(
-                        LibraryFilter.PLAYLISTS to stringResource(R.string.filter_playlists),
-                        LibraryFilter.SONGS to stringResource(R.string.filter_songs),
-                        LibraryFilter.ALBUMS to stringResource(R.string.filter_albums),
-                        LibraryFilter.ARTISTS to stringResource(R.string.filter_artists),
-                    ),
-                    currentValue = filterType,
-                    onValueUpdate = {
-                        filterType =
-                            if (filterType == it) {
-                                LibraryFilter.LIBRARY
-                            } else {
-                                it
-                            }
-                    },
-                    icons = mapOf(
-                        LibraryFilter.PLAYLISTS to R.drawable.queue_music,
-                        LibraryFilter.SONGS to R.drawable.music_note,
-                        LibraryFilter.ALBUMS to R.drawable.album,
-                        LibraryFilter.ARTISTS to R.drawable.person,
-                    ),
-                    modifier = Modifier.weight(1f),
-                )
+    val pagerState =
+        rememberPagerState(
+            initialPage = libraryFilters.indexOf(defaultFilter).takeIf { it >= 0 } ?: 0,
+        ) { libraryFilters.size }
+
+    val currentFilter = libraryFilters.getOrElse(pagerState.currentPage) { LibraryFilter.LIBRARY }
+
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val tonalStart = MaterialTheme.colorScheme.primaryContainer
+    val tonalMiddle = MaterialTheme.colorScheme.secondaryContainer
+
+    val tagFilterContent: @Composable () -> Unit = {
+        if (showTagsInLibrary) {
+            PlaylistTagFilterRow(
+                tags = orderedTags,
+                selectedTagIds = selectedTagIds,
+                onSelectedTagIdsChange = onSelectedTagIdsChange,
+                onManageTagsClick = { showTagsManagementDialog = true },
+            )
+        }
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+    ) {
+        if (!disableBlur) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(430.dp)
+                        .align(Alignment.TopCenter)
+                        .drawWithCache {
+                            val brush =
+                                Brush.verticalGradient(
+                                    0f to tonalStart.copy(alpha = 0.30f),
+                                    0.42f to tonalMiddle.copy(alpha = 0.14f),
+                                    1f to Color.Transparent,
+                                )
+                            onDrawBehind { drawRect(brush) }
+                        },
+            )
+        }
+
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = AppBarHeight),
+        ) {
+            val tabListState = rememberLazyListState()
+            val coroutineScope = rememberCoroutineScope()
+
+            LaunchedEffect(defaultFilter, libraryFilters) {
+                val selectedFilter = defaultFilter.takeIf { it in libraryFilters } ?: LibraryFilter.LIBRARY
+                val selectedPage = libraryFilters.indexOf(selectedFilter).takeIf { it >= 0 } ?: 0
+                if (pagerState.currentPage != selectedPage) {
+                    pagerState.scrollToPage(selectedPage)
+                }
             }
 
-            if (showTagsInLibrary) {
-                TagsFilterChips(
-                    database = database,
-                    selectedTags = selectedTagIds,
-                    onTagToggle = { tag ->
-                        val newTags = if (tag.id in selectedTagIds) {
+            // Sync Pager -> Centering lazy list
+            LaunchedEffect(pagerState.currentPage, libraryFilters) {
+                val targetPage = pagerState.currentPage.coerceIn(0, libraryFilters.lastIndex)
+                val targetFilter = libraryFilters.getOrElse(targetPage) { LibraryFilter.LIBRARY }
+
+                val tabWidth =
+                    when (targetFilter) {
+                        LibraryFilter.LIBRARY -> 116.dp
+                        LibraryFilter.PLAYLISTS -> 132.dp
+                        LibraryFilter.SPOTIFY -> 168.dp
+                        LibraryFilter.SONGS -> 102.dp
+                        LibraryFilter.ARTISTS -> 116.dp
+                        LibraryFilter.ALBUMS -> 110.dp
+                        else -> 116.dp
+                    }
+                val screenWidth = configuration.screenWidthDp.dp
+                val targetOffsetDp = (screenWidth - tabWidth) / 2
+                val targetOffsetPx = with(density) { targetOffsetDp.roundToPx() }
+
+                tabListState.animateScrollToItem(targetPage, scrollOffset = -targetOffsetPx)
+            }
+
+            LazyRow(
+                state = tabListState,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                items(
+                    items = libraryFilters,
+                    key = { filter -> filter.name },
+                    contentType = { "library_filter_chip" },
+                ) { filter ->
+                    val page = libraryFilters.indexOf(filter)
+                    val label =
+                        when (filter) {
+                            LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
+                            LibraryFilter.PLAYLISTS -> stringResource(R.string.playlists)
+                            LibraryFilter.SPOTIFY -> stringResource(R.string.spotify_playlists)
+                            LibraryFilter.SONGS -> stringResource(R.string.songs)
+                            LibraryFilter.ARTISTS -> stringResource(R.string.artists)
+                            LibraryFilter.ALBUMS -> stringResource(R.string.albums)
+                        }
+                    val iconRes =
+                        when (filter) {
+                            LibraryFilter.LIBRARY -> R.drawable.graphic_eq
+                            LibraryFilter.PLAYLISTS -> R.drawable.queue_music
+                            LibraryFilter.SPOTIFY -> R.drawable.spotify_icon
+                            LibraryFilter.SONGS -> R.drawable.music_note
+                            LibraryFilter.ARTISTS -> R.drawable.person
+                            LibraryFilter.ALBUMS -> R.drawable.album
+                        }
+                    ExpressiveTabChip(
+                        label = label,
+                        iconRes = iconRes,
+                        selected = currentFilter == filter,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(page)
+                            }
+                        },
+                    )
+                }
+            }
+
+            Box(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                ) { page ->
+                    when (libraryFilters.getOrElse(page) { LibraryFilter.LIBRARY }) {
+                        LibraryFilter.LIBRARY -> {
+                            LibraryMixScreen(
+                                navController = navController,
+                                filterContent = tagFilterContent,
+                            )
+                        }
+
+                        LibraryFilter.PLAYLISTS -> {
+                            LibraryPlaylistsScreen(
+                                navController = navController,
+                                filterContent = tagFilterContent,
+                            )
+                        }
+
+                        LibraryFilter.SPOTIFY -> {
+                            // Spotify not enabled
+                        }
+
+                        LibraryFilter.SONGS -> {
+                            LibrarySongsScreen(
+                                navController = navController,
+                                onDeselect = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(0)
+                                    }
+                                },
+                            )
+                        }
+
+                        LibraryFilter.ARTISTS -> {
+                            LibraryArtistsScreen(
+                                navController = navController,
+                                onDeselect = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(0)
+                                    }
+                                },
+                            )
+                        }
+
+                        LibraryFilter.ALBUMS -> {
+                            LibraryAlbumsScreen(
+                                navController = navController,
+                                onDeselect = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(0)
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaylistTagFilterRow(
+    tags: List<TagEntity>,
+    selectedTagIds: Set<String>,
+    onSelectedTagIdsChange: (Set<String>) -> Unit,
+    onManageTagsClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyRow(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        item(key = "all_playlist_tags", contentType = "playlist_tag_filter_action") {
+            PlaylistTagFilterChip(
+                label = stringResource(R.string.filter_all),
+                selected = selectedTagIds.isEmpty(),
+                iconRes = R.drawable.filter_alt,
+                onClick = { onSelectedTagIdsChange(emptySet()) },
+            )
+        }
+
+        items(
+            items = tags,
+            key = TagEntity::id,
+            contentType = { "playlist_tag_filter" },
+        ) { tag ->
+            PlaylistTagFilterChip(
+                label = tag.name,
+                selected = tag.id in selectedTagIds,
+                accentColor =
+                    remember(tag.color) {
+                        runCatching { Color(tag.color.toColorInt()) }.getOrDefault(Color.Unspecified)
+                    },
+                onClick = {
+                    val nextSelection =
+                        if (tag.id in selectedTagIds) {
                             selectedTagIds - tag.id
                         } else {
                             selectedTagIds + tag.id
                         }
-                        onSelectedTagsFilterChange(newTags.joinToString(","))
-                    },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
+                    onSelectedTagIdsChange(nextSelection)
+                },
+            )
+        }
+
+        item(key = "manage_playlist_tags", contentType = "playlist_tag_filter_action") {
+            PlaylistTagFilterChip(
+                label = stringResource(R.string.manage_tags),
+                selected = false,
+                iconRes = R.drawable.add,
+                onClick = onManageTagsClick,
+            )
         }
     }
+}
 
-    // Capture M3 Expressive colors from theme outside drawBehind
-    val color1 = MaterialTheme.colorScheme.primary
-    val color2 = MaterialTheme.colorScheme.secondary
-    val color3 = MaterialTheme.colorScheme.tertiary
-    val color4 = MaterialTheme.colorScheme.primaryContainer
-    val color5 = MaterialTheme.colorScheme.secondaryContainer
-    val surfaceColor = MaterialTheme.colorScheme.surface
-
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // M3E Mesh gradient background layer at the top
-        if (!disableBlur) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxSize(0.7f) // Cover top 70% of screen
-                    .align(Alignment.TopCenter)
-                    .zIndex(-1f) // Place behind all content
-                .drawBehind {
-                    val width = size.width
-                    val height = size.height
-                    
-                    // Create mesh gradient with 5 color blobs for more variation
-                    // First color blob - top left
-                    drawRect(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color1.copy(alpha = 0.38f),
-                                color1.copy(alpha = 0.24f),
-                                color1.copy(alpha = 0.14f),
-                                color1.copy(alpha = 0.06f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.15f, height * 0.1f),
-                            radius = width * 0.55f
-                        )
-                    )
-                    
-                    // Second color blob - top right
-                    drawRect(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color2.copy(alpha = 0.34f),
-                                color2.copy(alpha = 0.2f),
-                                color2.copy(alpha = 0.11f),
-                                color2.copy(alpha = 0.05f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.85f, height * 0.2f),
-                            radius = width * 0.65f
-                        )
-                    )
-                    
-                    // Third color blob - middle left
-                    drawRect(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color3.copy(alpha = 0.3f),
-                                color3.copy(alpha = 0.17f),
-                                color3.copy(alpha = 0.09f),
-                                color3.copy(alpha = 0.04f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.3f, height * 0.45f),
-                            radius = width * 0.6f
-                        )
-                    )
-                    
-                    // Fourth color blob - middle right
-                    drawRect(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color4.copy(alpha = 0.26f),
-                                color4.copy(alpha = 0.14f),
-                                color4.copy(alpha = 0.08f),
-                                color4.copy(alpha = 0.03f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.7f, height * 0.5f),
-                            radius = width * 0.7f
-                        )
-                    )
-                    
-                    // Fifth color blob - bottom center (helps with smooth fade)
-                    drawRect(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                color5.copy(alpha = 0.22f),
-                                color5.copy(alpha = 0.12f),
-                                color5.copy(alpha = 0.06f),
-                                color5.copy(alpha = 0.02f),
-                                Color.Transparent
-                            ),
-                            center = Offset(width * 0.5f, height * 0.75f),
-                            radius = width * 0.8f
-                        )
-                    )
-                    
-                    // Add a final vertical gradient overlay to ensure smooth bottom fade
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                surfaceColor.copy(alpha = 0.22f),
-                                surfaceColor.copy(alpha = 0.55f),
-                                surfaceColor
-                            ),
-                            startY = height * 0.4f,
-                            endY = height
-                        )
-                    )
-                }
-        ) {}
+@Composable
+private fun PlaylistTagFilterChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconRes: Int? = null,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+) {
+    val resolvedAccentColor =
+        if (accentColor == Color.Unspecified) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            accentColor
         }
-
-        androidx.compose.animation.AnimatedContent(
-            targetState = filterType,
-            transitionSpec = {
-                (androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(240)) + 
-                 androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(240)) { width -> if (targetState.ordinal > initialState.ordinal) width / 4 else -width / 4 })
-                    .togetherWith(
-                        androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) + 
-                        androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(180)) { width -> if (targetState.ordinal > initialState.ordinal) -width / 4 else width / 4 }
-                    )
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue =
+            if (isPressed) {
+                0.92f
+            } else if (selected) {
+                1.05f
+            } else {
+                1.0f
             },
-            label = "libraryTabTransition"
-        ) { targetFilter ->
-            when (targetFilter) {
-                LibraryFilter.LIBRARY -> LibraryMixScreen(navController, filterContent)
-                LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
-                LibraryFilter.SONGS -> LibrarySongsScreen(
-                    navController,
-                    { filterType = LibraryFilter.LIBRARY })
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "PlaylistTagFilterChipScale",
+    )
+    val containerColor by animateColorAsState(
+        targetValue =
+            if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            },
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "PlaylistTagFilterChipContainerColor",
+    )
+    val contentColor by animateColorAsState(
+        targetValue =
+            if (selected) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "PlaylistTagFilterChipContentColor",
+    )
 
-                LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
-                    navController,
-                    { filterType = LibraryFilter.LIBRARY })
-
-                LibraryFilter.ARTISTS -> LibraryArtistsScreen(
-                    navController,
-                    { filterType = LibraryFilter.LIBRARY })
-            }
+    Row(
+        modifier =
+            modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.heightIn(min = 48.dp)
+                .clip(CircleShape)
+                .background(containerColor)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ).padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        if (iconRes != null) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        } else {
+            Box(
+                modifier =
+                    Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(if (selected) contentColor else resolvedAccentColor),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
         }
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = contentColor,
+        )
+    }
+}
+
+@Composable
+fun ExpressiveTabChip(
+    label: String,
+    iconRes: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue =
+            if (isPressed) {
+                0.92f
+            } else if (selected) {
+                1.05f
+            } else {
+                1.0f
+            },
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "TabChipScale",
+    )
+
+    val bgColor by animateColorAsState(
+        targetValue =
+            if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            },
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "TabChipBgColor",
+    )
+
+    val contentColor by animateColorAsState(
+        targetValue =
+            if (selected) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "TabChipContentColor",
+    )
+
+    Row(
+        modifier =
+            Modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.clip(CircleShape)
+                .background(bgColor)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ).padding(horizontal = 18.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = label,
+            tint = contentColor,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = label,
+            style =
+                MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                ),
+            color = contentColor,
+        )
     }
 }

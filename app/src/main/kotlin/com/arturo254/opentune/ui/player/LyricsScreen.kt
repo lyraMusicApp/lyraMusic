@@ -8,6 +8,20 @@
 
 package com.arturo254.opentune.ui.player
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import com.arturo254.opentune.constants.LyricsBackgroundStyle
+import com.arturo254.opentune.constants.LyricsBackgroundStyleKey
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -162,6 +176,8 @@ fun LyricsScreen(
     val isLoading = playbackState == STATE_BUFFERING || sliderPosition != null
 
     val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, PlayerBackgroundStyle.DEFAULT)
+    val configuredLyricsBackground by rememberEnumPreference(LyricsBackgroundStyleKey, LyricsBackgroundStyle.DEFAULT)
+    val lyricsBackground = configuredLyricsBackground.resolveFor(playerBackground)
     val (disableBlur) = rememberPreference(DisableBlurKey, true)
     val (blurRadius) = rememberPreference(BlurRadiusKey, 36f)
 
@@ -226,26 +242,16 @@ fun LyricsScreen(
         }
     }
 
-    val textBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
-        PlayerBackgroundStyle.BLUR -> Color.White
-        PlayerBackgroundStyle.GRADIENT -> Color.White
-        PlayerBackgroundStyle.COLORING -> Color.White
-        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.White
-        PlayerBackgroundStyle.GLOW -> Color.White
-        PlayerBackgroundStyle.GLOW_ANIMATED -> Color.White
-        PlayerBackgroundStyle.CUSTOM -> Color.White
+    val textBackgroundColor = if (lyricsBackground == LyricsBackgroundStyle.FOLLOW_THEME) {
+        MaterialTheme.colorScheme.onBackground
+    } else {
+        Color.White
     }
 
-    val icBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.surface
-        PlayerBackgroundStyle.BLUR -> Color.Black
-        PlayerBackgroundStyle.GRADIENT -> Color.Black
-        PlayerBackgroundStyle.COLORING -> Color.Black
-        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.Black
-        PlayerBackgroundStyle.GLOW -> Color.Black
-        PlayerBackgroundStyle.GLOW_ANIMATED -> Color.Black
-        PlayerBackgroundStyle.CUSTOM -> Color.Black
+    val icBackgroundColor = if (lyricsBackground == LyricsBackgroundStyle.FOLLOW_THEME) {
+        MaterialTheme.colorScheme.surface
+    } else {
+        Color.Black
     }
 
     LaunchedEffect(playbackState) {
@@ -261,19 +267,17 @@ fun LyricsScreen(
     BackHandler(onBack = onBackClick)
 
     Box(modifier = modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            PlayerBackground(
-                playerBackground = playerBackground,
-                mediaMetadata = mediaMetadata,
-                gradientColors = gradientColors,
-                disableBlur = disableBlur,
-                blurRadius = blurRadius,
-                playerCustomImageUri = playerCustomImageUri,
-                playerCustomBlur = playerCustomBlur,
-                playerCustomContrast = playerCustomContrast,
-                playerCustomBrightness = playerCustomBrightness
-            )
-        }
+        LyricsScreenBackground(
+            style = lyricsBackground,
+            mediaMetadata = mediaMetadata,
+            gradientColors = gradientColors,
+            disableBlur = disableBlur,
+            blurRadius = blurRadius,
+            playerCustomImageUri = playerCustomImageUri,
+            playerCustomBlur = playerCustomBlur,
+            playerCustomContrast = playerCustomContrast,
+            playerCustomBrightness = playerCustomBrightness,
+        )
 
         // Check orientation and layout accordingly
         when (LocalConfiguration.current.orientation) {
@@ -882,5 +886,144 @@ fun LyricsScreen(
                 }
             }
         }
+    }
+}
+
+
+private val AppleMusicFallbackGradient =
+    listOf(
+        Color(0xFF1E212B),
+        Color(0xFF151821),
+        Color(0xFF0D0F15),
+    )
+
+@Composable
+private fun LyricsScreenBackground(
+    style: LyricsBackgroundStyle,
+    mediaMetadata: MediaMetadata,
+    gradientColors: List<Color>,
+    disableBlur: Boolean,
+    blurRadius: Float,
+    playerCustomImageUri: String,
+    playerCustomBlur: Float,
+    playerCustomContrast: Float,
+    playerCustomBrightness: Float,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(
+                    if (style == LyricsBackgroundStyle.FOLLOW_THEME) {
+                        MaterialTheme.colorScheme.surface
+                    } else {
+                        Color.Black
+                    },
+                ),
+    ) {
+        when (style) {
+            LyricsBackgroundStyle.DEFAULT -> {
+                AppleMusicBackground(
+                    mediaMetadata = mediaMetadata,
+                    gradientColors = gradientColors,
+                )
+            }
+
+            LyricsBackgroundStyle.FOLLOW_THEME -> Unit
+
+            LyricsBackgroundStyle.COLORING,
+            LyricsBackgroundStyle.CUSTOM,
+            -> {
+                PlayerBackground(
+                    playerBackground =
+                        if (style == LyricsBackgroundStyle.CUSTOM) {
+                            PlayerBackgroundStyle.CUSTOM
+                        } else {
+                            PlayerBackgroundStyle.COLORING
+                        },
+                    mediaMetadata = mediaMetadata,
+                    gradientColors = gradientColors,
+                    disableBlur = disableBlur,
+                    blurRadius = blurRadius,
+                    playerCustomImageUri = playerCustomImageUri,
+                    playerCustomBlur = playerCustomBlur,
+                    playerCustomContrast = playerCustomContrast,
+                    playerCustomBrightness = playerCustomBrightness,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppleMusicBackground(
+    mediaMetadata: MediaMetadata,
+    gradientColors: List<Color>,
+    modifier: Modifier = Modifier,
+) {
+    val colors = if (gradientColors.isNotEmpty()) gradientColors else AppleMusicFallbackGradient
+    val backgroundBrush =
+        remember(colors) {
+            Brush.verticalGradient(
+                listOf(
+                    colors.getOrElse(0) { AppleMusicFallbackGradient[0] }.copy(alpha = 0.88f),
+                    colors.getOrElse(1) { AppleMusicFallbackGradient[1] }.copy(alpha = 0.76f),
+                    colors.getOrElse(2) { AppleMusicFallbackGradient[2] }.copy(alpha = 0.96f),
+                ),
+            )
+        }
+    val bottomScrim =
+        remember {
+            Brush.verticalGradient(
+                listOf(
+                    Color.Transparent,
+                    Color.Black.copy(alpha = 0.28f),
+                ),
+            )
+        }
+
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(AppleMusicFallbackGradient.last()),
+    ) {
+        AnimatedContent(
+            targetState = mediaMetadata.thumbnailUrl,
+            transitionSpec = { fadeIn(tween(700)) togetherWith fadeOut(tween(700)) },
+            label = "lyrics-apple-background",
+        ) { thumbnailUrl ->
+            if (thumbnailUrl != null) {
+                AsyncImage(
+                    model = thumbnailUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .blur(46.dp)
+                            .alpha(0.62f),
+                )
+            }
+        }
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(backgroundBrush),
+        )
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.18f)),
+        )
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(bottomScrim),
+        )
     }
 }

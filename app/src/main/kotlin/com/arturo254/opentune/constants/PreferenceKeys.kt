@@ -387,11 +387,70 @@ enum class QuickPicks {
 }
 
 enum class PreferredLyricsProvider {
+    BETTER_LYRICS,
+    BETTER_LYRICS_PORTATO,
     LRCLIB,
     KUGOU,
-    BETTER_LYRICS,
+    MEGALOBIZ,
     SIMPMUSIC,
+    PAXSENIX_APPLE_MUSIC,
+    PAXSENIX_NETEASE,
+    PAXSENIX_SPOTIFY,
+    PAXSENIX_MUSIXMATCH,
+    PAXSENIX_YOUTUBE,
 }
+
+val DefaultLyricsProviderOrder =
+    listOf(
+        PreferredLyricsProvider.BETTER_LYRICS,
+        PreferredLyricsProvider.BETTER_LYRICS_PORTATO,
+        PreferredLyricsProvider.LRCLIB,
+        PreferredLyricsProvider.KUGOU,
+        PreferredLyricsProvider.MEGALOBIZ,
+        PreferredLyricsProvider.SIMPMUSIC,
+        PreferredLyricsProvider.PAXSENIX_APPLE_MUSIC,
+        PreferredLyricsProvider.PAXSENIX_NETEASE,
+        PreferredLyricsProvider.PAXSENIX_SPOTIFY,
+        PreferredLyricsProvider.PAXSENIX_MUSIXMATCH,
+        PreferredLyricsProvider.PAXSENIX_YOUTUBE,
+    )
+
+fun deserializeLyricsProviderOrder(orderStr: String?): List<PreferredLyricsProvider> {
+    if (orderStr.isNullOrBlank()) return DefaultLyricsProviderOrder
+
+    val parsed =
+        orderStr
+            .split(",")
+            .mapNotNull { name ->
+                PreferredLyricsProvider.entries.find { it.name == name.trim() }
+            }.distinct()
+
+    val normalized =
+        when {
+            parsed.take(3) ==
+                listOf(
+                    PreferredLyricsProvider.LRCLIB,
+                    PreferredLyricsProvider.KUGOU,
+                    PreferredLyricsProvider.BETTER_LYRICS,
+                )
+            -> listOf(PreferredLyricsProvider.BETTER_LYRICS) + parsed.filterNot { it == PreferredLyricsProvider.BETTER_LYRICS }
+
+            else -> parsed
+        }
+
+    val missing = DefaultLyricsProviderOrder.filterNot { it in normalized }
+    return normalized + missing
+}
+
+val EnableBetterLyricsPortatoKey = booleanPreferencesKey("enableBetterLyricsPortato")
+val EnableMegalobizLyricsKey = booleanPreferencesKey("enableMegalobizLyrics")
+val EnablePaxsenixLyricsKey = booleanPreferencesKey("enablePaxsenixLyrics")
+val EnablePaxsenixAppleMusicLyricsKey = booleanPreferencesKey("enablePaxsenixAppleMusicLyrics")
+val EnablePaxsenixNeteaseLyricsKey = booleanPreferencesKey("enablePaxsenixNeteaseLyrics")
+val EnablePaxsenixSpotifyLyricsKey = booleanPreferencesKey("enablePaxsenixSpotifyLyrics")
+val EnablePaxsenixMusixmatchLyricsKey = booleanPreferencesKey("enablePaxsenixMusixmatchLyrics")
+val EnablePaxsenixYouTubeLyricsKey = booleanPreferencesKey("enablePaxsenixYouTubeLyrics")
+val LyricsProviderOrderKey = stringPreferencesKey("lyricsProviderOrder")
 
 enum class PlayerButtonsStyle {
     DEFAULT,
@@ -406,8 +465,50 @@ enum class PlayerDesignStyle {
     V5,
     V6,
     V7,
-    V8
+    V8,
+    V9,
+    V10,
 }
+
+enum class MiniPlayerBackgroundStyle {
+    THEME,
+    GRADIENT,
+    GLOW,
+}
+
+val MiniPlayerBackgroundStyleKey = stringPreferencesKey("miniPlayerBackgroundStyle")
+
+enum class LyricsBackgroundStyle {
+    DEFAULT,
+    FOLLOW_THEME,
+    COLORING,
+    CUSTOM;
+
+    fun resolveFor(playerBackgroundStyle: PlayerBackgroundStyle): LyricsBackgroundStyle =
+        when {
+            playerBackgroundStyle == PlayerBackgroundStyle.CUSTOM -> CUSTOM
+            this == CUSTOM -> DEFAULT
+            else -> this
+        }
+}
+
+val LyricsBackgroundStyleKey = stringPreferencesKey("lyricsBackgroundStyle")
+
+val PlayerCustomImageUriKey = stringPreferencesKey("playerCustomImageUri")
+val PlayerCustomBlurKey = floatPreferencesKey("playerCustomBlur")
+val PlayerCustomContrastKey = floatPreferencesKey("playerCustomContrast")
+val PlayerCustomBrightnessKey = floatPreferencesKey("playerCustomBrightness")
+
+enum class QuickPicksDisplayMode {
+    CARD,
+    LIST,
+}
+
+val QuickPicksDisplayModeKey = stringPreferencesKey("quickPicksDisplayMode")
+
+val LibraryChipOrderKey = stringPreferencesKey("library_chip_order")
+val PlaylistTagOrderKey = stringPreferencesKey("playlist_tag_order")
+val ShowSpotifyPlaylistsKey = booleanPreferencesKey("show_spotify_playlists")
 
 enum class PlayerBackgroundStyle {
     DEFAULT,
@@ -421,10 +522,6 @@ enum class PlayerBackgroundStyle {
 }
 
 // Keys for customized background
-val PlayerCustomImageUriKey = stringPreferencesKey("playerCustomImageUri")
-val PlayerCustomBlurKey = floatPreferencesKey("playerCustomBlur")
-val PlayerCustomContrastKey = floatPreferencesKey("playerCustomContrast")
-val PlayerCustomBrightnessKey = floatPreferencesKey("playerCustomBrightness")
 
 
 val LyricsAnimationStyleKey = stringPreferencesKey("lyricsAnimationStyle")

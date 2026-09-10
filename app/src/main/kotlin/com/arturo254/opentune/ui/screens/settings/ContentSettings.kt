@@ -8,6 +8,14 @@
 
 package com.arturo254.opentune.ui.screens.settings
 
+import com.arturo254.opentune.constants.EnableBetterLyricsPortatoKey
+import com.arturo254.opentune.constants.EnableMegalobizLyricsKey
+import com.arturo254.opentune.constants.EnablePaxsenixAppleMusicLyricsKey
+import com.arturo254.opentune.constants.EnablePaxsenixNeteaseLyricsKey
+import com.arturo254.opentune.constants.EnablePaxsenixSpotifyLyricsKey
+import com.arturo254.opentune.constants.EnablePaxsenixMusixmatchLyricsKey
+import com.arturo254.opentune.constants.EnablePaxsenixYouTubeLyricsKey
+
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
@@ -63,6 +71,20 @@ fun ContentSettings(
     val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
     val (enableSimpMusicLyrics, onEnableSimpMusicLyricsChange) =
         rememberPreference(key = EnableSimpMusicLyricsKey, defaultValue = true)
+    val (enableBetterLyricsPortato, onEnableBetterLyricsPortatoChange) =
+        rememberPreference(key = EnableBetterLyricsPortatoKey, defaultValue = true)
+    val (enableMegalobizLyrics, onEnableMegalobizLyricsChange) =
+        rememberPreference(key = EnableMegalobizLyricsKey, defaultValue = true)
+    val (enablePaxsenixAppleMusic, onEnablePaxsenixAppleMusicChange) =
+        rememberPreference(key = EnablePaxsenixAppleMusicLyricsKey, defaultValue = true)
+    val (enablePaxsenixSpotify, onEnablePaxsenixSpotifyChange) =
+        rememberPreference(key = EnablePaxsenixSpotifyLyricsKey, defaultValue = true)
+    val (enablePaxsenixNetease, onEnablePaxsenixNeteaseChange) =
+        rememberPreference(key = EnablePaxsenixNeteaseLyricsKey, defaultValue = true)
+    val (enablePaxsenixMusixmatch, onEnablePaxsenixMusixmatchChange) =
+        rememberPreference(key = EnablePaxsenixMusixmatchLyricsKey, defaultValue = true)
+    val (enablePaxsenixYouTube, onEnablePaxsenixYouTubeChange) =
+        rememberPreference(key = EnablePaxsenixYouTubeLyricsKey, defaultValue = true)
     val (preferredProvider, onPreferredProviderChange) =
         rememberEnumPreference(
             key = PreferredLyricsProviderKey,
@@ -235,22 +257,66 @@ fun ContentSettings(
             checked = enableSimpMusicLyrics,
             onCheckedChange = onEnableSimpMusicLyricsChange,
         )
+        SwitchPreference(
+            title = { Text("BetterLyrics (Portato / QQ)") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableBetterLyricsPortato,
+            onCheckedChange = onEnableBetterLyricsPortatoChange,
+        )
+        SwitchPreference(
+            title = { Text("Megalobiz") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableMegalobizLyrics,
+            onCheckedChange = onEnableMegalobizLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Apple Music") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixAppleMusic,
+            onCheckedChange = onEnablePaxsenixAppleMusicChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Spotify") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixSpotify,
+            onCheckedChange = onEnablePaxsenixSpotifyChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: NetEase") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixNetease,
+            onCheckedChange = onEnablePaxsenixNeteaseChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Musixmatch") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixMusixmatch,
+            onCheckedChange = onEnablePaxsenixMusixmatchChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: YouTube") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixYouTube,
+            onCheckedChange = onEnablePaxsenixYouTubeChange,
+        )
         ListPreference(
             title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             selectedValue = preferredProvider,
-            values = listOf(
-                PreferredLyricsProvider.LRCLIB,
-                PreferredLyricsProvider.KUGOU,
-                PreferredLyricsProvider.BETTER_LYRICS,
-                PreferredLyricsProvider.SIMPMUSIC,
-            ),
+            values = PreferredLyricsProvider.entries,
             valueText = {
                 when (it) {
+                    PreferredLyricsProvider.BETTER_LYRICS -> "BetterLyrics"
+                    PreferredLyricsProvider.BETTER_LYRICS_PORTATO -> "BetterLyrics (Portato)"
                     PreferredLyricsProvider.LRCLIB -> "LrcLib"
                     PreferredLyricsProvider.KUGOU -> "KuGou"
-                    PreferredLyricsProvider.BETTER_LYRICS -> "BetterLyrics"
+                    PreferredLyricsProvider.MEGALOBIZ -> "Megalobiz"
                     PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
+                    PreferredLyricsProvider.PAXSENIX_APPLE_MUSIC -> "Paxsenix: Apple Music"
+                    PreferredLyricsProvider.PAXSENIX_NETEASE -> "Paxsenix: NetEase"
+                    PreferredLyricsProvider.PAXSENIX_SPOTIFY -> "Paxsenix: Spotify"
+                    PreferredLyricsProvider.PAXSENIX_MUSIXMATCH -> "Paxsenix: Musixmatch"
+                    PreferredLyricsProvider.PAXSENIX_YOUTUBE -> "Paxsenix: YouTube"
                 }
             },
             onValueSelected = onPreferredProviderChange,

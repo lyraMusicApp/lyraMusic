@@ -8,6 +8,10 @@
 
 package com.arturo254.opentune.ui.screens
 
+import com.arturo254.opentune.constants.QuickPicksDisplayMode
+import com.arturo254.opentune.utils.rememberEnumPreference
+import com.arturo254.opentune.constants.QuickPicksDisplayModeKey
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -76,6 +80,7 @@ fun HomeScreen(
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
 
     val quickPicks by viewModel.quickPicks.collectAsState()
+    val quickPicksDisplayMode by rememberEnumPreference(QuickPicksDisplayModeKey, defaultValue = QuickPicksDisplayMode.CARD)
     val speedDialSongs by viewModel.speedDialSongs.collectAsState()
     val forgottenFavorites by viewModel.forgottenFavorites.collectAsState()
     val keepListening by viewModel.keepListening.collectAsState()
@@ -275,6 +280,7 @@ fun HomeScreen(
                         quickPicks = picks,
                         mediaMetadata = mediaMetadata,
                         isPlaying = isPlaying,
+                        displayMode = quickPicksDisplayMode,
                         navController = navController,
                         playerConnection = playerConnection,
                         menuState = menuState,

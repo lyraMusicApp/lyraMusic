@@ -1,4 +1,4 @@
-﻿/*
+/*
  * OpenTune Project Original (2026)
  * Arturo254 (github.com/Arturo254)
  * Licensed Under GPL-3.0 | see git history for contributors
@@ -45,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -223,10 +224,82 @@ fun SwipeableMiniPlayerBox(
     }
 }
 
+@Immutable
+data class MiniPlayerContentColors(
+    val title: Color,
+    val secondary: Color,
+    val progress: Color,
+    val progressTrack: Color,
+    val artworkContainer: Color,
+    val artworkBorder: Color,
+    val primaryButtonContainer: Color,
+    val primaryButtonIcon: Color,
+    val secondaryButtonContainer: Color,
+    val buttonIcon: Color,
+    val disabledButtonIcon: Color,
+    val togetherContainer: Color,
+    val togetherContent: Color,
+)
+
+@Composable
+fun rememberMiniPlayerContentColors(useArtworkBackground: Boolean): MiniPlayerContentColors {
+    val colorScheme = MaterialTheme.colorScheme
+    return remember(
+        useArtworkBackground,
+        colorScheme.primary,
+        colorScheme.onPrimary,
+        colorScheme.outline,
+        colorScheme.onSurface,
+        colorScheme.onSurfaceVariant,
+        colorScheme.surface,
+        colorScheme.surfaceContainerHighest,
+        colorScheme.surfaceVariant,
+        colorScheme.primaryContainer,
+        colorScheme.onPrimaryContainer,
+    ) {
+        if (useArtworkBackground) {
+            MiniPlayerContentColors(
+                title = Color.White,
+                secondary = Color.White.copy(alpha = 0.72f),
+                progress = Color.White,
+                progressTrack = Color.White.copy(alpha = 0.24f),
+                artworkContainer = Color.White.copy(alpha = 0.14f),
+                artworkBorder = Color.White.copy(alpha = 0.22f),
+                primaryButtonContainer = Color.White.copy(alpha = 0.92f),
+                primaryButtonIcon = Color.Black,
+                secondaryButtonContainer = Color.Black.copy(alpha = 0.22f),
+                buttonIcon = Color.White,
+                disabledButtonIcon = Color.White.copy(alpha = 0.38f),
+                togetherContainer = Color.White.copy(alpha = 0.16f),
+                togetherContent = Color.White,
+            )
+        } else {
+            MiniPlayerContentColors(
+                title = colorScheme.onSurface,
+                secondary = colorScheme.onSurfaceVariant,
+                progress = colorScheme.primary,
+                progressTrack = colorScheme.outline.copy(alpha = 0.18f),
+                artworkContainer = colorScheme.surfaceVariant,
+                artworkBorder = colorScheme.outline.copy(alpha = 0.2f),
+                primaryButtonContainer = colorScheme.primary,
+                primaryButtonIcon = colorScheme.onPrimary,
+                secondaryButtonContainer = colorScheme.surfaceContainerHighest,
+                buttonIcon = colorScheme.onSurface,
+                disabledButtonIcon = colorScheme.onSurface.copy(alpha = 0.38f),
+                togetherContainer = colorScheme.primaryContainer,
+                togetherContent = colorScheme.onPrimaryContainer,
+            )
+        }
+    }
+}
+
 @Composable
 fun RowScope.MiniPlayerInfo(
-    mediaMetadata: MediaMetadata
+    mediaMetadata: MediaMetadata,
+    colors: MiniPlayerContentColors? = null,
 ) {
+    val titleColor = colors?.title ?: MaterialTheme.colorScheme.onSurface
+    val artistColor = colors?.secondary ?: MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         modifier = Modifier
             .weight(1f)
@@ -241,7 +314,7 @@ fun RowScope.MiniPlayerInfo(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = titleColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.basicMarquee()
@@ -256,7 +329,7 @@ fun RowScope.MiniPlayerInfo(
             Text(
                 text = artists.joinToString { it.name },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = artistColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.basicMarquee()
@@ -271,6 +344,7 @@ private fun MiniPlayerArtwork(
     position: Long,
     duration: Long,
     isLoading: Boolean,
+    colors: MiniPlayerContentColors,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -280,15 +354,15 @@ private fun MiniPlayerArtwork(
         if (isLoading) {
             CircularWavyProgressIndicator(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
+                color = colors.progress,
+                trackColor = colors.progressTrack
             )
         } else {
             CircularWavyProgressIndicator(
                 progress = { if (duration > 0) (position.toFloat() / duration).coerceIn(0f, 1f) else 0f },
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
+                color = colors.progress,
+                trackColor = colors.progressTrack
             )
         }
 
@@ -297,10 +371,10 @@ private fun MiniPlayerArtwork(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(colors.artworkContainer)
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    color = colors.artworkBorder,
                     shape = CircleShape
                 )
         ) {
@@ -330,16 +404,24 @@ private fun MiniPlayerTransportButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isPrimary: Boolean = false
+    isPrimary: Boolean = false,
+    colors: MiniPlayerContentColors? = null,
 ) {
-    val containerColor =
-        if (isPrimary) MaterialTheme.colorScheme.surface else Color.Transparent
-    val borderColor =
-        if (enabled) MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-        else MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
-    val iconTint =
-        if (enabled) MaterialTheme.colorScheme.onSurface
-        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val containerColor = when {
+        colors != null -> if (isPrimary) colors.primaryButtonContainer else colors.secondaryButtonContainer
+        isPrimary -> MaterialTheme.colorScheme.surface
+        else -> Color.Transparent
+    }
+    val borderColor = when {
+        colors != null -> Color.Transparent
+        enabled -> MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+    }
+    val iconTint = when {
+        colors != null -> if (isPrimary) colors.primaryButtonIcon else if (enabled) colors.buttonIcon else colors.disabledButtonIcon
+        enabled -> MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -367,7 +449,8 @@ private fun MiniPlayerTransportControls(
     isLoading: Boolean,
     canSkipPrevious: Boolean,
     canSkipNext: Boolean,
-    playerConnection: PlayerConnection
+    playerConnection: PlayerConnection,
+    colors: MiniPlayerContentColors? = null,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -377,7 +460,8 @@ private fun MiniPlayerTransportControls(
             iconResId = R.drawable.skip_previous,
             contentDescription = null,
             onClick = playerConnection::seekToPrevious,
-            enabled = canSkipPrevious
+            enabled = canSkipPrevious,
+            colors = colors,
         )
 
         Box(
@@ -403,7 +487,8 @@ private fun MiniPlayerTransportControls(
                         playerConnection.player.togglePlayPause()
                     }
                 },
-                isPrimary = true
+                isPrimary = true,
+                colors = colors,
             )
         }
 
@@ -411,17 +496,19 @@ private fun MiniPlayerTransportControls(
             iconResId = R.drawable.skip_next,
             contentDescription = null,
             onClick = playerConnection::seekToNext,
-            enabled = canSkipNext
+            enabled = canSkipNext,
+            colors = colors,
         )
     }
 }
 
 @Composable
 fun NewMiniPlayerContent(
-    pureBlack: Boolean,
+    pureBlack: Boolean = false,
     position: Long,
     duration: Long,
-    playerConnection: PlayerConnection
+    playerConnection: PlayerConnection,
+    colors: MiniPlayerContentColors = rememberMiniPlayerContentColors(useArtworkBackground = false),
 ) {
     val isPlaying by playerConnection.isPlaying.collectAsState()
     val playbackState by playerConnection.playbackState.collectAsState()
@@ -442,20 +529,21 @@ fun NewMiniPlayerContent(
             mediaMetadata = mediaMetadata,
             position = position,
             duration = duration,
-            isLoading = isLoading
+            isLoading = isLoading,
+            colors = colors,
         )
 
         Spacer(modifier = Modifier.width(12.dp))
 
         mediaMetadata?.let {
-            MiniPlayerInfo(mediaMetadata = it)
+            MiniPlayerInfo(mediaMetadata = it, colors = colors)
         } ?: Spacer(Modifier.weight(1f))
 
         if (togetherSessionState !is TogetherSessionState.Idle) {
             Spacer(modifier = Modifier.width(8.dp))
             Surface(
                 shape = RoundedCornerShape(999.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = colors.togetherContainer,
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -464,7 +552,7 @@ fun NewMiniPlayerContent(
                     Icon(
                         painter = painterResource(R.drawable.all_inclusive),
                         contentDescription = stringResource(R.string.music_together),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = colors.togetherContent,
                         modifier = Modifier.size(14.dp),
                     )
                 }
@@ -479,7 +567,8 @@ fun NewMiniPlayerContent(
             isLoading = isLoading,
             canSkipPrevious = canSkipPrevious,
             canSkipNext = canSkipNext,
-            playerConnection = playerConnection
+            playerConnection = playerConnection,
+            colors = colors,
         )
     }
 }

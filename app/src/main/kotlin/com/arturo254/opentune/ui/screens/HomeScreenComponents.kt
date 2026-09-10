@@ -7,7 +7,9 @@
 
 
 package com.arturo254.opentune.ui.screens
-
+import com.arturo254.opentune.constants.QuickPicksDisplayMode
+import com.arturo254.opentune.ui.utils.SnapLayoutInfoProvider as buildSnapLayoutInfoProvider
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -17,6 +19,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -140,6 +143,7 @@ fun QuickPicksSection(
     quickPicks: List<Song>,
     mediaMetadata: MediaMetadata?,
     isPlaying: Boolean,
+    displayMode: QuickPicksDisplayMode = QuickPicksDisplayMode.CARD,
     navController: NavController,
     playerConnection: PlayerConnection,
     menuState: MenuState,
@@ -148,110 +152,233 @@ fun QuickPicksSection(
 ) {
     val distinctQuickPicks = remember(quickPicks) { quickPicks.distinctBy { it.id } }
 
-    HorizontalCenteredHeroCarousel(
-        state = rememberCarouselState { distinctQuickPicks.size },
-        maxItemWidth = 250.dp,
-        itemSpacing = 8.dp,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(290.dp)
-    ) { index ->
-        val song = distinctQuickPicks[index]
-        val isActive = song.id == mediaMetadata?.id
+    when (displayMode) {
+        QuickPicksDisplayMode.CARD -> {
+            BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+                val heroHeight =
+                    when {
+                        maxWidth >= 840.dp -> 380.dp
+                        maxWidth >= 600.dp -> 356.dp
+                        else -> 332.dp
+                    }
+                val heroMaxWidth =
+                    (maxWidth - 48.dp)
+                        .coerceAtLeast(232.dp)
+                        .coerceAtMost(440.dp)
+                val density = LocalDensity.current
+                val requestWidthPx = with(density) { heroMaxWidth.roundToPx().coerceAtLeast(1) }
+                val requestHeightPx = with(density) { heroHeight.roundToPx().coerceAtLeast(1) }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .maskClip(MaterialTheme.shapes.extraLarge)
-                .maskBorder(
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                    MaterialTheme.shapes.extraLarge
-                )
-                .combinedClickable(
-                    onClick = {
-                        if (isActive) {
-                            playerConnection.player.togglePlayPause()
-                        } else {
-                            playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                HorizontalCenteredHeroCarousel(
+                    state = rememberCarouselState { distinctQuickPicks.size },
+                    maxItemWidth = heroMaxWidth,
+                    itemSpacing = 10.dp,
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(heroHeight)
+                ) { index ->
+                    val song = distinctQuickPicks[index]
+                    val isActive = song.id == mediaMetadata?.id
+                    val context = LocalContext.current
+                    val imageRequest =
+                        remember(song.song.thumbnailUrl, requestWidthPx, requestHeightPx) {
+                            ImageRequest.Builder(context)
+                                .data(song.song.thumbnailUrl.highQualityThumbnailUrlOrNull())
+                                .size(coil3.size.Size(requestWidthPx, requestHeightPx))
+                                .crossfade(true)
+                                .build()
                         }
-                    },
-                    onLongClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        menuState.show {
-                            SongMenu(
-                                originalSong = song,
-                                navController = navController,
-                                onDismiss = menuState::dismiss
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .maskClip(MaterialTheme.shapes.extraLarge)
+                            .maskBorder(
+                                BorderStroke(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f)
+                                ),
+                                MaterialTheme.shapes.extraLarge
+                            )
+                            .focusable()
+                            .combinedClickable(
+                                onClick = {
+                                    if (isActive) {
+                                        playerConnection.player.togglePlayPause()
+                                    } else {
+                                        playerConnection.playQueue(
+                                            if (song.song.isLocal) {
+                                                ListQueue(items = listOf(song.toMediaItem()))
+                                            } else {
+                                                YouTubeQueue.radio(song.toMediaMetadata())
+                                            }
+                                        )
+                                    }
+                                },
+                                onLongClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    menuState.show {
+                                        SongMenu(
+                                            originalSong = song,
+                                            navController = navController,
+                                            onDismiss = menuState::dismiss
+                                        )
+                                    }
+                                }
+                            )
+                    ) {
+                        AsyncImage(
+                            model = imageRequest,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        0f to Color.Transparent,
+                                        0.48f to Color.Black.copy(alpha = 0.08f),
+                                        1f to Color.Black.copy(alpha = 0.84f)
+                                    )
+                                )
+                        )
+
+                        if (isActive && isPlaying) {
+                            androidx.compose.material3.Surface(
+                                color = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                shape = CircleShape,
+                                tonalElevation = 2.dp,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(14.dp)
+                                    .size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.volume_up),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(19.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(20.dp)
+                        ) {
+                            Text(
+                                text = song.song.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = Color.White,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = song.artists.joinToString { it.name },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.White.copy(alpha = 0.78f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
-                )
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(song.song.thumbnailUrl.highQualityThumbnailUrlOrNull())
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.7f)
-                            )
-                        )
-                    )
-            )
-
-            if (isActive && isPlaying) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                        .size(32.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primary,
-                            CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.volume_up),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
                 }
             }
+        }
 
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = song.song.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = song.artists.joinToString { it.name },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+        QuickPicksDisplayMode.LIST -> {
+            BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+                val widthFactor = if (maxWidth * 0.475f >= 320.dp) 0.475f else 0.9f
+                val itemWidth = maxWidth * widthFactor
+                val lazyGridState = rememberLazyGridState()
+                val snapLayoutInfoProvider =
+                    remember(lazyGridState, widthFactor) {
+                        buildSnapLayoutInfoProvider(
+                            lazyGridState = lazyGridState,
+                            positionInLayout = { layoutSize, itemSize ->
+                                layoutSize * widthFactor / 2f - itemSize / 2f
+                            }
+                        )
+                    }
+                LazyHorizontalGrid(
+                    state = lazyGridState,
+                    rows = GridCells.Fixed(4),
+                    flingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider),
+                    contentPadding = WindowInsets.systemBars
+                        .only(WindowInsetsSides.Horizontal)
+                        .asPaddingValues(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ListItemHeight * 4)
+                ) {
+                    items(
+                        items = distinctQuickPicks,
+                        key = { it.id },
+                        contentType = { "quick_pick_song" }
+                    ) { song ->
+                        SongListItem(
+                            song = song,
+                            showInLibraryIcon = true,
+                            isActive = song.id == mediaMetadata?.id,
+                            isPlaying = isPlaying,
+                            isSwipeable = false,
+                            trailingContent = {
+                                IconButton(
+                                    onClick = {
+                                        menuState.show {
+                                            SongMenu(
+                                                originalSong = song,
+                                                navController = navController,
+                                                onDismiss = menuState::dismiss
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.more_vert),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .width(itemWidth)
+                                .combinedClickable(
+                                    onClick = {
+                                        if (song.id == mediaMetadata?.id) {
+                                            playerConnection.player.togglePlayPause()
+                                        } else {
+                                            playerConnection.playQueue(
+                                                if (song.song.isLocal) {
+                                                    ListQueue(items = listOf(song.toMediaItem()))
+                                                } else {
+                                                    YouTubeQueue.radio(song.toMediaMetadata())
+                                                }
+                                            )
+                                        }
+                                    },
+                                    onLongClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        menuState.show {
+                                            SongMenu(
+                                                originalSong = song,
+                                                navController = navController,
+                                                onDismiss = menuState::dismiss
+                                            )
+                                        }
+                                    }
+                                )
+                        )
+                    }
+                }
             }
         }
     }

@@ -1,10 +1,9 @@
 /*
- * OpenTune Project Original (2026)
- * Arturo254 (github.com/Arturo254)
- * Licensed Under GPL-3.0 | see git history for contributors
+ * ArchiveTune (2026)
+ * © Rukamori — github.com/rukamori
+ * GPL-3.0 License | Contributors: see git history
+ * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
  */
-
-
 
 package com.arturo254.opentune.lyrics
 
@@ -14,7 +13,7 @@ data class WordTimestamp(
     val text: String,
     val startTime: Double,
     val endTime: Double,
-    val isBackground: Boolean = false
+    val isBackground: Boolean = false,
 )
 
 data class LyricsEntry(
@@ -22,7 +21,13 @@ data class LyricsEntry(
     val text: String,
     val words: List<WordTimestamp>? = null,
     val agent: String? = null,
-    val romanizedTextFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    val isInstrumental: Boolean = false,
+    val durationMs: Long = 0L,
+    val providerRomanizedText: String? = null,
+    val providerRomanizedWords: List<String>? = null,
+    val providerRomanizedLanguage: String? = null,
+    val providerTranslationText: String? = null,
+    val romanizedTextFlow: MutableStateFlow<String?> = MutableStateFlow(null),
 ) : Comparable<LyricsEntry> {
     override fun compareTo(other: LyricsEntry): Int = (time - other.time).toInt()
 

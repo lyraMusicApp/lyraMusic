@@ -378,7 +378,7 @@ fun Queue(
                     )
                 }
 
-                PlayerDesignStyle.V7, PlayerDesignStyle.V8 -> {
+                PlayerDesignStyle.V7, PlayerDesignStyle.V8, PlayerDesignStyle.V9, PlayerDesignStyle.V10 -> {
                     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager }
                     val activeDevice = remember(audioManager) {
                         audioManager.getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS)

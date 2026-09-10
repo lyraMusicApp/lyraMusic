@@ -8,6 +8,13 @@
 
 package com.arturo254.opentune.ui.screens.settings
 
+import com.arturo254.opentune.constants.MiniPlayerBackgroundStyle
+import com.arturo254.opentune.constants.MiniPlayerBackgroundStyleKey
+import com.arturo254.opentune.constants.LyricsBackgroundStyle
+import com.arturo254.opentune.constants.LyricsBackgroundStyleKey
+import com.arturo254.opentune.constants.QuickPicksDisplayMode
+import com.arturo254.opentune.constants.QuickPicksDisplayModeKey
+
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
@@ -127,6 +134,18 @@ fun AppearanceSettings(
     val (playerDesignStyle, onPlayerDesignStyleChange) = rememberEnumPreference(
         PlayerDesignStyleKey,
         defaultValue = PlayerDesignStyle.V4
+    )
+    val (miniPlayerBackgroundStyle, onMiniPlayerBackgroundStyleChange) = rememberEnumPreference(
+        MiniPlayerBackgroundStyleKey,
+        defaultValue = MiniPlayerBackgroundStyle.THEME
+    )
+    val (lyricsBackgroundStyle, onLyricsBackgroundStyleChange) = rememberEnumPreference(
+        LyricsBackgroundStyleKey,
+        defaultValue = LyricsBackgroundStyle.DEFAULT
+    )
+    val (quickPicksDisplayMode, onQuickPicksDisplayModeChange) = rememberEnumPreference(
+        QuickPicksDisplayModeKey,
+        defaultValue = QuickPicksDisplayMode.CARD
     )
     val (useNewMiniPlayerDesign, onUseNewMiniPlayerDesignChange) = rememberPreference(
         UseNewMiniPlayerDesignKey,
@@ -401,6 +420,8 @@ fun AppearanceSettings(
                     PlayerDesignStyle.V6 -> stringResource(R.string.player_design_v6)
                     PlayerDesignStyle.V7 -> stringResource(R.string.player_design_v7)
                     PlayerDesignStyle.V8 -> stringResource(R.string.player_design_v8)
+                    PlayerDesignStyle.V9 -> stringResource(R.string.player_design_v9)
+                    PlayerDesignStyle.V10 -> stringResource(R.string.player_design_v10)
                 }
             },
         )
@@ -410,6 +431,20 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             checked = useNewMiniPlayerDesign,
             onCheckedChange = onUseNewMiniPlayerDesignChange,
+        )
+
+        EnumListPreference(
+            title = { Text(stringResource(R.string.mini_player_background_style)) },
+            icon = { Icon(painterResource(R.drawable.gradient), null) },
+            selectedValue = miniPlayerBackgroundStyle,
+            onValueSelected = onMiniPlayerBackgroundStyleChange,
+            valueText = {
+                when (it) {
+                    MiniPlayerBackgroundStyle.THEME -> stringResource(R.string.follow_theme)
+                    MiniPlayerBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
+                    MiniPlayerBackgroundStyle.GLOW -> stringResource(R.string.glow)
+                }
+            },
         )
 
         SwitchPreference(
@@ -586,6 +621,21 @@ fun AppearanceSettings(
 
         PreferenceGroupTitle(
             title = stringResource(R.string.lyrics),
+        )
+
+        EnumListPreference(
+            title = { Text(stringResource(R.string.lyrics_background_style)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            selectedValue = lyricsBackgroundStyle,
+            onValueSelected = onLyricsBackgroundStyleChange,
+            valueText = {
+                when (it) {
+                    LyricsBackgroundStyle.DEFAULT -> stringResource(R.string.lyrics_background_default)
+                    LyricsBackgroundStyle.FOLLOW_THEME -> stringResource(R.string.follow_theme)
+                    LyricsBackgroundStyle.COLORING -> stringResource(R.string.coloring)
+                    LyricsBackgroundStyle.CUSTOM -> stringResource(R.string.custom)
+                }
+            },
         )
 
         SwitchPreference(
@@ -792,6 +842,19 @@ fun AppearanceSettings(
         )
 
         EnumListPreference(
+            title = { Text(stringResource(R.string.quick_picks_display_mode)) },
+            icon = { Icon(painterResource(R.drawable.grid_view), null) },
+            selectedValue = quickPicksDisplayMode,
+            onValueSelected = onQuickPicksDisplayModeChange,
+            valueText = {
+                when (it) {
+                    QuickPicksDisplayMode.CARD -> stringResource(R.string.quick_picks_display_mode_card)
+                    QuickPicksDisplayMode.LIST -> stringResource(R.string.quick_picks_display_mode_list)
+                }
+            },
+        )
+
+        EnumListPreference(
             title = { Text(stringResource(R.string.default_open_tab)) },
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             selectedValue = defaultOpenTab,
@@ -820,6 +883,8 @@ fun AppearanceSettings(
                     LibraryFilter.ALBUMS -> stringResource(R.string.albums)
                     LibraryFilter.PLAYLISTS -> stringResource(R.string.playlists)
                     LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
+                    LibraryFilter.SPOTIFY -> "Spotify"
+                    else -> it.name
                 }
             },
             onValueSelected = onDefaultChipChange,
