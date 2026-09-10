@@ -1,22 +1,30 @@
-# Lyra Music v3.0.8
+# Lyra Music v3.1.0
 
-## Highlights
+## Highlights & What's New
 
-- Added Spotify playlist import from **Settings > Backup & Restore**.
-- Paste a public Spotify playlist link and import tracks into a Lyra playlist.
-- Choose an existing playlist or create a new playlist during import.
-- Tracks are matched through YouTube Music before being added to Lyra.
-- Release APK filename is exactly `lyraMusic.apk`.
+### 100% Transparent Navigation Bar
+- Complete edge-to-edge transparent navigation bar across all screens (Home, Library, Explore, Settings).
+- Disabled Android OS contrast scrim enforcement, eliminating dark/black overlays behind the floating toolbar.
+- Floating toolbar renders cleanly with zero elevation container backgrounds or shadows.
+
+### Classic Material 3 About Screen
+- Restored classic Material 3 card layout for the About screen with app icon shimmer, version badges, developer profile card, and quick social links (GitHub, Telegram, Instagram).
+
+### Performance & Security
+- Safe signed production release APK signed with official release keystore (APK Signature Scheme v1, v2, v3, and v4).
+- Production release configuration with `isDebuggable = false`.
+- Migrated official application package name to `com.shnwaz.lyramusic`.
+- Cleaned up background services and removed unused lock screen activity.
 
 ## App Details
 
 - Package: `com.shnwaz.lyramusic`
-- Version: `3.0.8`
-- Version code: `135`
-- APK: [lyraMusic.apk](https://github.com/shnwazdeveloper/lyraMusic/releases/download/lyra-v3.0.8/lyraMusic.apk)
+- Version: `3.1.0`
+- Version Code: `143`
+- APK: `LyraMusic.apk` / `LyraMusic-v3.1.0.apk`
 
 ## Verification
 
 - Built with `:app:assembleRelease`.
-- Signed as a release APK, not a debug APK.
-- Verified with APK Signature Scheme v2 and v3.
+- Signed with release keystore using v1, v2, v3, and v4 signature schemes.
+- Production release build (`isDebuggable = false`).
