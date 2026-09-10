@@ -23,8 +23,8 @@ android {
         applicationId = "com.shnwaz.lyramusic"
         minSdk = 26
         targetSdk = 34
-        versionCode = 143
-        versionName = "3.1.0"
+        versionCode = 144
+        versionName = "3.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -51,16 +51,19 @@ android {
         buildConfigField("String", "ARCHITECTURE", "\"universal\"")
     }
 
+    val releaseKeystore = file("keystore/release.keystore")
     signingConfigs {
         create("release") {
-            storeFile = file("keystore/release.keystore")
-            storePassword = System.getenv("STORE_PASSWORD") ?: "lyramusic"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "lyramusic"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "lyramusic"
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = true
+            if (releaseKeystore.exists()) {
+                storeFile = releaseKeystore
+                storePassword = System.getenv("STORE_PASSWORD") ?: "lyramusic"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "lyramusic"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "lyramusic"
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
         }
     }
 
@@ -68,7 +71,9 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
-            signingConfig = signingConfigs.getByName("release")
+            if (releaseKeystore.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -78,7 +83,6 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
-            signingConfig = signingConfigs.getByName("release")
         }
     }
 

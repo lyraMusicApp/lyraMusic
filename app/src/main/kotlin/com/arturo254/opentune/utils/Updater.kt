@@ -80,7 +80,9 @@ private data class ReleasesNetworkResult(
 )
 
 object Updater {
-    private val client = HttpClient()
+    private val client = HttpClient {
+        followRedirects = true
+    }
     private const val ReleaseCacheCheckIntervalMs: Long = 6 * 60 * 60 * 1000L
     var lastCheckTime = -1L
         private set

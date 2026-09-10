@@ -1,4 +1,4 @@
-# Lyra Music v3.1.0
+# Lyra Music v3.0.10
 
 ## Highlights & What's New
 
@@ -19,9 +19,9 @@
 ## App Details
 
 - Package: `com.shnwaz.lyramusic`
-- Version: `3.1.0`
-- Version Code: `143`
-- APK: `LyraMusic.apk` / `LyraMusic-v3.1.0.apk`
+- Version: `3.0.10`
+- Version Code: `144`
+- APK: `LyraMusic.apk` / `LyraMusic-v3.0.10.apk`
 
 ## Verification
 
