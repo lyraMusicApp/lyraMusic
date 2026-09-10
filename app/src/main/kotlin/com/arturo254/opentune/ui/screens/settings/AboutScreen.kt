@@ -14,15 +14,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,7 +51,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -72,7 +68,7 @@ import com.arturo254.opentune.R
 import com.arturo254.opentune.ui.component.IconButton
 import com.arturo254.opentune.ui.utils.backToMain
 
-// ── Shimmer brush (reused from original, kept as-is) ──────────────────────
+// ÔöÇÔöÇ Shimmer brush (reused from original, kept as-is) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
 @Composable
 fun shimmerEffect(): Brush {
@@ -98,14 +94,15 @@ fun shimmerEffect(): Brush {
     )
 }
 
-data class SocialLink(
+// ÔöÇÔöÇ Data ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+private data class SocialLink(
     val iconRes: Int,
     val url: String,
     val label: String,
-    val handle: String = "",
 )
 
-// ── Main screen ────────────────────────────────────────────────────────────
+// ÔöÇÔöÇ Main screen ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,18 +153,18 @@ fun AboutScreen(
             ),
         ) {
 
-            // ── Hero card ─────────────────────────────────────────────────
+            // -- Hero card -------------------------------------------------
             item {
                 HeroCard(shimmerBrush = shimmerEffect())
             }
 
-            // ── Social card ───────────────────────────────────────────────
+            // -- Social card -----------------------------------------------
             item {
                 SocialCard(
                     links = listOf(
-                        SocialLink(R.drawable.github, "https://github.com/shnwazdeveloper", "GitHub", "shnwazdeveloper"),
-                        SocialLink(R.drawable.telegram, "https://t.me/SHNWAZX", "Telegram", "SHNWAZX"),
-                        SocialLink(R.drawable.instagram, "https://www.instagram.com/shnwazxc/", "Instagram", "shnwazxc"),
+                        SocialLink(R.drawable.github, "https://github.com/shnwazdeveloper", "GitHub"),
+                        SocialLink(R.drawable.telegram, "https://t.me/SHNWAZX", "Telegram"),
+                        SocialLink(R.drawable.instagram, "https://www.instagram.com/shnwazxc/", "Instagram"),
                     ),
                     onLinkClick = { uriHandler.openUri(it) },
                 )
@@ -184,133 +181,118 @@ fun AboutScreen(
     }
 }
 
-// ── Hero card ──────────────────────────────────────────────────────────────
+// -- Hero card --------------------------------------------------------------
 
 @Composable
 private fun HeroCard(shimmerBrush: Brush) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF141722).copy(alpha = 0.92f))
-            .border(
-                width = 0.8.dp,
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color.White.copy(alpha = 0.20f),
-                        Color.White.copy(alpha = 0.04f)
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(24.dp),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(30.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // App icon with glowing lime border container
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .border(
-                        width = 1.5.dp,
-                        brush = Brush.verticalGradient(
-                            listOf(
-                                Color(0xFFD4E84B),
-                                Color(0xFF88A020)
-                            )
-                        ),
-                        shape = RoundedCornerShape(22.dp)
-                    ),
-                contentAlignment = Alignment.Center
+            // App icon with shimmer
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(80.dp),
             ) {
-                Image(
-                    painter = painterResource(R.drawable.lyra_logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(22.dp)),
-                    contentScale = ContentScale.Crop,
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(R.drawable.opentune_monochrome),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(
+                            MaterialTheme.colorScheme.onPrimaryContainer,
+                            BlendMode.SrcIn,
+                        ),
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                    )
+                    // Shimmer overlay
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(shimmerBrush),
+                    )
+                }
             }
 
             // App name
             Text(
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
-            // Version + build badges (Liquid Glass)
+            // Version + build badges
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 VersionBadge(
                     text = "v${BuildConfig.VERSION_NAME}",
-                    containerColor = Color(0xFF3B82F6).copy(alpha = 0.20f),
-                    contentColor = Color(0xFF93C5FD),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
                 VersionBadge(
                     text = "#${BuildConfig.VERSION_CODE}",
-                    containerColor = Color(0xFF8B5CF6).copy(alpha = 0.20f),
-                    contentColor = Color(0xFFC4B5FD),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
                 if (BuildConfig.DEBUG) {
                     VersionBadge(
                         text = "DEBUG",
-                        containerColor = Color(0xFFEF4444).copy(alpha = 0.20f),
-                        contentColor = Color(0xFFFCA5A5),
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
                     )
                 }
             }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 4.dp),
-                color = Color.White.copy(alpha = 0.08f),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
             )
 
             // Dev credit row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                AsyncImage(
-                    model = "https://github.com/shnwazdeveloper.png",
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .border(
-                            width = 1.dp,
-                            brush = Brush.verticalGradient(
-                                listOf(
-                                    Color.White.copy(alpha = 0.35f),
-                                    Color.White.copy(alpha = 0.08f)
-                                )
-                            ),
-                            shape = CircleShape
-                        ),
-                )
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                ) {
+                    AsyncImage(
+                        model = "https://github.com/shnwazdeveloper.png",
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape),
+                    )
+                }
                 Column {
                     Text(
                         text = "Dev by shnwaz",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = "GPL-3.0 License",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF9CA3AF)
-                        )
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -318,108 +300,72 @@ private fun HeroCard(shimmerBrush: Brush) {
     }
 }
 
-// ── Social card (Classic 3-button horizontal layout) ──────────────────────
+// -- Social card ------------------------------------------------------------
 
 @Composable
 private fun SocialCard(
     links: List<SocialLink>,
     onLinkClick: (String) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFF141722).copy(alpha = 0.92f))
-            .border(
-                width = 0.8.dp,
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color.White.copy(alpha = 0.20f),
-                        Color.White.copy(alpha = 0.04f)
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
-            )
-            .padding(20.dp),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Section header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF8B5CF6).copy(alpha = 0.2f))
-                        .border(
-                            width = 0.8.dp,
-                            brush = Brush.verticalGradient(
-                                listOf(
-                                    Color.White.copy(alpha = 0.25f),
-                                    Color.White.copy(alpha = 0.05f)
-                                )
-                            ),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center,
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.link),
-                        contentDescription = null,
-                        tint = Color(0xFFC4B5FD),
-                        modifier = Modifier.size(20.dp),
-                    )
+                    Box(
+                        modifier = Modifier.size(40.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.link),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
                 Text(
                     text = stringResource(R.string.social_links),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
 
-            // 3-button horizontal row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                links.forEach { link ->
-                    FilledTonalButton(
-                        onClick = { onLinkClick(link.url) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = Color(0xFF282D3D).copy(alpha = 0.85f),
-                            contentColor = Color.White
-                        )
+            // Social icons grid -- two rows of 3
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                links.chunked(3).forEach { rowLinks ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(link.iconRes),
-                                contentDescription = link.label,
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                        rowLinks.forEach { link ->
+                            SocialPill(
+                                iconRes = link.iconRes,
+                                label = link.label,
+                                onClick = { onLinkClick(link.url) },
+                                modifier = Modifier.weight(1f),
                             )
-                            Text(
-                                text = link.label,
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        }
+                        // Fill remaining cells if row is incomplete
+                        repeat(3 - rowLinks.size) {
+                            Spacer(Modifier.weight(1f))
                         }
                     }
                 }
@@ -428,94 +374,113 @@ private fun SocialCard(
     }
 }
 
-// ── License footer ─────────────────────────────────────────────────────────
+// -- License footer ---------------------------------------------------------
 
 @Composable
 private fun LicenseFooter(onLicenseClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF161922))
-            .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color.White.copy(alpha = 0.12f),
-                        Color.White.copy(alpha = 0.03f)
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .clickable(onClick = onLicenseClick)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = onLicenseClick,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF3B82F6).copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center,
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.policy),
-                    contentDescription = null,
-                    tint = Color(0xFF93C5FD),
-                    modifier = Modifier.size(20.dp),
-                )
+                Box(
+                    modifier = Modifier.size(36.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.policy),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "GNU General Public License v3.0",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.view_license),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF9CA3AF)
-                    )
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Icon(
                 painter = painterResource(R.drawable.arrow_forward),
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.4f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 modifier = Modifier.size(18.dp),
             )
         }
     }
 }
 
-// ── Small helpers ──────────────────────────────────────────────────────────
+// -- Small helpers ----------------------------------------------------------
 
 @Composable
 private fun VersionBadge(
     text: String,
-    containerColor: Color,
-    contentColor: Color,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
 ) {
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(containerColor)
-            .padding(horizontal = 12.dp, vertical = 5.dp)
+    Surface(
+        shape = RoundedCornerShape(50.dp),
+        color = containerColor,
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                color = contentColor
-            )
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        )
+    }
+}
+
+@Composable
+private fun SocialPill(
+    iconRes: Int,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+        modifier = modifier.height(48.dp),
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = label,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

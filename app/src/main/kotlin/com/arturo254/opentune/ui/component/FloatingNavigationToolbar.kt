@@ -88,10 +88,6 @@ fun FloatingNavigationToolbar(
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
-    val toolbarContainerColor = Color.Transparent
-    val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
-        toolbarContainerColor = Color.Transparent,
-    )
     val hasOverflowAction = onShuffleClick != null && shuffleIconRes != null
     val hasFabAction = onFabClick != null && fabIconRes != null
 
@@ -105,21 +101,16 @@ fun FloatingNavigationToolbar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                colors = toolbarColors,
-            ) {
-                items.forEach { screen ->
-                    val selected = isSelected(screen)
-                    FloatingNavigationToolbarItem(
-                        screen = screen,
-                        selected = selected,
-                        showSelectedLabel = showSelectedLabels,
-                        pureBlack = pureBlack,
-                        liquidGlass = liquidGlass,
-                        onClick = { onItemClick(screen, selected) },
-                    )
-                }
+            items.forEach { screen ->
+                val selected = isSelected(screen)
+                FloatingNavigationToolbarItem(
+                    screen = screen,
+                    selected = selected,
+                    showSelectedLabel = showSelectedLabels,
+                    pureBlack = pureBlack,
+                    liquidGlass = liquidGlass,
+                    onClick = { onItemClick(screen, selected) },
+                )
             }
 
             if (hasOverflowAction) {

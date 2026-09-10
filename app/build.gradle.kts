@@ -20,7 +20,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.shnwazdeveloper.lyramusic"
+        applicationId = "com.shnwaz.lyramusic"
         minSdk = 26
         targetSdk = 34
         versionCode = 143
@@ -57,6 +57,10 @@ android {
             storePassword = System.getenv("STORE_PASSWORD") ?: "lyramusic"
             keyAlias = System.getenv("KEY_ALIAS") ?: "lyramusic"
             keyPassword = System.getenv("KEY_PASSWORD") ?: "lyramusic"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
         }
     }
 
@@ -65,6 +69,7 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             signingConfig = signingConfigs.getByName("release")
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -73,6 +78,7 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

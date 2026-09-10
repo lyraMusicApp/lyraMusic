@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.lazy.LazyColumn
@@ -164,16 +165,19 @@ private fun CompactSettingsLayout(
     val pad = SettingsDimensions.ScreenHorizontalPadding
     val spacing = SettingsDimensions.SectionSpacing
 
+    val playerInsets = LocalPlayerAwareWindowInsets.current
+    val bottomContentPadding = playerInsets.asPaddingValues().calculateBottomPadding() + 32.dp
+
     LazyColumn(
         state = listState,
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                playerInsets.only(
+                    WindowInsetsSides.Horizontal
                 )
             ),
-        contentPadding = PaddingValues(top = topPadding, bottom = 32.dp),
+        contentPadding = PaddingValues(top = topPadding, bottom = bottomContentPadding),
     ) {
         item(key = "hero") {
             AnimatedVisibility(
@@ -334,12 +338,15 @@ private fun MediumSettingsLayout(
     val pad = SettingsDimensions.ScreenHorizontalPadding
     val spacing = SettingsDimensions.SectionSpacing
 
+    val playerInsets = LocalPlayerAwareWindowInsets.current
+    val bottomContentPadding = playerInsets.asPaddingValues().calculateBottomPadding() + 32.dp
+
     Row(
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                playerInsets.only(
+                    WindowInsetsSides.Horizontal
                 )
             )
             .padding(horizontal = pad),
@@ -349,7 +356,7 @@ private fun MediumSettingsLayout(
             modifier = Modifier
                 .weight(SettingsDimensions.MediumPaneLeftWeight)
                 .fillMaxHeight(),
-            contentPadding = PaddingValues(top = topPadding, bottom = 32.dp),
+            contentPadding = PaddingValues(top = topPadding, bottom = bottomContentPadding),
         ) {
             item(key = "hero") {
                 AnimatedVisibility(
@@ -427,7 +434,7 @@ private fun MediumSettingsLayout(
             modifier = Modifier
                 .weight(SettingsDimensions.MediumPaneRightWeight)
                 .fillMaxHeight(),
-            contentPadding = PaddingValues(top = topPadding, bottom = 32.dp),
+            contentPadding = PaddingValues(top = topPadding, bottom = bottomContentPadding),
         ) {
             if (state.isSearchActive && !state.hasSearchResults) {
                 item(key = "empty") {
@@ -489,12 +496,15 @@ private fun ExpandedSettingsLayout(
     val pad = SettingsDimensions.ScreenHorizontalPadding
     val spacing = SettingsDimensions.SectionSpacing
 
+    val playerInsets = LocalPlayerAwareWindowInsets.current
+    val bottomContentPadding = playerInsets.asPaddingValues().calculateBottomPadding() + 32.dp
+
     Row(
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                playerInsets.only(
+                    WindowInsetsSides.Horizontal
                 )
             )
             .padding(horizontal = pad),
@@ -504,7 +514,7 @@ private fun ExpandedSettingsLayout(
             modifier = Modifier
                 .width(SettingsDimensions.ExpandedListPaneWidth)
                 .fillMaxHeight(),
-            contentPadding = PaddingValues(top = topPadding, bottom = 32.dp),
+            contentPadding = PaddingValues(top = topPadding, bottom = bottomContentPadding),
         ) {
             item(key = "hero") {
                 AnimatedVisibility(
@@ -582,7 +592,7 @@ private fun ExpandedSettingsLayout(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            contentPadding = PaddingValues(top = topPadding, bottom = 32.dp),
+            contentPadding = PaddingValues(top = topPadding, bottom = bottomContentPadding),
         ) {
             if (state.isSearchActive && !state.hasSearchResults) {
                 item(key = "empty") {

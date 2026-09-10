@@ -10,7 +10,7 @@
 
 ## App Details
 
-- Package: `com.shnwazdeveloper.lyramusic`
+- Package: `com.shnwaz.lyramusic`
 - Version: `3.0.8`
 - Version code: `135`
 - APK: [lyraMusic.apk](https://github.com/shnwazdeveloper/lyraMusic/releases/download/lyra-v3.0.8/lyraMusic.apk)
