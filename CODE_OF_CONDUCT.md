@@ -26,7 +26,7 @@ Maintainers may remove, edit, or reject comments, commits, issues, pull requests
 
 To report a concern, contact the project maintainer through GitHub or Telegram:
 
-https://t.me/sexyafraid
+https://t.me/SHNWAZX
 
 ## Attribution
 
