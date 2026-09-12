@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "🔒 Report a Security Vulnerability"
+    url: "https://github.com/lyraMusicApp/lyraMusic/security/advisories/new"
+    about: "Report security vulnerabilities privately through GitHub Security Advisories."
+  - name: "⚖️ DMCA / Copyright Inquiries"
+    url: "https://github.com/lyraMusicApp/lyraMusic/blob/lyra/DMCA.md"
+    about: "Review our DMCA Policy and Notice & Takedown procedures."
+  - name: "💬 Community Discussions"
+    url: "https://github.com/lyraMusicApp/lyraMusic/discussions"
+    about: "Ask questions, share ideas, and chat with the community."
