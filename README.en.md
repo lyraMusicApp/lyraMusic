@@ -1,8 +1,12 @@
 # Lyra Music
 
 <div align="center">
-  <img src="assets/icon.png" width="128" height="128" alt="Lyra Music Logo">
+  <img src="assets/lyra_logo.png" width="128" height="128" alt="Lyra Music Logo">
   <h3>Next-Gen Material You Music Experience</h3>
+  <p>
+    <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-brightgreen?style=flat-square&logo=github" alt="Security Policy"></a>
+    <a href="DMCA.md"><img src="https://img.shields.io/badge/DMCA-Protected-007ACC?style=flat-square&logo=shield" alt="DMCA Protected"></a>
+  </p>
 </div>
 
 Lyra Music is a high-performance, modern Android music player built with Jetpack Compose. It features dynamic YouTube Music streaming, Spotify playlist import, real-time user listening stats & community leaderboards, personalized Discover Weekly mixes, and a stunning dark UI with glowing ambient aesthetics.
@@ -10,6 +14,8 @@ Lyra Music is a high-performance, modern Android music player built with Jetpack
 ## Key Features
 
 - **Personalized Modern Home**: Dynamic user profile greetings ("Hi, {User}"), lime-green filter chips, "Curated & Trending" Discover Weekly hero banner, and "Top Daily Playlists".
+- **Multiple Player & Mini Player Styles**: Supports 10 customizable player designs (V1–V10) and dynamic mini player background palettes (`Theme`, `Gradient`, `Glow`).
+- **Comprehensive Lyrics Engine**: Multi-provider synchronized lyrics via Paxsenix (Apple Music, Spotify, Musixmatch, NetEase, YouTube), BetterLyrics, LRCLIB, and Megalobiz.
 - **Real-Time Leaderboard & Listening Stats**: Track listening hours with live real-time updates as music plays, alongside an artwork-sliced pie chart visualizer and community leaderboard.
 - **Floating Liquid-Glass Navigation**: Sleek floating toolbar with active lime-green pill indicator.
 - **Extensive Music Library & Playback**: YouTube Music integration, background playback with media controls, high quality audio, lyrics, and offline downloads.
@@ -20,8 +26,12 @@ Lyra Music is a high-performance, modern Android music player built with Jetpack
 .\gradlew.bat :app:assembleDebug
 ```
 
+## Legal & Security
+
+- [Security Policy](SECURITY.md)
+- [DMCA & Copyright Compliance](DMCA.md)
+
 ## Links
 
 - Repository: https://github.com/lyraMusicApp/lyraMusic
 - License: GPL-3.0 (See [LICENSE](LICENSE))
-
