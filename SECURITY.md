@@ -20,42 +20,21 @@ We strongly recommend all users stay on the latest release to ensure they receiv
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, flaw, or potential security exploit in Lyra Music, please **do not** report it in a public GitHub issue, pull request, comment, or public discussion. Public disclosure puts users at risk prior to the release of a corrective patch.
-
-Instead, please report vulnerabilities privately using either of the following methods:
-
-1. **GitHub Private Vulnerability Reporting (Recommended):**
-   Navigate to the [Security Advisories](https://github.com/lyraMusicApp/lyraMusic/security/advisories) tab of this repository and click **"Report a vulnerability"** (or use direct link: [New Security Advisory](https://github.com/lyraMusicApp/lyraMusic/security/advisories/new)).
-2. **Confidential Maintainer Contact:**
-   Contact the core maintainers directly via email at:  
-   📧 **`shnwazdeveloper@gmail.com`**  
-   **Subject:** `[SECURITY VULNERABILITY] Lyra Music - <Brief Summary>`
-
----
+### Private Disclosure Channels
+* **GitHub Security Advisories:** Report privately via [GitHub Security Advisories](https://github.com/lyraMusicApp/lyraMusic/security/advisories/new).
+* **Maintainer Direct Email:** Contact maintainers directly at [shnwazdeveloper@gmail.com](mailto:shnwazdeveloper@gmail.com) with the subject `[SECURITY VULNERABILITY] Lyra Music`.
 
 ### What to Include in Your Report
-
-To help us investigate, triage, and resolve the vulnerability as quickly as possible, please provide as much relevant information as possible:
-
-* **Description:** A detailed explanation of the vulnerability, its behavior, and its potential real-world impact.
-* **Reproduction Steps:** Step-by-step instructions to reproduce the issue reliably, or a minimal Proof of Concept (PoC) script/payload.
-* **Affected Component:** Specific source file, class, method, dependency, or network endpoint involved.
-* **Environment Details:** 
-  * Lyra Music version (e.g., `v3.0.10`)
-  * Device model and Android version / API level (e.g., Pixel 7, Android 14)
-  * Build variant (Debug or Release)
-* **Remediation Suggestion:** Any suggested fixes, defensive checks, or pull request drafts (if available).
-
----
+* **Reproduction Steps:** Step-by-step instructions to reproduce the vulnerability reliably.
+* **PoC Payload:** Proof of Concept (PoC) scripts, sample data, or payloads demonstrating the exploit.
+* **Affected Classes/Endpoints:** The specific classes, source files, methods, or network endpoints involved.
+* **Environment Information:** Lyra Music version, Android OS version / API level, device model, and build variant.
 
 ### Response Timeline
-
-We adhere strictly to coordinated vulnerability disclosure practices:
-
-* **Initial Acknowledgment:** Within **24 to 48 hours** of receiving your initial disclosure.
-* **Triage & Validation:** Within **3 to 5 business days**, confirming whether the reported issue is valid and determining its CVSS severity score.
-* **Remediation & Patching:** We will work diligently on a fix and share a pre-release patch with the reporter for confirmation.
-* **Release & Public Disclosure:** Security advisories and patched builds will be published simultaneously once the fix is verified. We will gladly credit the researcher in our release notes and GitHub Security Advisory (unless anonymity is requested).
+* **24–48h acknowledgment:** Prompt confirmation of report receipt.
+* **3–5 day validation:** Technical triage, reproduction, and CVSS severity assessment.
+* **Coordinated patch release:** Fix development, regression testing, and security advisory publication.
+* **Public researcher credit:** Recognition in the release notes and GitHub Security Advisory (unless anonymity is requested).
 
 ---
 

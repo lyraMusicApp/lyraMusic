@@ -1,0 +1,64 @@
+name: "🔒 Security Vulnerability Report"
+description: "Privately disclose a security vulnerability to the maintainers"
+title: "[SECURITY] Vulnerability in <component>"
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 🔒 Private Vulnerability Reporting
+        Please do **NOT** disclose security vulnerabilities publicly if they pose a threat to users.
+        You can also report directly via [GitHub Security Advisories](https://github.com/lyraMusicApp/lyraMusic/security/advisories/new) or email **shnwazdeveloper@gmail.com**.
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability Description
+      description: A clear and concise description of the security flaw and potential impact.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Navigate to ...
+        2. Trigger action ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: poc
+    attributes:
+      label: Proof of Concept (PoC) Payload
+      description: Payload, script, or sample data demonstrating the vulnerability.
+    validations:
+      required: false
+  - type: input
+    id: affected
+    attributes:
+      label: Affected Classes / Endpoints
+      description: Which source files, classes, methods, or network endpoints are affected?
+      placeholder: "e.g., com.arturo254.opentune.utils.YTPlayerUtils, /youtubei/v1/player"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      description: App version, Android version, device model, and build variant.
+      value: |
+        - Lyra Music Version: v3.0.10
+        - Device Model: 
+        - Android Version / API Level: 
+        - Build Variant (Debug / Release): 
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ### ⏱️ Response Timeline
+        - **24–48h acknowledgment**: Prompt confirmation of report receipt.
+        - **3–5 day validation**: Technical triage and severity confirmation.
+        - **Coordinated patch release**: Fix development and patch deployment.
+        - **Public researcher credit**: Recognition in release notes and advisory.
