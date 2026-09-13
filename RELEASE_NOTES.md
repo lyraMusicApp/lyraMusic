@@ -2,6 +2,10 @@
 
 ## Highlights & What's New
 
+### Security & Compliance
+- **Official Security Advisory**: Published [GHSA-f779-qgcj-q93q](https://github.com/lyraMusicApp/lyraMusic/security/advisories/GHSA-f779-qgcj-q93q).
+- **Hardened Architecture**: Isolated BotGuard / PoToken token generation in WebView sandbox, enforced strict TLS 1.3 encryption on all external network requests, validated lyrics parsers against malformed payloads, and added comprehensive DMCA safe-harbor compliance.
+
 ### 100% Transparent Navigation Bar
 - Complete edge-to-edge transparent navigation bar across all screens (Home, Library, Explore, Settings).
 - Disabled Android OS contrast scrim enforcement, eliminating dark/black overlays behind the floating toolbar.

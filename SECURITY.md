@@ -18,6 +18,15 @@ We strongly recommend all users stay on the latest release to ensure they receiv
 
 ---
 
+## Published Security Advisories
+
+| Advisory ID | Title | Severity | Affected Versions | Patched Version |
+| :--- | :--- | :--- | :--- | :--- |
+| [GHSA-f779-qgcj-q93q](https://github.com/lyraMusicApp/lyraMusic/security/advisories/GHSA-f779-qgcj-q93q) | Security & Privacy Hardening Update | Low | < 3.0.10 | 3.0.10 |
+
+
+---
+
 ## Reporting a Vulnerability
 
 ### Private Disclosure Channels
