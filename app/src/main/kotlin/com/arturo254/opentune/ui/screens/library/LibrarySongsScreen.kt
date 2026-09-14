@@ -7,6 +7,8 @@
 
 
 package com.arturo254.opentune.ui.screens.library
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -112,7 +114,7 @@ fun LibrarySongsScreen(
     val songs by viewModel.allSongs.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    var filter by rememberEnumPreference(SongFilterKey, SongFilter.LIKED)
+    var filter by rememberEnumPreference(SongFilterKey, SongFilter.LIBRARY)
 
     LaunchedEffect(Unit) {
         if (ytmSync) {
@@ -154,29 +156,9 @@ fun LibrarySongsScreen(
     ) {
         LazyColumn(
             state = lazyListState,
-            contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+            contentPadding = LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues(),
         ) {
-            item(
-                key = "filter",
-                contentType = CONTENT_TYPE_HEADER,
-            ) {
-                Row {
-                    Spacer(Modifier.width(12.dp))
-            ChipsRow(
-                        chips =
-                        listOf(
-                            SongFilter.LIKED to stringResource(R.string.filter_liked),
-                            SongFilter.LIBRARY to stringResource(R.string.filter_library),
-                            SongFilter.DOWNLOADED to stringResource(R.string.filter_downloaded),
-                        ),
-                        currentValue = filter,
-                        onValueUpdate = {
-                            filter = it
-                        },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
+
 
             item(
                 key = "header",

@@ -6,6 +6,8 @@
 
 
 package com.arturo254.opentune.ui.screens.library
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -304,7 +306,7 @@ fun LibraryPlaylistsScreen(
         LazyColumn(
             state = lazyListState,
             verticalArrangement = Arrangement.spacedBy(14.dp),
-            contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+            contentPadding = LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues(),
         ) {
             item(key = "filter") {
                 filterContent()
@@ -399,7 +401,7 @@ fun LibraryPlaylistsScreen(
             state = pullRefreshState,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(LocalPlayerAwareWindowInsets.current.asPaddingValues()),
+                .padding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues()),
         )
     }
 }

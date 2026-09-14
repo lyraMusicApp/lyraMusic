@@ -7,6 +7,8 @@
 
 
 package com.arturo254.opentune.ui.screens.library
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -102,7 +104,7 @@ fun LibraryAlbumsScreen(
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
 
     var viewType by rememberEnumPreference(AlbumViewTypeKey, LibraryViewType.GRID)
-    var filter by rememberEnumPreference(AlbumFilterKey, AlbumFilter.LIKED)
+    var filter by rememberEnumPreference(AlbumFilterKey, AlbumFilter.LIBRARY)
     val (sortType, onSortTypeChange) = rememberEnumPreference(
         AlbumSortTypeKey,
         AlbumSortType.CREATE_DATE
@@ -227,14 +229,9 @@ fun LibraryAlbumsScreen(
             LibraryViewType.LIST ->
                 LazyColumn(
                     state = lazyListState,
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues(),
                 ) {
-                    item(
-                        key = "filter",
-                        contentType = CONTENT_TYPE_HEADER,
-                    ) {
-                        filterContent()
-                    }
+
 
                     item(
                         key = "header",
@@ -284,15 +281,9 @@ fun LibraryAlbumsScreen(
                     GridCells.Adaptive(
                         minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
                     ),
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues(),
                 ) {
-                    item(
-                        key = "filter",
-                        span = { GridItemSpan(maxLineSpan) },
-                        contentType = CONTENT_TYPE_HEADER,
-                    ) {
-                        filterContent()
-                    }
+
 
                     item(
                         key = "header",

@@ -7,6 +7,8 @@
 
 
 package com.arturo254.opentune.viewmodels
+import com.arturo254.opentune.ui.utils.highQualityThumbnailUrl
+import com.arturo254.opentune.innertube.models.SongItem
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -92,9 +94,25 @@ class HomeViewModel @Inject constructor(
         return chips?.filterNot { it.title.contains("podcasts", ignoreCase = true) }
     }
 
-    private suspend fun getQuickPicks(){
+    private suspend fun getQuickPicks() {
         when (quickPicksEnum.first()) {
-            QuickPicks.QUICK_PICKS -> quickPicks.value = database.quickPicks().first().shuffled().take(20)
+            QuickPicks.QUICK_PICKS -> {
+                val dbPicks = database.quickPicks().first().shuffled().take(20)
+                if (dbPicks.isNotEmpty()) {
+                    quickPicks.value = dbPicks
+                } else {
+                    val fromTimeStamp = System.currentTimeMillis() - 86400000L * 30
+                    val mostPlayed = database.mostPlayedSongs(fromTimeStamp, limit = 20).first().shuffled().take(20)
+                    if (mostPlayed.isNotEmpty()) {
+                        quickPicks.value = mostPlayed
+                    } else {
+                        val all = database.allSongs().first().shuffled().take(20)
+                        if (all.isNotEmpty()) {
+                            quickPicks.value = all
+                        }
+                    }
+                }
+            }
             QuickPicks.LAST_LISTEN -> songLoad()
         }
     }
@@ -147,6 +165,40 @@ class HomeViewModel @Inject constructor(
                                 section.copy(items = section.items.filterExplicit(hideExplicit).filterVideo(hideVideo))
                             }
                         )
+                        if (quickPicks.value.isNullOrEmpty()) {
+                            val qpSection = page.sections.find {
+                                it.title.contains("quick pick", ignoreCase = true)
+                            } ?: page.sections.firstOrNull { sec -> sec.items.any { item -> item is SongItem } }
+                            
+                            val songs = qpSection?.items?.filterIsInstance<SongItem>()?.map { songItem ->
+                                Song(
+                                    song = SongEntity(
+                                        id = songItem.id,
+                                        title = songItem.title,
+                                        duration = songItem.duration ?: -1,
+                                        thumbnailUrl = songItem.thumbnail.highQualityThumbnailUrl(),
+                                        explicit = songItem.explicit,
+                                    ),
+                                    artists = songItem.artists.map {
+                                        ArtistEntity(
+                                            id = it.id ?: "",
+                                            name = it.name,
+                                        )
+                                    },
+                                    album = songItem.album?.let {
+                                        AlbumEntity(
+                                            id = it.id,
+                                            title = it.name,
+                                            songCount = 0,
+                                            duration = 0,
+                                        )
+                                    }
+                                )
+                            }
+                            if (!songs.isNullOrEmpty()) {
+                                quickPicks.value = songs
+                            }
+                        }
                     }.onFailure { reportException(it) }
                 }
 

@@ -73,13 +73,16 @@ fun ThumbnailCornerRadiusSelectorButton(
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(
-                        id = R.string.custom_radius,
-                        thumbnailCornerRadius.roundToInt()
-                    ),
+                    text = stringResource(id = R.string.custom_radius),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "${thumbnailCornerRadius.roundToInt()} dp",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
