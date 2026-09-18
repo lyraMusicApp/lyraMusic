@@ -11,22 +11,62 @@ jobs:
     steps:
       - name: Send Star Alert (Topic 135)
         if: github.event_name == 'watch'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          SENDER_LOGIN: ${{ github.event.sender.login }}
+          SENDER_URL: ${{ github.event.sender.html_url }}
+          REPO_NAME: ${{ github.event.repository.full_name }}
+          REPO_URL: ${{ github.event.repository.html_url }}
+          STARS_COUNT: ${{ github.event.repository.stargazers_count }}
         run: |
-          MSG="⭐ <b>New Star on Lyra Music!</b>%0A%0A👤 <b>User:</b> <a href=\"${{ github.event.sender.html_url }}\">@${{ github.event.sender.login }}</a>%0A🌟 <b>Total Stars:</b> <b>${{ github.event.repository.stargazers_count }}</b>%0A🔗 <a href=\"${{ github.event.repository.html_url }}\">View Repository</a>"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
-            -d "text=$MSG" \
-            -d "parse_mode=HTML" \
-            -d "disable_web_page_preview=true" || true
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          sender = html.escape(os.environ.get("SENDER_LOGIN", ""))
+          sender_url = os.environ.get("SENDER_URL", "")
+          repo_name = html.escape(os.environ.get("REPO_NAME", ""))
+          repo_url = os.environ.get("REPO_URL", "")
+          stars = os.environ.get("STARS_COUNT", "0")
+          text = f"⭐ <b>New Star on {repo_name}!</b>\n\n👤 <b>User:</b> <a href=\"{sender_url}\">@{sender}</a>\n🌟 <b>Total Stars:</b> <b>{stars}</b>\n🔗 <a href=\"{repo_url}\">View Repository</a>"
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true
 
       - name: Send Fork Alert (Topic 135)
         if: github.event_name == 'fork'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          SENDER_LOGIN: ${{ github.event.sender.login }}
+          SENDER_URL: ${{ github.event.sender.html_url }}
+          FORK_NAME: ${{ github.event.forkee.full_name }}
+          FORK_URL: ${{ github.event.forkee.html_url }}
+          FORKS_COUNT: ${{ github.event.repository.forks_count }}
         run: |
-          MSG="🍴 <b>New Fork of Lyra Music!</b>%0A%0A👤 <b>Forked by:</b> <a href=\"${{ github.event.sender.html_url }}\">@${{ github.event.sender.login }}</a>%0A🔱 <b>Fork Repo:</b> <a href=\"${{ github.event.forkee.html_url }}\">${{ github.event.forkee.full_name }}</a>%0A📈 <b>Total Forks:</b> <b>${{ github.event.repository.forks_count }}</b>"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
-            -d "text=$MSG" \
-            -d "parse_mode=HTML" \
-            -d "disable_web_page_preview=true" || true
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          sender = html.escape(os.environ.get("SENDER_LOGIN", ""))
+          sender_url = os.environ.get("SENDER_URL", "")
+          fork_name = html.escape(os.environ.get("FORK_NAME", ""))
+          fork_url = os.environ.get("FORK_URL", "")
+          forks = os.environ.get("FORKS_COUNT", "0")
+          text = f"🍴 <b>New Fork of Lyra Music!</b>\n\n👤 <b>Forked by:</b> <a href=\"{sender_url}\">@{sender}</a>\n🔱 <b>Fork Repo:</b> <a href=\"{fork_url}\">{fork_name}</a>\n📈 <b>Total Forks:</b> <b>{forks}</b>"
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true

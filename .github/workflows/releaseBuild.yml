@@ -27,14 +27,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notify Release Started (Topic 135)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          REF_NAME: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
         run: |
-          START_MSG="🚀 <b>Lyra Music Release Build Started</b>%0A🌿 <b>Ref:</b> <code>${{ github.ref_name }}</code>%0A👤 <b>Triggered by:</b> <a href=\"https://github.com/${{ github.actor }}\">@${{ github.actor }}</a>%0A⏳ <i>Building official signed release APK...</i>"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
-            -d "text=$START_MSG" \
-            -d "parse_mode=HTML" \
-            -d "disable_web_page_preview=true" || true
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          ref = html.escape(os.environ.get("REF_NAME", ""))
+          actor = html.escape(os.environ.get("ACTOR", ""))
+          text = f"🚀 <b>Lyra Music Release Build Started</b>\n🌿 <b>Ref:</b> <code>{ref}</code>\n👤 <b>Triggered by:</b> <a href=\"https://github.com/{actor}\">@{actor}</a>\n⏳ <i>Building official signed release APK...</i>"
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true
 
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -98,22 +112,58 @@ jobs:
 
       - name: Notify Success (Topic 135)
         if: success()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          VERSION: ${{ github.event.inputs.release_tag || github.ref_name }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
         run: |
-          SUCCESS_MSG="🎉 <b>Release Build Complete!</b>%0A%0A🚀 <b>Release APK published to Topic 140</b>%0A🏷️ <b>Version:</b> <code>${{ github.event.inputs.release_tag || github.ref_name }}</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Release Run</a>"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
-            -d "text=$SUCCESS_MSG" \
-            -d "parse_mode=HTML" \
-            -d "disable_web_page_preview=true" || true
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          version = html.escape(os.environ.get("VERSION", ""))
+          run_id = os.environ.get("RUN_ID", "")
+          server = os.environ.get("SERVER_URL", "https://github.com")
+          repo = os.environ.get("REPO", "")
+          text = f"🎉 <b>Release Build Complete!</b>\n\n🚀 <b>Release APK published to Topic 140</b>\n🏷️ <b>Version:</b> <code>{version}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">View Release Run</a>"
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true
 
       - name: Notify Failure (Topic 135)
         if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
         run: |
-          FAIL_MSG="❌ <b>Release Build Failed!</b>%0A%0A🌿 <b>Ref:</b> <code>${{ github.ref_name }}</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Check Error Logs</a>"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
-            -d "text=$FAIL_MSG" \
-            -d "parse_mode=HTML" \
-            -d "disable_web_page_preview=true" || true
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          ref = html.escape(os.environ.get("REF_NAME", ""))
+          run_id = os.environ.get("RUN_ID", "")
+          server = os.environ.get("SERVER_URL", "https://github.com")
+          repo = os.environ.get("REPO", "")
+          text = f"❌ <b>Release Build Failed!</b>\n\n🌿 <b>Ref:</b> <code>{ref}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">Check Error Logs</a>"
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true
