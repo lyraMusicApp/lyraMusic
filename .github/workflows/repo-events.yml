@@ -40,7 +40,7 @@ jobs:
                   ]
               ]
           }
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "link_preview_options": {"is_disabled": True}, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
@@ -79,7 +79,7 @@ jobs:
                   ]
               ]
           }
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "link_preview_options": {"is_disabled": True}, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
