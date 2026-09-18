@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ArchiveTune (2026)
  * Â© Rukamori â€” github.com/rukamori
  * GPL-3.0 License | Contributors: see git history
@@ -49,7 +49,8 @@ fun LibraryChipOrderDialog(
     onDismiss: () -> Unit,
     onConfirm: (List<LibraryFilter>) -> Unit,
 ) {
-    val filters = remember { mutableStateListOf(*initialOrder.toTypedArray()) }
+    val filteredInitialOrder = remember(initialOrder) { initialOrder.filter { it != LibraryFilter.LIBRARY } }
+    val filters = remember { mutableStateListOf(*filteredInitialOrder.toTypedArray()) }
     val lazyListState = rememberLazyListState()
     val reorderableState =
         rememberReorderableLazyListState(lazyListState) { from, to ->

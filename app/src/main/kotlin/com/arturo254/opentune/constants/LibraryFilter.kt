@@ -19,7 +19,6 @@ enum class LibraryFilter {
 
 val DefaultLibraryFilterOrder =
     listOf(
-        LibraryFilter.LIBRARY,
         LibraryFilter.PLAYLISTS,
         LibraryFilter.SPOTIFY,
         LibraryFilter.SONGS,
@@ -36,6 +35,7 @@ fun String.toLibraryFilterOrder(): List<LibraryFilter> {
             .mapNotNull { savedFilter ->
                 DefaultLibraryFilterOrder.firstOrNull { it.name == savedFilter.trim() }
             }.distinct()
+            .filter { it != LibraryFilter.LIBRARY }
 
     return savedOrder + DefaultLibraryFilterOrder.filterNot(savedOrder::contains)
 }

@@ -270,7 +270,7 @@ fun AppearanceSettings(
 
     val (defaultChip, onDefaultChipChange) = rememberEnumPreference(
         key = ChipSortTypeKey,
-        defaultValue = LibraryFilter.LIBRARY
+        defaultValue = LibraryFilter.PLAYLISTS
     )
 
     var showSliderOptionDialog by rememberSaveable {
@@ -420,8 +420,6 @@ fun AppearanceSettings(
                     PlayerDesignStyle.V6 -> stringResource(R.string.player_design_v6)
                     PlayerDesignStyle.V7 -> stringResource(R.string.player_design_v7)
                     PlayerDesignStyle.V8 -> stringResource(R.string.player_design_v8)
-                    PlayerDesignStyle.V9 -> stringResource(R.string.player_design_v9)
-                    PlayerDesignStyle.V10 -> stringResource(R.string.player_design_v10)
                 }
             },
         )
@@ -873,7 +871,7 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.tab), null) },
             selectedValue = defaultChip,
             values = listOf(
-                LibraryFilter.LIBRARY, LibraryFilter.PLAYLISTS, LibraryFilter.SONGS,
+                LibraryFilter.PLAYLISTS, LibraryFilter.SONGS,
                 LibraryFilter.ALBUMS, LibraryFilter.ARTISTS
             ),
             valueText = {
@@ -882,7 +880,6 @@ fun AppearanceSettings(
                     LibraryFilter.ARTISTS -> stringResource(R.string.artists)
                     LibraryFilter.ALBUMS -> stringResource(R.string.albums)
                     LibraryFilter.PLAYLISTS -> stringResource(R.string.playlists)
-                    LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
                     LibraryFilter.SPOTIFY -> "Spotify"
                     else -> it.name
                 }

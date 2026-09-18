@@ -1,4 +1,4 @@
-name: Nightly Universal APK
+﻿name: Lyra CI - Debug Build
 
 on:
   push:
@@ -7,49 +7,109 @@ on:
       - master
     paths-ignore:
       - '*.md'
+      - 'assets/**'
+      - '.gitignore'
   workflow_dispatch:
 
 concurrency:
-  group: nightly-build
+  group: debug-build-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v5
+      - name: Notify Build Started (Topic 135)
+        run: |
+          START_MSG="🔨 <b>Lyra Music Debug Build Started</b>%0A🌿 <b>Branch:</b> <code>${{ github.ref_name }}</code>%0A👤 <b>Author:</b> <a href=\"https://github.com/${{ github.actor }}\">@${{ github.actor }}</a>%0A🔖 <b>Commit:</b> <code>${{ github.sha }}</code>%0A📝 <i>${{ github.event.head_commit.message }}</i>%0A%0A⏳ <i>Building debug APK...</i>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$START_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
 
-      - run: chmod +x gradlew
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v5
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v5
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: List outputs
-        run: ls -R app/build/outputs/apk/
-
-      - name: Get APK
+      - name: Locate and Process Debug APK
+        id: find_apk
         run: |
-          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
-          echo "APK found at: $APK_PATH"
-          cp "$APK_PATH" app-nightly-universal.apk
+          APK_FILE=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          if [ -z "$APK_FILE" ]; then
+            APK_FILE=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
+          fi
+          echo "Found APK at $APK_FILE"
+          FILE_SIZE=$(stat -c%s "$APK_FILE")
+          echo "APK File Size: $FILE_SIZE bytes"
+          cp "$APK_FILE" lyra-debug-universal.apk
+          echo "apk_path=lyra-debug-universal.apk" >> $GITHUB_OUTPUT
+          echo "apk_size=$FILE_SIZE" >> $GITHUB_OUTPUT
 
-      - name: Upload Nightly
+      - name: Upload Debug APK to Telegram (Topic 146)
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
+          CAPTION="📦 <b>Lyra Music Debug APK</b>%0A%0A🔖 <b>Commit:</b> <code>$SHORT_SHA</code>%0A🌿 <b>Branch:</b> <code>${{ github.ref_name }}</code>%0A📅 <b>Build Date:</b> $BUILD_DATE%0A📝 <i>${{ github.event.head_commit.message }}</i>"
+          
+          echo "Uploading APK to Topic 146..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+            -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -F "message_thread_id=${{ secrets.TOPIC_DEBUG_APK }}" \
+            -F "document=@lyra-debug-universal.apk" \
+            -F "caption=$CAPTION" \
+            -F "parse_mode=HTML")
+          
+          echo "$RESPONSE"
+
+      - name: Publish to GitHub Release (Nightly)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly
-          name: Nightly Build (Universal)
+          name: Lyra Music Debug (Nightly)
           prerelease: true
-          files: app-nightly-universal.apk
+          files: lyra-debug-universal.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Notify Success (Topic 135)
+        if: success()
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          SUCCESS_MSG="✅ <b>Debug Build Succeeded!</b>%0A%0A📦 <b>APK delivered to Topic 146</b>%0A🔖 <b>Commit:</b> <code>$SHORT_SHA</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Workflow Run</a>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$SUCCESS_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
+
+      - name: Notify Failure (Topic 135)
+        if: failure()
+        run: |
+          FAIL_MSG="❌ <b>Debug Build Failed!</b>%0A%0A🌿 <b>Branch:</b> <code>${{ github.ref_name }}</code>%0A🔖 <b>Commit:</b> <code>${{ github.sha }}</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Check Error Logs</a>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$FAIL_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true

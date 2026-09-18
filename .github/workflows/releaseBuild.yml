@@ -1,0 +1,119 @@
+﻿name: Lyra CI - Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag (e.g. v3.1.0)'
+        required: false
+        default: 'v3.1.0'
+      release_notes:
+        description: 'Release Notes summary'
+        required: false
+        default: 'Official release build'
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-build
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Release Started (Topic 135)
+        run: |
+          START_MSG="🚀 <b>Lyra Music Release Build Started</b>%0A🌿 <b>Ref:</b> <code>${{ github.ref_name }}</code>%0A👤 <b>Triggered by:</b> <a href=\"https://github.com/${{ github.actor }}\">@${{ github.actor }}</a>%0A⏳ <i>Building official signed release APK...</i>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$START_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
+
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      - name: Locate and Process Release APK
+        id: find_apk
+        run: |
+          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          if [ -z "$APK_FILE" ]; then
+            APK_FILE=$(find app/build/outputs/apk -name "*release*.apk" | head -n 1)
+          fi
+          echo "Found APK at $APK_FILE"
+          FILE_SIZE=$(stat -c%s "$APK_FILE")
+          echo "APK File Size: $FILE_SIZE bytes"
+          cp "$APK_FILE" LyraMusic-release.apk
+          echo "apk_path=LyraMusic-release.apk" >> $GITHUB_OUTPUT
+          echo "apk_size=$FILE_SIZE" >> $GITHUB_OUTPUT
+
+      - name: Upload Release APK to Telegram (Topic 140)
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
+          TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
+          NOTES="${{ github.event.inputs.release_notes || 'Official Production Release' }}"
+          CAPTION="🚀 <b>Lyra Music - Official Release APK</b>%0A%0A🔖 <b>Version:</b> <code>$TAG</code>%0A🌿 <b>Commit:</b> <code>$SHORT_SHA</code>%0A📅 <b>Date:</b> $BUILD_DATE%0A📝 <i>$NOTES</i>%0A%0A✨ <i>Download and install to get the latest features!</i>"
+          
+          echo "Uploading Release APK to Topic 140..."
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+            -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -F "message_thread_id=${{ secrets.TOPIC_RELEASE_APK }}" \
+            -F "document=@LyraMusic-release.apk" \
+            -F "caption=$CAPTION" \
+            -F "parse_mode=HTML"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
+          name: Lyra Music ${{ github.event.inputs.release_tag || github.ref_name }}
+          draft: false
+          prerelease: false
+          files: LyraMusic-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Notify Success (Topic 135)
+        if: success()
+        run: |
+          SUCCESS_MSG="🎉 <b>Release Build Complete!</b>%0A%0A🚀 <b>Release APK published to Topic 140</b>%0A🏷️ <b>Version:</b> <code>${{ github.event.inputs.release_tag || github.ref_name }}</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View Release Run</a>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$SUCCESS_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
+
+      - name: Notify Failure (Topic 135)
+        if: failure()
+        run: |
+          FAIL_MSG="❌ <b>Release Build Failed!</b>%0A%0A🌿 <b>Ref:</b> <code>${{ github.ref_name }}</code>%0A🔗 <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Check Error Logs</a>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$FAIL_MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true

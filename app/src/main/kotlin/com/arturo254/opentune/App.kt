@@ -32,6 +32,7 @@ import com.arturo254.opentune.utils.dataStore
 import com.arturo254.opentune.utils.PreferenceStore
 import com.arturo254.opentune.utils.get
 import com.arturo254.opentune.utils.reportException
+import com.arturo254.opentune.utils.TelegramCrashReporter
 import com.arturo254.opentune.innertube.YouTube
 import com.arturo254.opentune.innertube.models.YouTubeLocale
 import com.arturo254.opentune.kugou.KuGou
@@ -193,6 +194,10 @@ class App : Application(), SingletonImageLoader.Factory {
                     val pw = PrintWriter(sw)
                     throwable.printStackTrace(pw)
                     val stack = sw.toString()
+
+                    try {
+                        TelegramCrashReporter.sendCrashReport(this@App, stack)
+                    } catch (_: Throwable) {}
 
                     val intent = Intent(this@App, DebugActivity::class.java).apply {
                         putExtra(DebugActivity.EXTRA_STACK_TRACE, stack)

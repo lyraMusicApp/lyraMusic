@@ -466,8 +466,6 @@ enum class PlayerDesignStyle {
     V6,
     V7,
     V8,
-    V9,
-    V10,
 }
 
 enum class MiniPlayerBackgroundStyle {

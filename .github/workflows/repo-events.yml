@@ -1,0 +1,32 @@
+﻿name: Lyra - Community & Repo Events
+
+on:
+  watch:
+    types: [started]
+  fork:
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Star Alert (Topic 135)
+        if: github.event_name == 'watch'
+        run: |
+          MSG="⭐ <b>New Star on Lyra Music!</b>%0A%0A👤 <b>User:</b> <a href=\"${{ github.event.sender.html_url }}\">@${{ github.event.sender.login }}</a>%0A🌟 <b>Total Stars:</b> <b>${{ github.event.repository.stargazers_count }}</b>%0A🔗 <a href=\"${{ github.event.repository.html_url }}\">View Repository</a>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
+
+      - name: Send Fork Alert (Topic 135)
+        if: github.event_name == 'fork'
+        run: |
+          MSG="🍴 <b>New Fork of Lyra Music!</b>%0A%0A👤 <b>Forked by:</b> <a href=\"${{ github.event.sender.html_url }}\">@${{ github.event.sender.login }}</a>%0A🔱 <b>Fork Repo:</b> <a href=\"${{ github.event.forkee.html_url }}\">${{ github.event.forkee.full_name }}</a>%0A📈 <b>Total Forks:</b> <b>${{ github.event.repository.forks_count }}</b>"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "message_thread_id=${{ secrets.TOPIC_GITHUB_LOGS }}" \
+            -d "text=$MSG" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" || true
