@@ -1,18 +1,12 @@
-﻿name: Lyra CI - Debug Build
+﻿name: Lyra CI - Nightly Build
 
 on:
-  push:
-    branches:
-      - lyra
-      - master
-    paths-ignore:
-      - '*.md'
-      - 'assets/**'
-      - '.gitignore'
+  schedule:
+    - cron: '0 0 * * *' # Every midnight
   workflow_dispatch:
 
 concurrency:
-  group: debug-build-${{ github.ref }}
+  group: nightly-build-run
   cancel-in-progress: true
 
 permissions:
@@ -22,7 +16,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify Build Started (Topic 135)
+      - name: Notify Nightly Build Started (Topic 135)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -30,7 +24,6 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           ACTOR: ${{ github.actor }}
           SHA: ${{ github.sha }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           python3 -c '
           import os, json, urllib.request, html
@@ -38,10 +31,9 @@ jobs:
           chat = os.environ.get("TELEGRAM_CHAT_ID")
           topic = os.environ.get("TOPIC_ID")
           ref = html.escape(os.environ.get("REF_NAME", "lyra"))
-          actor = html.escape(os.environ.get("ACTOR", "author"))
+          actor = html.escape(os.environ.get("ACTOR", "cron"))
           sha = os.environ.get("SHA", "")[:7]
-          msg = html.escape(os.environ.get("COMMIT_MSG", "Update").strip())
-          text = f"🔨 <b>Lyra Music Debug Build Started</b>\n🌿 <b>Branch:</b> <code>{ref}</code>\n👤 <b>Author:</b> <a href=\"https://github.com/{actor}\">@{actor}</a>\n🔖 <b>Commit:</b> <code>{sha}</code>\n📝 <i>{msg}</i>\n\n⏳ <i>Building debug APK...</i>"
+          text = f"🌙 <b>Lyra Music Nightly Build Started</b>\n🌿 <b>Branch:</b> <code>{ref}</code>\n👤 <b>Triggered by:</b> @{actor}\n🔖 <b>Commit:</b> <code>{sha}</code>\n\n⏳ <i>Compiling nightly APK...</i>"
           payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
@@ -65,10 +57,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Build Debug APK
+      - name: Build Nightly APK
         run: ./gradlew assembleDebug
 
-      - name: Locate and Process Debug APK
+      - name: Locate and Process Nightly APK
         id: find_apk
         run: |
           APK_FILE=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
@@ -78,27 +70,26 @@ jobs:
           echo "Found APK at $APK_FILE"
           FILE_SIZE=$(stat -c%s "$APK_FILE")
           echo "APK File Size: $FILE_SIZE bytes"
-          cp "$APK_FILE" lyra-debug-universal.apk
-          echo "apk_path=lyra-debug-universal.apk" >> $GITHUB_OUTPUT
+          cp "$APK_FILE" lyra-nightly-universal.apk
+          echo "apk_path=lyra-nightly-universal.apk" >> $GITHUB_OUTPUT
           echo "apk_size=$FILE_SIZE" >> $GITHUB_OUTPUT
 
-      - name: Publish to GitHub Release (Nightly)
-        id: create_release
+      - name: Publish to GitHub Release (Nightly Tag)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly
-          name: Lyra Music Debug (Nightly)
+          name: Lyra Music Nightly Build
           prerelease: true
-          files: lyra-debug-universal.apk
+          files: lyra-nightly-universal.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: Upload Debug APK to Telegram (Topic 146)
+      - name: Upload Nightly APK to Telegram (Topic 154)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TOPIC_ID: ${{ secrets.TOPIC_DEBUG_APK }}
+          TOPIC_ID: ${{ secrets.TOPIC_NIGHTLY_APK }}
           SHA: ${{ github.sha }}
           REF_NAME: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
@@ -107,18 +98,18 @@ jobs:
           import os, json, urllib.request, requests
           bot = os.environ.get("TELEGRAM_BOT_TOKEN")
           chat = os.environ.get("TELEGRAM_CHAT_ID")
-          topic = os.environ.get("TOPIC_ID")
+          topic = os.environ.get("TOPIC_ID", "154")
           sha = os.environ.get("SHA", "")[:7]
           ref = os.environ.get("REF_NAME", "lyra")
           repo = os.environ.get("REPO", "lyraMusicApp/lyraMusic")
           
-          apk_path = "lyra-debug-universal.apk"
+          apk_path = "lyra-nightly-universal.apk"
           size_bytes = os.path.getsize(apk_path)
           size_mb = round(size_bytes / (1024 * 1024), 2)
           
           changelog_url = f"https://github.com/{repo}/commits/{ref}"
           github_url = f"https://github.com/{repo}"
-          download_url = f"https://github.com/{repo}/releases/download/nightly/lyra-debug-universal.apk"
+          download_url = f"https://github.com/{repo}/releases/download/nightly/lyra-nightly-universal.apk"
           
           reply_markup = {
               "inline_keyboard": [
@@ -127,14 +118,14 @@ jobs:
                       {"text": "🔗 View on GitHub", "url": github_url}
                   ],
                   [
-                      {"text": "⬇️ Download APK (Direct Link)", "url": download_url}
+                      {"text": "⬇️ Download Nightly APK (Direct)", "url": download_url}
                   ]
               ]
           }
           
           # If file exceeds Telegram limit (50MB) -> Send formatted warning matching Image 3
           if size_mb > 49.5:
-              text = f"<b>Lyra Music | Bot</b>  <code>admin</code>\n🛠️ <b>Lyra Music Debug Build</b>\n\n⚠️ <b>Notice:</b> APK size ({size_mb} MB) exceeds Telegram'\''s 50 MB Bot API upload limit.\nPlease download the APK directly using the buttons below:"
+              text = f"<b>Lyra Music | Bot</b>  <code>admin</code>\n🛠️ <b>Lyra Music Nightly Build</b>\n\n⚠️ <b>Notice:</b> APK size ({size_mb} MB) exceeds Telegram'\''s 50 MB Bot API upload limit.\nPlease download the APK directly using the buttons below:"
               data = json.dumps({
                   "chat_id": int(chat),
                   "message_thread_id": int(topic),
@@ -144,10 +135,10 @@ jobs:
               }).encode("utf-8")
               req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=data, headers={"Content-Type": "application/json"})
               urllib.request.urlopen(req)
-              print("Sent size limit notice with inline buttons to Topic 146")
+              print("Sent size notice with buttons to Topic 154")
           else:
-              # Upload direct document with caption and inline buttons
-              caption = f"🛠️ <b>Lyra Music Debug APK</b>\n\n🔖 <b>Commit:</b> <code>{sha}</code>\n🌿 <b>Branch:</b> <code>{ref}</code>\n📦 <b>Size:</b> {size_mb} MB"
+              # Upload document with inline buttons
+              caption = f"🌙 <b>Lyra Music Nightly APK</b>\n\n🔖 <b>Commit:</b> <code>{sha}</code>\n🌿 <b>Branch:</b> <code>{ref}</code>\n📦 <b>Size:</b> {size_mb} MB"
               with open(apk_path, "rb") as f:
                   res = requests.post(
                       f"https://api.telegram.org/bot{bot}/sendDocument",
@@ -158,9 +149,9 @@ jobs:
                           "parse_mode": "HTML",
                           "reply_markup": json.dumps(reply_markup)
                       },
-                      files={"document": (f"LyraMusic-debug-{sha}.apk", f)}
+                      files={"document": (f"LyraMusic-nightly-{sha}.apk", f)}
                   )
-                  print("Uploaded document to Topic 146:", res.status_code)
+                  print("Uploaded nightly document to Topic 154:", res.status_code)
           '
 
       - name: Notify Success (Topic 135)
@@ -183,38 +174,7 @@ jobs:
           run_id = os.environ.get("RUN_ID", "")
           server = os.environ.get("SERVER_URL", "https://github.com")
           repo = os.environ.get("REPO", "")
-          text = f"✅ <b>Debug Build Succeeded!</b>\n\n📦 <b>APK delivered to Topic 146</b>\n🔖 <b>Commit:</b> <code>{sha}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">View Workflow Run</a>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
-          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
-          try:
-              urllib.request.urlopen(req, timeout=10)
-          except Exception as e:
-              print("Notify error:", e)
-          ' || true
-
-      - name: Notify Failure (Topic 135)
-        if: failure()
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
-          REF_NAME: ${{ github.ref_name }}
-          SHA: ${{ github.sha }}
-          RUN_ID: ${{ github.run_id }}
-          SERVER_URL: ${{ github.server_url }}
-          REPO: ${{ github.repository }}
-        run: |
-          python3 -c '
-          import os, json, urllib.request, html
-          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
-          chat = os.environ.get("TELEGRAM_CHAT_ID")
-          topic = os.environ.get("TOPIC_ID")
-          ref = html.escape(os.environ.get("REF_NAME", ""))
-          sha = os.environ.get("SHA", "")[:7]
-          run_id = os.environ.get("RUN_ID", "")
-          server = os.environ.get("SERVER_URL", "https://github.com")
-          repo = os.environ.get("REPO", "")
-          text = f"❌ <b>Debug Build Failed!</b>\n\n🌿 <b>Branch:</b> <code>{ref}</code>\n🔖 <b>Commit:</b> <code>{sha}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">Check Error Logs</a>"
+          text = f"🎉 <b>Nightly Build Succeeded!</b>\n\n🌙 <b>APK delivered to Topic 154</b>\n🔖 <b>Commit:</b> <code>{sha}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">View Workflow Run</a>"
           payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
