@@ -161,6 +161,7 @@ jobs:
               ]
           }
           
+          msg_id = None
           if size_mb > 49.5:
               text = f"<b>Lyra Music | Bot</b>  <code>admin</code>\n🚀 <b>Lyra Music Official Release</b>\n\n⚠️ <b>Notice:</b> APK size ({size_mb} MB) exceeds Telegram'\''s 50 MB upload limit.\nPlease download directly using the button below:"
               data = json.dumps({
@@ -168,10 +169,13 @@ jobs:
                   "message_thread_id": int(topic),
                   "text": text,
                   "parse_mode": "HTML",
+                  "link_preview_options": {"is_disabled": True},
                   "reply_markup": reply_markup
               }).encode("utf-8")
               req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=data, headers={"Content-Type": "application/json"})
-              urllib.request.urlopen(req)
+              with urllib.request.urlopen(req) as resp:
+                  res_data = json.loads(resp.read().decode("utf-8"))
+                  msg_id = res_data.get("result", {}).get("message_id")
           else:
               caption = f"🚀 <b>Lyra Music - Official Release APK</b>\n\n🏷️ <b>Version:</b> <code>{tag}</code>\n🔖 <b>Commit:</b> <code>{sha}</code>\n📦 <b>Size:</b> {size_mb} MB\n📝 <i>{notes}</i>\n\n✨ <i>Download and install to get the latest features!</i>"
               with open(apk_path, "rb") as f:
@@ -187,6 +191,27 @@ jobs:
                       files={"document": (f"LyraMusic-{tag}.apk", f)}
                   )
                   print("Uploaded release document:", res.status_code)
+                  try:
+                      res_data = res.json()
+                      msg_id = res_data.get("result", {}).get("message_id")
+                  except Exception:
+                      pass
+
+          # Auto-pin the Release APK post in Topic 140
+          if msg_id:
+              try:
+                  pin_res = requests.post(
+                      f"https://api.telegram.org/bot{bot}/pinChatMessage",
+                      json={
+                          "chat_id": int(chat),
+                          "message_id": int(msg_id),
+                          "disable_notification": True
+                      },
+                      timeout=10
+                  )
+                  print("Auto-pinned APK post in Topic 140:", pin_res.status_code, pin_res.text)
+              except Exception as e:
+                  print("Auto-pin error:", e)
           '
 
       - name: Publish GitHub Release

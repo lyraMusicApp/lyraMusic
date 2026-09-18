@@ -180,6 +180,7 @@ jobs:
               ]
           }
           
+          msg_id = None
           # If file exceeds Telegram limit (50MB) -> Send formatted warning matching Image 3
           if size_mb > 49.5:
               text = f"<b>Lyra Music | Bot</b>  <code>admin</code>\n🛠️ <b>Lyra Music Debug Build</b>\n\n⚠️ <b>Notice:</b> APK size ({size_mb} MB) exceeds Telegram'\''s 50 MB Bot API upload limit.\nPlease download the APK directly using the buttons below:"
@@ -188,11 +189,14 @@ jobs:
                   "message_thread_id": int(topic),
                   "text": text,
                   "parse_mode": "HTML",
+                  "link_preview_options": {"is_disabled": True},
                   "reply_markup": reply_markup
               }).encode("utf-8")
               req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=data, headers={"Content-Type": "application/json"})
-              urllib.request.urlopen(req)
-              print("Sent size limit notice with inline buttons to Topic 146")
+              with urllib.request.urlopen(req) as resp:
+                  res_data = json.loads(resp.read().decode("utf-8"))
+                  msg_id = res_data.get("result", {}).get("message_id")
+              print("Sent size limit notice with inline buttons to Topic 146, msg_id:", msg_id)
           else:
               # Upload direct document with caption and inline buttons
               caption = f"🛠️ <b>Lyra Music Debug APK</b>\n\n🔖 <b>Commit:</b> <code>{sha}</code>\n🌿 <b>Branch:</b> <code>{ref}</code>\n📦 <b>Size:</b> {size_mb} MB"
@@ -209,6 +213,27 @@ jobs:
                       files={"document": (f"LyraMusic-debug-{sha}.apk", f)}
                   )
                   print("Uploaded document to Topic 146:", res.status_code)
+                  try:
+                      res_data = res.json()
+                      msg_id = res_data.get("result", {}).get("message_id")
+                  except Exception:
+                      pass
+
+          # Auto-pin the APK post in Topic 146
+          if msg_id:
+              try:
+                  pin_res = requests.post(
+                      f"https://api.telegram.org/bot{bot}/pinChatMessage",
+                      json={
+                          "chat_id": int(chat),
+                          "message_id": int(msg_id),
+                          "disable_notification": True
+                      },
+                      timeout=10
+                  )
+                  print("Auto-pinned APK post in Topic 146:", pin_res.status_code, pin_res.text)
+              except Exception as e:
+                  print("Auto-pin error:", e)
           '
 
       - name: Notify Success (Topic 135)
