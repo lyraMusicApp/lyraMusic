@@ -1,4 +1,4 @@
-﻿name: Lyra CI - Release Build
+name: Lyra CI - Release Build
 
 on:
   workflow_dispatch:
@@ -26,6 +26,9 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
       - name: Notify Release Started (Topic 135)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -33,25 +36,58 @@ jobs:
           TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
           REF_NAME: ${{ github.ref_name }}
           ACTOR: ${{ github.actor }}
+          VERSION: ${{ github.event.inputs.release_tag || github.ref_name }}
+          NOTES: ${{ github.event.inputs.release_notes || 'Official Production Release' }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
         run: |
           python3 -c '
           import os, json, urllib.request, html
+
           bot = os.environ.get("TELEGRAM_BOT_TOKEN")
           chat = os.environ.get("TELEGRAM_CHAT_ID")
           topic = os.environ.get("TOPIC_ID")
           ref = html.escape(os.environ.get("REF_NAME", ""))
           actor = html.escape(os.environ.get("ACTOR", ""))
-          text = f"🚀 <b>Lyra Music Release Build Started</b>\n🌿 <b>Ref:</b> <code>{ref}</code>\n👤 <b>Triggered by:</b> <a href=\"https://github.com/{actor}\">@{actor}</a>\n⏳ <i>Building official signed release APK...</i>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          version = html.escape(os.environ.get("VERSION", "v3.1.0"))
+          notes = html.escape(os.environ.get("NOTES", "Official Production Release"))
+          repo = os.environ.get("REPO", "lyraMusicApp/lyraMusic")
+          run_id = os.environ.get("RUN_ID", "")
+
+          text = (
+              "🚀 <b>Lyra Music Release Build Started</b>\n"
+              f"🌿 <b>Ref:</b> <code>{ref}</code>\n"
+              f"👤 <b>Triggered by:</b> <a href=\"https://github.com/{actor}\">@{actor}</a>\n"
+              f"🏷️ <b>Version:</b> <code>{version}</code>\n\n"
+              "📝 <b>Release Info:</b>\n"
+              f"<pre><code class=\"language-python\">version = \"{version}\"\nrelease_notes = \"{notes}\"</code></pre>\n\n"
+              "⏳ <i>Building official signed release APK...</i>"
+          )
+
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🐙 GitHub Repo", "url": f"https://github.com/{repo}"},
+                      {"text": "⏳ Live Status", "url": f"https://github.com/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+
+          payload = json.dumps({
+              "chat_id": int(chat),
+              "message_thread_id": int(topic),
+              "text": text,
+              "parse_mode": "HTML",
+              "disable_web_page_preview": True,
+              "reply_markup": reply_markup
+          }).encode("utf-8")
+
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
           except Exception as e:
               print("Notify error:", e)
           ' || true
-
-      - name: Checkout Repository
-        uses: actions/checkout@v5
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
@@ -83,20 +119,74 @@ jobs:
           echo "apk_size=$FILE_SIZE" >> $GITHUB_OUTPUT
 
       - name: Upload Release APK to Telegram (Topic 140)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_RELEASE_APK }}
+          SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.inputs.release_tag || github.ref_name }}
+          NOTES: ${{ github.event.inputs.release_notes || 'Official Production Release' }}
         run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          BUILD_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
-          TAG="${{ github.event.inputs.release_tag || github.ref_name }}"
-          NOTES="${{ github.event.inputs.release_notes || 'Official Production Release' }}"
-          CAPTION="🚀 <b>Lyra Music - Official Release APK</b>%0A%0A🔖 <b>Version:</b> <code>$TAG</code>%0A🌿 <b>Commit:</b> <code>$SHORT_SHA</code>%0A📅 <b>Date:</b> $BUILD_DATE%0A📝 <i>$NOTES</i>%0A%0A✨ <i>Download and install to get the latest features!</i>"
+          python3 -c '
+          import os, json, urllib.request, requests
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID", "140")
+          sha = os.environ.get("SHA", "")[:7]
+          ref = os.environ.get("REF_NAME", "")
+          repo = os.environ.get("REPO", "lyraMusicApp/lyraMusic")
+          tag = os.environ.get("TAG", "latest")
+          notes = os.environ.get("NOTES", "Official Production Release")
           
-          echo "Uploading Release APK to Topic 140..."
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
-            -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -F "message_thread_id=${{ secrets.TOPIC_RELEASE_APK }}" \
-            -F "document=@LyraMusic-release.apk" \
-            -F "caption=$CAPTION" \
-            -F "parse_mode=HTML"
+          apk_path = "LyraMusic-release.apk"
+          size_bytes = os.path.getsize(apk_path)
+          size_mb = round(size_bytes / (1024 * 1024), 2)
+          
+          changelog_url = f"https://github.com/{repo}/releases/tag/{tag}"
+          github_url = f"https://github.com/{repo}"
+          download_url = f"https://github.com/{repo}/releases/download/{tag}/LyraMusic-release.apk"
+          
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "📖 View Release Notes", "url": changelog_url},
+                      {"text": "🔗 View on GitHub", "url": github_url}
+                  ],
+                  [
+                      {"text": "⬇️ Download Release APK", "url": download_url}
+                  ]
+              ]
+          }
+          
+          if size_mb > 49.5:
+              text = f"<b>Lyra Music | Bot</b>  <code>admin</code>\n🚀 <b>Lyra Music Official Release</b>\n\n⚠️ <b>Notice:</b> APK size ({size_mb} MB) exceeds Telegram'\''s 50 MB upload limit.\nPlease download directly using the button below:"
+              data = json.dumps({
+                  "chat_id": int(chat),
+                  "message_thread_id": int(topic),
+                  "text": text,
+                  "parse_mode": "HTML",
+                  "reply_markup": reply_markup
+              }).encode("utf-8")
+              req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=data, headers={"Content-Type": "application/json"})
+              urllib.request.urlopen(req)
+          else:
+              caption = f"🚀 <b>Lyra Music - Official Release APK</b>\n\n🏷️ <b>Version:</b> <code>{tag}</code>\n🔖 <b>Commit:</b> <code>{sha}</code>\n📦 <b>Size:</b> {size_mb} MB\n📝 <i>{notes}</i>\n\n✨ <i>Download and install to get the latest features!</i>"
+              with open(apk_path, "rb") as f:
+                  res = requests.post(
+                      f"https://api.telegram.org/bot{bot}/sendDocument",
+                      data={
+                          "chat_id": chat,
+                          "message_thread_id": topic,
+                          "caption": caption,
+                          "parse_mode": "HTML",
+                          "reply_markup": json.dumps(reply_markup)
+                      },
+                      files={"document": (f"LyraMusic-{tag}.apk", f)}
+                  )
+                  print("Uploaded release document:", res.status_code)
+          '
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -130,8 +220,15 @@ jobs:
           run_id = os.environ.get("RUN_ID", "")
           server = os.environ.get("SERVER_URL", "https://github.com")
           repo = os.environ.get("REPO", "")
-          text = f"🎉 <b>Release Build Complete!</b>\n\n🚀 <b>Release APK published to Topic 140</b>\n🏷️ <b>Version:</b> <code>{version}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">View Release Run</a>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          text = f"🎉 <b>Release Build Complete!</b>\n\n🚀 <b>Release APK published to Topic 140</b>\n🏷️ <b>Version:</b> <code>{version}</code>"
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🔍 View Release Run", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
@@ -159,8 +256,15 @@ jobs:
           run_id = os.environ.get("RUN_ID", "")
           server = os.environ.get("SERVER_URL", "https://github.com")
           repo = os.environ.get("REPO", "")
-          text = f"❌ <b>Release Build Failed!</b>\n\n🌿 <b>Ref:</b> <code>{ref}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">Check Error Logs</a>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          text = f"❌ <b>Release Build Failed!</b>\n\n🌿 <b>Ref:</b> <code>{ref}</code>"
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)

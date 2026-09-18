@@ -1,4 +1,4 @@
-﻿name: Lyra - Community & Repo Events
+name: Lyra - Community & Repo Events
 
 on:
   watch:
@@ -31,8 +31,16 @@ jobs:
           repo_name = html.escape(os.environ.get("REPO_NAME", ""))
           repo_url = os.environ.get("REPO_URL", "")
           stars = os.environ.get("STARS_COUNT", "0")
-          text = f"⭐ <b>New Star on {repo_name}!</b>\n\n👤 <b>User:</b> <a href=\"{sender_url}\">@{sender}</a>\n🌟 <b>Total Stars:</b> <b>{stars}</b>\n🔗 <a href=\"{repo_url}\">View Repository</a>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          text = f"⭐ <b>New Star on {repo_name}!</b>\n\n👤 <b>User:</b> <a href=\"{sender_url}\">@{sender}</a>\n🌟 <b>Total Stars:</b> <b>{stars}</b>"
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": f"🌟 View @{sender}", "url": sender_url},
+                      {"text": "🐙 View Repo", "url": repo_url}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
@@ -63,7 +71,15 @@ jobs:
           fork_url = os.environ.get("FORK_URL", "")
           forks = os.environ.get("FORKS_COUNT", "0")
           text = f"🍴 <b>New Fork of Lyra Music!</b>\n\n👤 <b>Forked by:</b> <a href=\"{sender_url}\">@{sender}</a>\n🔱 <b>Fork Repo:</b> <a href=\"{fork_url}\">{fork_name}</a>\n📈 <b>Total Forks:</b> <b>{forks}</b>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": f"👤 View @{sender}", "url": sender_url},
+                      {"text": "🔱 View Fork", "url": fork_url}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)

@@ -1,4 +1,4 @@
-﻿name: Lyra CI - Nightly Build
+name: Lyra CI - Nightly Build
 
 on:
   schedule:
@@ -16,6 +16,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
       - name: Notify Nightly Build Started (Topic 135)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -24,26 +27,71 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           ACTOR: ${{ github.actor }}
           SHA: ${{ github.sha }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
         run: |
           python3 -c '
-          import os, json, urllib.request, html
+          import os, json, urllib.request, html, subprocess
+
           bot = os.environ.get("TELEGRAM_BOT_TOKEN")
           chat = os.environ.get("TELEGRAM_CHAT_ID")
           topic = os.environ.get("TOPIC_ID")
           ref = html.escape(os.environ.get("REF_NAME", "lyra"))
           actor = html.escape(os.environ.get("ACTOR", "cron"))
           sha = os.environ.get("SHA", "")[:7]
-          text = f"🌙 <b>Lyra Music Nightly Build Started</b>\n🌿 <b>Branch:</b> <code>{ref}</code>\n👤 <b>Triggered by:</b> @{actor}\n🔖 <b>Commit:</b> <code>{sha}</code>\n\n⏳ <i>Compiling nightly APK...</i>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          repo = os.environ.get("REPO", "lyraMusicApp/lyraMusic")
+          run_id = os.environ.get("RUN_ID", "")
+
+          # Retrieve commit message reliably
+          msg = os.environ.get("COMMIT_MSG", "").strip()
+          if not msg:
+              try:
+                  msg = subprocess.check_output(["git", "log", "-1", "--pretty=%s"]).decode("utf-8").strip()
+              except Exception:
+                  msg = "Nightly build from latest commits"
+          if not msg:
+              msg = f"Nightly build for {ref}"
+
+          if len(msg) > 120:
+              msg = msg[:117] + "..."
+
+          msg_escaped = html.escape(msg)
+
+          text = (
+              "🌙 <b>Lyra Music Nightly Build Started</b>\n"
+              f"🌿 <b>Branch:</b> <code>{ref}</code>\n"
+              f"👤 <b>Triggered by:</b> @{actor}\n"
+              f"📌 <b>Commit:</b> <code>{sha}</code>\n\n"
+              "📝 <b>Commit Details:</b>\n"
+              f"<pre><code class=\"language-python\">commit_message = \"{msg_escaped}\"\nbuild_type = \"Nightly APK\"</code></pre>\n\n"
+              "⏳ <i>Compiling nightly APK...</i>"
+          )
+
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🔗 View Commit", "url": f"https://github.com/{repo}/commit/{os.environ.get('SHA', '')}"},
+                      {"text": "⏳ Live Status", "url": f"https://github.com/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+
+          payload = json.dumps({
+              "chat_id": int(chat),
+              "message_thread_id": int(topic),
+              "text": text,
+              "parse_mode": "HTML",
+              "disable_web_page_preview": True,
+              "reply_markup": reply_markup
+          }).encode("utf-8")
+
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
           except Exception as e:
               print("Notify error:", e)
           ' || true
-
-      - name: Checkout Repository
-        uses: actions/checkout@v5
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
@@ -174,8 +222,53 @@ jobs:
           run_id = os.environ.get("RUN_ID", "")
           server = os.environ.get("SERVER_URL", "https://github.com")
           repo = os.environ.get("REPO", "")
-          text = f"🎉 <b>Nightly Build Succeeded!</b>\n\n🌙 <b>APK delivered to Topic 154</b>\n🔖 <b>Commit:</b> <code>{sha}</code>\n🔗 <a href=\"{server}/{repo}/actions/runs/{run_id}\">View Workflow Run</a>"
-          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}).encode("utf-8")
+          text = f"🎉 <b>Nightly Build Succeeded!</b>\n\n🌙 <b>APK delivered to Topic 154</b>\n🔖 <b>Commit:</b> <code>{sha}</code>"
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🔍 View Workflow Run", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
+          req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
+          try:
+              urllib.request.urlopen(req, timeout=10)
+          except Exception as e:
+              print("Notify error:", e)
+          ' || true
+
+      - name: Notify Failure (Topic 135)
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_GITHUB_LOGS }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 -c '
+          import os, json, urllib.request, html
+          bot = os.environ.get("TELEGRAM_BOT_TOKEN")
+          chat = os.environ.get("TELEGRAM_CHAT_ID")
+          topic = os.environ.get("TOPIC_ID")
+          ref = html.escape(os.environ.get("REF_NAME", ""))
+          sha = os.environ.get("SHA", "")[:7]
+          run_id = os.environ.get("RUN_ID", "")
+          server = os.environ.get("SERVER_URL", "https://github.com")
+          repo = os.environ.get("REPO", "")
+          text = f"❌ <b>Nightly Build Failed!</b>\n\n🌿 <b>Branch:</b> <code>{ref}</code>\n🔖 <b>Commit:</b> <code>{sha}</code>"
+          reply_markup = {
+              "inline_keyboard": [
+                  [
+                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                  ]
+              ]
+          }
+          payload = json.dumps({"chat_id": int(chat), "message_thread_id": int(topic), "text": text, "parse_mode": "HTML", "disable_web_page_preview": True, "reply_markup": reply_markup}).encode("utf-8")
           req = urllib.request.Request(f"https://api.telegram.org/bot{bot}/sendMessage", data=payload, headers={"Content-Type": "application/json"})
           try:
               urllib.request.urlopen(req, timeout=10)
