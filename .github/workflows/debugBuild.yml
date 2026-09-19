@@ -78,8 +78,8 @@ jobs:
           reply_markup = {
               "inline_keyboard": [
                   [
-                      {"text": "🔗 View Commit", "url": f"https://github.com/{repo}/commit/{os.environ.get('SHA', '')}"},
-                      {"text": "⏳ Live Status", "url": f"https://github.com/{repo}/actions/runs/{run_id}"}
+                      {"text": "🔗 View Commit", "url": f"https://github.com/{repo}/commit/{os.environ.get('SHA', '')}", "style": "primary"},
+                      {"text": "⏳ Live Status", "url": f"https://github.com/{repo}/actions/runs/{run_id}", "style": "primary"}
                   ]
               ]
           }
@@ -176,7 +176,7 @@ jobs:
           }
           if size_mb > 49.5:
               reply_markup["inline_keyboard"].append(
-                  [{"text": "⬇️ Download APK (Direct Link) ↗", "url": download_url, "style": "primary"}]
+                  [{"text": "⬇️ Download APK (Direct Link) ↗", "url": download_url, "style": "success"}]
               )
           
           msg_id = None
@@ -259,7 +259,7 @@ jobs:
           reply_markup = {
               "inline_keyboard": [
                   [
-                      {"text": "🔍 View Workflow Run", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                      {"text": "🔍 View Workflow Run", "url": f"{server}/{repo}/actions/runs/{run_id}", "style": "success"}
                   ]
               ]
           }
@@ -297,7 +297,7 @@ jobs:
           reply_markup = {
               "inline_keyboard": [
                   [
-                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}", "style": "danger"}
                   ]
               ]
           }

@@ -157,7 +157,7 @@ jobs:
           }
           if size_mb > 49.5:
               reply_markup["inline_keyboard"].append(
-                  [{"text": "⬇️ Download Release APK ↗", "url": download_url, "style": "primary"}]
+                  [{"text": "⬇️ Download Release APK ↗", "url": download_url, "style": "success"}]
               )
           
           msg_id = None
@@ -249,7 +249,7 @@ jobs:
           reply_markup = {
               "inline_keyboard": [
                   [
-                      {"text": "🔍 View Release Run", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                      {"text": "🔍 View Release Run", "url": f"{server}/{repo}/actions/runs/{run_id}", "style": "success"}
                   ]
               ]
           }
@@ -285,7 +285,7 @@ jobs:
           reply_markup = {
               "inline_keyboard": [
                   [
-                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}"}
+                      {"text": "🚨 Check Error Logs", "url": f"{server}/{repo}/actions/runs/{run_id}", "style": "danger"}
                   ]
               ]
           }
