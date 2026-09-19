@@ -170,15 +170,14 @@ jobs:
           
           reply_markup = {
               "inline_keyboard": [
-                  [
-                      {"text": "📖 View Full Changelog", "url": changelog_url},
-                      {"text": "🔗 View on GitHub", "url": github_url}
-                  ],
-                  [
-                      {"text": "⬇️ Download APK (Direct Link)", "url": download_url}
-                  ]
+                  [{"text": "📖 View Full Changelog ↗", "url": changelog_url, "style": "primary"}],
+                  [{"text": "🔗 View on GitHub ↗", "url": github_url, "style": "primary"}]
               ]
           }
+          if size_mb > 49.5:
+              reply_markup["inline_keyboard"].append(
+                  [{"text": "⬇️ Download APK (Direct Link) ↗", "url": download_url, "style": "primary"}]
+              )
           
           msg_id = None
           # If file exceeds Telegram limit (50MB) -> Send formatted warning matching Image 3
