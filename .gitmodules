@@ -1,0 +1,6 @@
+[submodule "IconPack"]
+	path = IconPack
+	url = https://github.com/shnwazdeveloper/IconPack.git
+[submodule "lyrics"]
+	path = lyrics
+	url = https://github.com/shnwazdeveloper/lyrics.git
