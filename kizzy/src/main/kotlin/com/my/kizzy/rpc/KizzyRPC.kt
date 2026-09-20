@@ -1,6 +1,6 @@
 /*
- * OpenTune Project Original (2026)
- * Arturo254 (github.com/Arturo254)
+ * Lyra Music Project (2026)
+ * Shnwaz (github.com/shnwazdeveloper)
  * Licensed Under GPL-3.0 | see git history for contributors
  */
 
@@ -25,7 +25,7 @@ import org.json.JSONObject
 import java.util.logging.Logger
 
 /**
- * Modified by Arturo254
+ * Modified by Shnwaz
  */
 open class KizzyRPC(private val token: String, private val injectedLogger: KizzyLogger? = null) {
     private val kizzyRepository = KizzyRepository()

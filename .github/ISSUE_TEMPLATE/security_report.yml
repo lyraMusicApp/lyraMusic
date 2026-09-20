@@ -39,7 +39,7 @@ body:
     attributes:
       label: Affected Classes / Endpoints
       description: Which source files, classes, methods, or network endpoints are affected?
-      placeholder: "e.g., com.arturo254.opentune.utils.YTPlayerUtils, /youtubei/v1/player"
+      placeholder: "e.g., com.shnwaz.lyramusic.utils.YTPlayerUtils, /youtubei/v1/player"
     validations:
       required: true
   - type: textarea

@@ -6,9 +6,9 @@
         android:shortcutId="search"
         android:shortcutShortLabel="@string/search">
         <intent
-            android:action="com.arturo254.opentune.action.SEARCH"
-            android:targetClass="com.arturo254.opentune.MainActivity"
-            android:targetPackage="com.arturo254.opentune" />
+            android:action="com.shnwaz.lyramusic.action.SEARCH"
+            android:targetClass="com.shnwaz.lyramusic.MainActivity"
+            android:targetPackage="com.shnwaz.lyramusic" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -16,8 +16,8 @@
         android:shortcutId="library"
         android:shortcutShortLabel="@string/filter_library">
         <intent
-            android:action="com.arturo254.opentune.action.LIBRARY"
-            android:targetClass="com.arturo254.opentune.MainActivity"
-            android:targetPackage="com.arturo254.opentune" />
+            android:action="com.shnwaz.lyramusic.action.LIBRARY"
+            android:targetClass="com.shnwaz.lyramusic.MainActivity"
+            android:targetPackage="com.shnwaz.lyramusic" />
     </shortcut>
 </shortcuts>

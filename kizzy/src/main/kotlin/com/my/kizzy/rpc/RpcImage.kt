@@ -15,7 +15,7 @@ package com.my.kizzy.rpc
 import com.my.kizzy.repository.KizzyRepository
 
 /**
- * Modified by Arturo254
+ * Modified by Shnwaz
  */
 sealed class RpcImage {
     abstract suspend fun resolveImage(repository: KizzyRepository): String?

@@ -1,0 +1,393 @@
+/*
+ * Lyra Music Project (2026)
+ * Shnwaz (github.com/shnwazdeveloper)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ */
+
+
+
+package com.shnwaz.lyramusic.ui.screens.settings
+
+import com.shnwaz.lyramusic.constants.EnableBetterLyricsPortatoKey
+import com.shnwaz.lyramusic.constants.EnableMegalobizLyricsKey
+import com.shnwaz.lyramusic.constants.EnablePaxsenixAppleMusicLyricsKey
+import com.shnwaz.lyramusic.constants.EnablePaxsenixNeteaseLyricsKey
+import com.shnwaz.lyramusic.constants.EnablePaxsenixSpotifyLyricsKey
+import com.shnwaz.lyramusic.constants.EnablePaxsenixMusixmatchLyricsKey
+import com.shnwaz.lyramusic.constants.EnablePaxsenixYouTubeLyricsKey
+
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import com.shnwaz.lyramusic.innertube.YouTube
+import com.shnwaz.lyramusic.LocalPlayerAwareWindowInsets
+import com.shnwaz.lyramusic.R
+import com.shnwaz.lyramusic.constants.*
+import com.shnwaz.lyramusic.ui.component.*
+import com.shnwaz.lyramusic.ui.utils.backToMain
+import com.shnwaz.lyramusic.utils.rememberEnumPreference
+import com.shnwaz.lyramusic.utils.rememberPreference
+import com.shnwaz.lyramusic.utils.setAppLocale
+import java.net.Proxy
+import java.util.Locale
+import androidx.core.net.toUri
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ContentSettings(
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    val context = LocalContext.current
+
+    // Used only before Android 13
+    val (appLanguage, onAppLanguageChange) = rememberPreference(key = AppLanguageKey, defaultValue = SYSTEM_DEFAULT)
+
+    val (contentLanguage, onContentLanguageChange) = rememberPreference(key = ContentLanguageKey, defaultValue = "system")
+    val (contentCountry, onContentCountryChange) = rememberPreference(key = ContentCountryKey, defaultValue = "system")
+    val (hideExplicit, onHideExplicitChange) = rememberPreference(key = HideExplicitKey, defaultValue = false)
+    val (hideVideo, onHideVideoChange) = rememberPreference(key = HideVideoKey, defaultValue = false)
+    val (proxyEnabled, onProxyEnabledChange) = rememberPreference(key = ProxyEnabledKey, defaultValue = false)
+    val (proxyType, onProxyTypeChange) = rememberEnumPreference(key = ProxyTypeKey, defaultValue = Proxy.Type.HTTP)
+    val (proxyUrl, onProxyUrlChange) = rememberPreference(key = ProxyUrlKey, defaultValue = "host:port")
+    val (streamBypassProxy, onStreamBypassProxyChange) = rememberPreference(key = StreamBypassProxyKey, defaultValue = false)
+    val (enableKugou, onEnableKugouChange) = rememberPreference(key = EnableKugouKey, defaultValue = true)
+    val (enableLrclib, onEnableLrclibChange) = rememberPreference(key = EnableLrcLibKey, defaultValue = true)
+    val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
+    val (enableSimpMusicLyrics, onEnableSimpMusicLyricsChange) =
+        rememberPreference(key = EnableSimpMusicLyricsKey, defaultValue = true)
+    val (enableBetterLyricsPortato, onEnableBetterLyricsPortatoChange) =
+        rememberPreference(key = EnableBetterLyricsPortatoKey, defaultValue = true)
+    val (enableMegalobizLyrics, onEnableMegalobizLyricsChange) =
+        rememberPreference(key = EnableMegalobizLyricsKey, defaultValue = true)
+    val (enablePaxsenixAppleMusic, onEnablePaxsenixAppleMusicChange) =
+        rememberPreference(key = EnablePaxsenixAppleMusicLyricsKey, defaultValue = true)
+    val (enablePaxsenixSpotify, onEnablePaxsenixSpotifyChange) =
+        rememberPreference(key = EnablePaxsenixSpotifyLyricsKey, defaultValue = true)
+    val (enablePaxsenixNetease, onEnablePaxsenixNeteaseChange) =
+        rememberPreference(key = EnablePaxsenixNeteaseLyricsKey, defaultValue = true)
+    val (enablePaxsenixMusixmatch, onEnablePaxsenixMusixmatchChange) =
+        rememberPreference(key = EnablePaxsenixMusixmatchLyricsKey, defaultValue = true)
+    val (enablePaxsenixYouTube, onEnablePaxsenixYouTubeChange) =
+        rememberPreference(key = EnablePaxsenixYouTubeLyricsKey, defaultValue = true)
+    val (preferredProvider, onPreferredProviderChange) =
+        rememberEnumPreference(
+            key = PreferredLyricsProviderKey,
+            defaultValue = PreferredLyricsProvider.LRCLIB,
+        )
+    val (lyricsRomanizeJapanese, onLyricsRomanizeJapaneseChange) = rememberPreference(LyricsRomanizeJapaneseKey, defaultValue = true)
+    val (lyricsRomanizeKorean, onLyricsRomanizeKoreanChange) = rememberPreference(LyricsRomanizeKoreanKey, defaultValue = true)
+    val (preloadQueueLyricsEnabled, onPreloadQueueLyricsEnabledChange) = rememberPreference(PreloadQueueLyricsEnabledKey, defaultValue = true)
+    val (queueLyricsPreloadCount, onQueueLyricsPreloadCountChange) = rememberPreference(QueueLyricsPreloadCountKey, defaultValue = 1)
+    val (lengthTop, onLengthTopChange) = rememberPreference(key = TopSize, defaultValue = "50")
+    val (quickPicks, onQuickPicksChange) = rememberEnumPreference(key = QuickPicksKey, defaultValue = QuickPicks.QUICK_PICKS)
+
+    Column(
+        Modifier
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
+            .verticalScroll(rememberScrollState()),
+    ) {
+        PreferenceGroupTitle(title = stringResource(R.string.general))
+        ListPreference(
+            title = { Text(stringResource(R.string.content_language)) },
+            icon = { Icon(painterResource(R.drawable.language), null) },
+            selectedValue = contentLanguage,
+            values = listOf(SYSTEM_DEFAULT) + LanguageCodeToName.keys.toList(),
+            valueText = {
+                LanguageCodeToName.getOrElse(it) { stringResource(R.string.system_default) }
+            },
+            onValueSelected = { newValue ->
+                val locale = Locale.getDefault()
+                val languageTag = locale.toLanguageTag().replace("-Hant", "")
+ 
+                YouTube.locale = YouTube.locale.copy(
+                    hl = newValue.takeIf { it != SYSTEM_DEFAULT }
+                        ?: locale.language.takeIf { it in LanguageCodeToName }
+                        ?: languageTag.takeIf { it in LanguageCodeToName }
+                        ?: "en"
+                )
+ 
+                onContentLanguageChange(newValue)
+            }
+        )
+        ListPreference(
+            title = { Text(stringResource(R.string.content_country)) },
+            icon = { Icon(painterResource(R.drawable.location_on), null) },
+            selectedValue = contentCountry,
+            values = listOf(SYSTEM_DEFAULT) + CountryCodeToName.keys.toList(),
+            valueText = {
+                CountryCodeToName.getOrElse(it) { stringResource(R.string.system_default) }
+            },
+            onValueSelected = { newValue ->
+                val locale = Locale.getDefault()
+ 
+                YouTube.locale = YouTube.locale.copy(
+                    gl = newValue.takeIf { it != SYSTEM_DEFAULT }
+                        ?: locale.country.takeIf { it in CountryCodeToName }
+                        ?: "US"
+                )
+ 
+                onContentCountryChange(newValue)
+           }
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.hide_explicit)) },
+            icon = { Icon(painterResource(R.drawable.explicit), null) },
+            checked = hideExplicit,
+            onCheckedChange = onHideExplicitChange,
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.hide_video)) },
+            icon = { Icon(painterResource(R.drawable.slow_motion_video), null) },
+            checked = hideVideo,
+            onCheckedChange = onHideVideoChange,
+        )
+
+        PreferenceGroupTitle(title = stringResource(R.string.app_language))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PreferenceEntry(
+                title = { Text(stringResource(R.string.app_language)) },
+                icon = { Icon(painterResource(R.drawable.language), null) },
+                onClick = {
+                    context.startActivity(
+                        Intent(
+                            Settings.ACTION_APP_LOCALE_SETTINGS,
+                            "package:${context.packageName}".toUri()
+                        )
+                    )
+                }
+            )
+        }
+        // Support for Android versions before Android 13
+        else {
+            ListPreference(
+                title = { Text(stringResource(R.string.app_language)) },
+                icon = { Icon(painterResource(R.drawable.language), null) },
+                selectedValue = appLanguage,
+                values = listOf(SYSTEM_DEFAULT) + LanguageCodeToName.keys.toList(),
+                valueText = {
+                    LanguageCodeToName.getOrElse(it) { stringResource(R.string.system_default) }
+                },
+                onValueSelected = { langTag ->
+                    val newLocale = langTag
+                        .takeUnless { it == SYSTEM_DEFAULT }
+                        ?.let { Locale.forLanguageTag(it) }
+                        ?: Locale.getDefault()
+
+                    onAppLanguageChange(langTag)
+                    setAppLocale(context, newLocale)
+
+                }
+            )
+        }
+
+        PreferenceGroupTitle(title = stringResource(R.string.proxy))
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_proxy)) },
+            icon = { Icon(painterResource(R.drawable.wifi_proxy), null) },
+            checked = proxyEnabled,
+            onCheckedChange = onProxyEnabledChange,
+        )
+        if (proxyEnabled) {
+            Column {
+                ListPreference(
+                    title = { Text(stringResource(R.string.proxy_type)) },
+                    selectedValue = proxyType,
+                    values = listOf(Proxy.Type.HTTP, Proxy.Type.SOCKS),
+                    valueText = { it.name },
+                    onValueSelected = onProxyTypeChange,
+                )
+                EditTextPreference(
+                    title = { Text(stringResource(R.string.proxy_url)) },
+                    value = proxyUrl,
+                    onValueChange = onProxyUrlChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.stream_bypass_proxy)) },
+                    description = stringResource(R.string.stream_bypass_proxy_desc),
+                    icon = { Icon(painterResource(R.drawable.wifi_proxy), null) },
+                    checked = streamBypassProxy,
+                    onCheckedChange = {
+                        onStreamBypassProxyChange(it)
+                        YouTube.streamBypassProxy = it
+                    },
+                )
+            }
+        }
+
+        PreferenceGroupTitle(title = stringResource(R.string.lyrics))
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_lrclib)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableLrclib,
+            onCheckedChange = onEnableLrclibChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_kugou)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableKugou,
+            onCheckedChange = onEnableKugouChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_betterlyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableBetterLyrics,
+            onCheckedChange = onEnableBetterLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableSimpMusicLyrics,
+            onCheckedChange = onEnableSimpMusicLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text("BetterLyrics (Portato / QQ)") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableBetterLyricsPortato,
+            onCheckedChange = onEnableBetterLyricsPortatoChange,
+        )
+        SwitchPreference(
+            title = { Text("Megalobiz") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableMegalobizLyrics,
+            onCheckedChange = onEnableMegalobizLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Apple Music") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixAppleMusic,
+            onCheckedChange = onEnablePaxsenixAppleMusicChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Spotify") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixSpotify,
+            onCheckedChange = onEnablePaxsenixSpotifyChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: NetEase") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixNetease,
+            onCheckedChange = onEnablePaxsenixNeteaseChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: Musixmatch") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixMusixmatch,
+            onCheckedChange = onEnablePaxsenixMusixmatchChange,
+        )
+        SwitchPreference(
+            title = { Text("Paxsenix: YouTube") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enablePaxsenixYouTube,
+            onCheckedChange = onEnablePaxsenixYouTubeChange,
+        )
+        ListPreference(
+            title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            selectedValue = preferredProvider,
+            values = PreferredLyricsProvider.entries,
+            valueText = {
+                when (it) {
+                    PreferredLyricsProvider.BETTER_LYRICS -> "BetterLyrics"
+                    PreferredLyricsProvider.BETTER_LYRICS_PORTATO -> "BetterLyrics (Portato)"
+                    PreferredLyricsProvider.LRCLIB -> "LrcLib"
+                    PreferredLyricsProvider.KUGOU -> "KuGou"
+                    PreferredLyricsProvider.MEGALOBIZ -> "Megalobiz"
+                    PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
+                    PreferredLyricsProvider.PAXSENIX_APPLE_MUSIC -> "Paxsenix: Apple Music"
+                    PreferredLyricsProvider.PAXSENIX_NETEASE -> "Paxsenix: NetEase"
+                    PreferredLyricsProvider.PAXSENIX_SPOTIFY -> "Paxsenix: Spotify"
+                    PreferredLyricsProvider.PAXSENIX_MUSIXMATCH -> "Paxsenix: Musixmatch"
+                    PreferredLyricsProvider.PAXSENIX_YOUTUBE -> "Paxsenix: YouTube"
+                }
+            },
+            onValueSelected = onPreferredProviderChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeJapanese,
+            onCheckedChange = onLyricsRomanizeJapaneseChange,
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeKorean,
+            onCheckedChange = onLyricsRomanizeKoreanChange,
+        )
+        // Queue lyrics pre-load settings
+        SwitchPreference(
+            title = { Text(stringResource(R.string.preload_queue_lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = preloadQueueLyricsEnabled,
+            onCheckedChange = onPreloadQueueLyricsEnabledChange,
+        )
+        if (preloadQueueLyricsEnabled) {
+            NumberPickerPreference(
+                title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
+                icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                value = queueLyricsPreloadCount,
+                onValueChange = onQueueLyricsPreloadCountChange,
+                minValue = 0,
+                maxValue = 10,
+                valueText = { if (it == 0) "Off" else it.toString() },
+            )
+        }
+
+        PreferenceGroupTitle(title = stringResource(R.string.misc))
+        EditTextPreference(
+            title = { Text(stringResource(R.string.top_length)) },
+            icon = { Icon(painterResource(R.drawable.trending_up), null) },
+            value = lengthTop,
+            isInputValid = { it.toIntOrNull()?.let { num -> num > 0 } == true },
+            onValueChange = onLengthTopChange,
+        )
+        ListPreference(
+            title = { Text(stringResource(R.string.set_quick_picks)) },
+            icon = { Icon(painterResource(R.drawable.home_outlined), null) },
+            selectedValue = quickPicks,
+            values = listOf(QuickPicks.QUICK_PICKS, QuickPicks.LAST_LISTEN),
+            valueText = {
+                when (it) {
+                    QuickPicks.QUICK_PICKS -> stringResource(R.string.quick_picks)
+                    QuickPicks.LAST_LISTEN -> stringResource(R.string.last_song_listened)
+                }
+            },
+            onValueSelected = onQuickPicksChange,
+        )
+    }
+
+    TopAppBar(
+        title = { Text(stringResource(R.string.content)) },
+        navigationIcon = {
+            IconButton(
+                onClick = navController::navigateUp,
+                onLongClick = navController::backToMain,
+            ) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    contentDescription = null,
+                )
+            }
+        }
+    )
+}

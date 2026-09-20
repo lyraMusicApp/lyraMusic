@@ -1,6 +1,6 @@
 /*
- * OpenTune Project Original (2026)
- * Arturo254 (github.com/Arturo254)
+ * Lyra Music Project (2026)
+ * Shnwaz (github.com/shnwazdeveloper)
  * Licensed Under GPL-3.0 | see git history for contributors
  */
 
@@ -53,7 +53,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Modified by Arturo254
+ * Modified by Shnwaz
  */
 open class DiscordWebSocket(
     private val token: String,

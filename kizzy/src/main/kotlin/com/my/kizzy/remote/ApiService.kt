@@ -22,7 +22,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 /**
- * Modified by Arturo254
+ * Modified by Shnwaz
  */
 class ApiService {
     private val client = HttpClient {

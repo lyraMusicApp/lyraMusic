@@ -34,7 +34,7 @@
         android:label="@string/app_name"
         android:usesCleartextTraffic="true"
         android:supportsRtl="false"
-        android:theme="@style/Theme.OpenTune"
+        android:theme="@style/Theme.LyraMusic"
         tools:targetApi="tiramisu">
         <uses-library
             android:name="org.apache.http.legacy"
@@ -44,7 +44,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.OpenTune"
+            android:theme="@style/Theme.LyraMusic"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,6 +62,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data
+                    android:host="together"
+                    android:scheme="lyramusic" />
                 <data
                     android:host="together"
                     android:scheme="opentune" />
@@ -189,13 +192,13 @@
             android:name=".DebugActivity"
             android:exported="true"
             android:process=":crash"
-            android:theme="@style/Theme.OpenTune">
+            android:theme="@style/Theme.LyraMusic">
         </activity>
 
         <activity
             android:name=".ui.screens.settings.PoTokenExtractionActivity"
             android:exported="false"
-            android:theme="@style/Theme.OpenTune" />
+            android:theme="@style/Theme.LyraMusic" />
     </application>
 
 </manifest>

@@ -16,7 +16,7 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.arturo254.opentune"
+    namespace = "com.shnwaz.lyramusic"
     compileSdk = 36
 
     defaultConfig {
