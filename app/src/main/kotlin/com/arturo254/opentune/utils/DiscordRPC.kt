@@ -30,7 +30,7 @@ class DiscordRPC(
         private const val PAUSE_IMAGE_URL =
             "https://raw.githubusercontent.com/koiverse/ArchiveTune/main/fastlane/metadata/android/en-US/images/RPC/pause_icon.png"
         private const val APP_ICON_URL = 
-            "https://raw.githubusercontent.com/Arturo254/OpenTune/refs/heads/master/assets/icon.png"
+            "https://raw.githubusercontent.com/shnwazdeveloper/lyra-music/master/fastlane/metadata/android/en-US/images/icon.png"
         private const val logtag = "DiscordRPC"
     }
 
@@ -182,13 +182,13 @@ class DiscordRPC(
 
         val button1Label = context.dataStore[DiscordActivityButton1LabelKey] ?: "Listen on YouTube Music"
         val button1Enabled = context.dataStore[DiscordActivityButton1EnabledKey] ?: true
-        val button2Label = context.dataStore[DiscordActivityButton2LabelKey] ?: "Go to OpenTune"
+        val button2Label = context.dataStore[DiscordActivityButton2LabelKey] ?: "Go to Lyra Music"
         val button2Enabled = context.dataStore[DiscordActivityButton2EnabledKey] ?: true
 
         val button1UrlSource = context.dataStore[DiscordActivityButton1UrlSourceKey] ?: "songurl"
         val button1CustomUrl = context.dataStore[DiscordActivityButton1CustomUrlKey] ?: ""
         val button2UrlSource = context.dataStore[DiscordActivityButton2UrlSourceKey] ?: "custom"
-        val button2CustomUrl = context.dataStore[DiscordActivityButton2CustomUrlKey] ?: "https://github.com/Arturo254/OpenTune"
+        val button2CustomUrl = context.dataStore[DiscordActivityButton2CustomUrlKey] ?: "https://github.com/shnwazdeveloper/lyra-music"
 
         val resolvedButton1Url = resolveUrl(button1UrlSource, song, button1CustomUrl)
         val resolvedButton2Url = resolveUrl(button2UrlSource, song, button2CustomUrl)

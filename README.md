@@ -79,6 +79,6 @@ Lyra Music is an open-source client application that connects to publicly availa
 
 ### Credits & License
 
-* Based on [OpenTune](https://github.com/Arturo254/OpenTune) by Arturo254.
-* Enhancements inspired by [ArchiveTune](https://github.com/rukamori/ArchiveTune).
+* Developed and maintained by [shnwaz](https://github.com/shnwazdeveloper).
+* Based on OpenTune by Arturo254, with enhancements inspired by ArchiveTune.
 * Licensed under the [GNU General Public License v3.0](LICENSE).

@@ -47,7 +47,7 @@ class AboutViewModel : ViewModel() {
 
             val result = withContext(Dispatchers.IO) {
                 try {
-                    val url = URL("https://api.github.com/repos/Arturo254/OpenTune/contributors")
+                    val url = URL("https://api.github.com/repos/shnwazdeveloper/lyra-music/contributors")
                     val connection = url.openConnection() as HttpURLConnection
                     connection.requestMethod = "GET"
                     connection.connectTimeout = 5000
@@ -96,10 +96,10 @@ class AboutViewModel : ViewModel() {
     private fun getFallbackContributors(): List<Contributor> {
         return listOf(
             Contributor(
-                avatarUrl = "https://avatars.githubusercontent.com/u/87346871?v=4",
-                name = "亗 Arturo254",
+                avatarUrl = "https://github.com/shnwazdeveloper.png",
+                name = "亗 shnwaz",
                 role = "Lead Developer",
-                profileUrl = "https://github.com/Arturo254",
+                profileUrl = "https://github.com/shnwazdeveloper",
             ),
             Contributor(
                 avatarUrl = "https://avatars.githubusercontent.com/u/138934847?v=4",
