@@ -21,7 +21,7 @@ import com.arturo254.opentune.utils.getAsync
 
 object TogetherOnlineEndpoint {
     private const val EndpointSourceUrl =
-        "https://raw.githubusercontent.com/Arturo254/OpenTune/refs/heads/master/OpenTuneServer.txt"
+        "https://raw.githubusercontent.com/shnwaz/lyramusic/refs/heads/master/OpenTuneServer.txt"
 
     private const val CacheTtlMs: Long = 6 * 60 * 60 * 1000L
 

@@ -6,7 +6,7 @@ Thanks for helping improve Lyra Music.
 
 Open an issue at:
 
-https://github.com/shnwazdeveloper/lyra-music/issues
+https://github.com/shnwaz/lyramusic/issues
 
 Please include:
 
