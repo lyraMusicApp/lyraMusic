@@ -160,7 +160,7 @@ fun PaperPlayer(
 
             // Text
             Text(
-                text = mediaMetadata?.artists?.joinToString { it.name }.orEmpty().ifBlank { "AirBeats" },
+                text = mediaMetadata?.artists?.joinToString { it.name }.orEmpty().ifBlank { "Lyra Music" },
                 color = ink,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,

@@ -118,7 +118,7 @@ fun UpdateScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var nightlyInstallUrl by remember {
-        mutableStateOf("https://github.com/shnwaz/lyramusic/releases/download/nightly/app-universal.apk")
+        mutableStateOf("https://github.com/lyraMusicApp/lyraMusic/releases/download/nightly/LyraMusic.apk")
     }
 
     val (enableUpdateNotification, onEnableUpdateNotificationChange) = rememberPreference(
@@ -231,7 +231,7 @@ fun UpdateScreen(
                 }
             }
         } else {
-            nightlyInstallUrl = "https://github.com/shnwaz/lyramusic/releases/latest/download/Lyra-Music.apk"
+            nightlyInstallUrl = "https://github.com/lyraMusicApp/lyraMusic/releases/latest/download/LyraMusic.apk"
         }
     }
 

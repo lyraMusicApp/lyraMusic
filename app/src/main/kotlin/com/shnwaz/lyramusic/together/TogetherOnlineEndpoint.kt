@@ -21,7 +21,7 @@ import com.shnwaz.lyramusic.utils.getAsync
 
 object TogetherOnlineEndpoint {
     private const val EndpointSourceUrl =
-        "https://raw.githubusercontent.com/shnwaz/lyramusic/refs/heads/master/OpenTuneServer.txt"
+        "https://raw.githubusercontent.com/lyraMusicApp/lyraMusic/refs/heads/lyra/OpenTuneServer.txt"
 
     private const val CacheTtlMs: Long = 6 * 60 * 60 * 1000L
 

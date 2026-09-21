@@ -173,7 +173,7 @@ fun AboutScreen(
             item {
                 LicenseFooter(
                     onLicenseClick = {
-                        uriHandler.openUri("https://github.com/shnwaz/lyramusic/blob/master/LICENSE")
+                        uriHandler.openUri("https://github.com/lyraMusicApp/lyraMusic/blob/lyra/LICENSE")
                     }
                 )
             }

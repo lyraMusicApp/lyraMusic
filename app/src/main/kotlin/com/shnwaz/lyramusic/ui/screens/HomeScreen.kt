@@ -63,6 +63,9 @@ import com.shnwaz.lyramusic.ui.utils.SnapLayoutInfoProvider
 import com.shnwaz.lyramusic.utils.rememberPreference
 import com.shnwaz.lyramusic.models.toMediaMetadata
 import com.shnwaz.lyramusic.viewmodels.HomeViewModel
+import com.shnwaz.lyramusic.ui.utils.highQualityThumbnailUrlOrNull
+import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -97,7 +100,7 @@ fun HomeScreen(
     val accountName by viewModel.accountName.collectAsState()
     val accountImageUrl by viewModel.accountImageUrl.collectAsState()
     val innerTubeCookie by rememberPreference(InnerTubeCookieKey, "")
-    val (disableBlur) = rememberPreference(DisableBlurKey, true)
+    val (disableBlur) = rememberPreference(DisableBlurKey, false)
     val (showHomeCategoryChips) = rememberPreference(ShowHomeCategoryChipsKey, true)
     val isLoggedIn = remember(innerTubeCookie) {
         "SAPISID" in parseCookieString(innerTubeCookie)
@@ -154,6 +157,36 @@ fun HomeScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        // Keep the home screen fast while borrowing the current artwork for an AirBeats-style backdrop.
+        if (!disableBlur && mediaMetadata?.thumbnailUrl != null) {
+            AsyncImage(
+                model = mediaMetadata?.thumbnailUrl?.highQualityThumbnailUrlOrNull(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(-2f)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(-1.5f)
+                    .drawWithCache {
+                        val height = size.height
+                        val backdropOverlay = Brush.verticalGradient(
+                            colors = listOf(
+                                surfaceColor.copy(alpha = 0.18f),
+                                surfaceColor.copy(alpha = 0.72f),
+                                surfaceColor
+                            ),
+                            startY = 0f,
+                            endY = height
+                        )
+                        onDrawBehind { drawRect(backdropOverlay) }
+                    }
+            )
+        }
+
         // Glowing Ambient Mesh gradient background layer at the top
         Box(
             modifier = Modifier

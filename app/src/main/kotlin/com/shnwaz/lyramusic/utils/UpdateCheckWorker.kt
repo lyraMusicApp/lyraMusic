@@ -22,21 +22,6 @@ class UpdateCheckWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        return try {
-            val dataStore = applicationContext.dataStore
-
-            val isEnabled = dataStore.data.map { it[EnableUpdateNotificationKey] ?: true }.first()
-            if (!isEnabled) return Result.success()
-
-            Updater.getLatestVersionName(forceRefresh = true).onSuccess { latestVersion ->
-                if (!Updater.isSameVersion(latestVersion, BuildConfig.VERSION_NAME)) {
-                    UpdateNotificationManager.notifyIfNewVersion(applicationContext, latestVersion)
-                }
-            }
-
-            Result.success()
-        } catch (e: Exception) {
-            Result.retry()
-        }
+        return Result.success()
     }
 }

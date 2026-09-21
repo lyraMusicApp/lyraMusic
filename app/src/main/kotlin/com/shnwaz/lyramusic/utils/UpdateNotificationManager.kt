@@ -59,23 +59,9 @@ object UpdateNotificationManager {
     }
 
     fun schedulePeriodicUpdateCheck(context: Context) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .build()
-
-        val updateCheckRequest = PeriodicWorkRequestBuilder<UpdateCheckWorker>(
-            6, TimeUnit.HOURS,
-            30, TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            updateCheckRequest
-        )
+        // Automatic update notifications are intentionally disabled. Users can still
+        // check manually from Settings > Updates.
+        cancelPeriodicUpdateCheck(context)
     }
 
     fun cancelPeriodicUpdateCheck(context: Context) {
@@ -83,48 +69,11 @@ object UpdateNotificationManager {
     }
 
     fun checkForUpdates(context: Context, force: Boolean = false) {
-        scope.launch {
-            try {
-                val dataStore = context.dataStore
-
-                val isEnabled = dataStore.data.map { it[EnableUpdateNotificationKey] ?: true }.first()
-                if (!isEnabled) {
-                    cancelPeriodicUpdateCheck(context)
-                    return@launch
-                }
-
-                schedulePeriodicUpdateCheck(context)
-
-                val lastCheck = dataStore.data.map { it[LastUpdateCheckKey] ?: 0L }.first()
-                val now = System.currentTimeMillis()
-
-                if (!force && now - lastCheck < CHECK_INTERVAL_MS) return@launch
-
-                dataStore.edit { it[LastUpdateCheckKey] = now }
-
-                Updater.getLatestVersionName(forceRefresh = force).onSuccess { latestVersion ->
-                    if (!Updater.isSameVersion(latestVersion, BuildConfig.VERSION_NAME)) {
-                        notifyIfNewVersion(context, latestVersion)
-                    }
-                }
-            } catch (e: Exception) {
-                // Silently fail
-            }
-        }
+        cancelPeriodicUpdateCheck(context)
     }
 
     suspend fun notifyIfNewVersion(context: Context, latestVersion: String) {
-        try {
-            val dataStore = context.dataStore
-            val lastNotified = dataStore.data.map { it[LastNotifiedVersionKey] ?: "" }.first()
-
-            if (latestVersion != lastNotified && !Updater.isSameVersion(latestVersion, BuildConfig.VERSION_NAME)) {
-                showUpdateNotification(context, latestVersion)
-                dataStore.edit { it[LastNotifiedVersionKey] = latestVersion }
-            }
-        } catch (e: Exception) {
-            // Silently fail
-        }
+        // Deliberately empty: update discovery is manual and never pushed to users.
     }
 
     private fun showUpdateNotification(context: Context, newVersion: String) {

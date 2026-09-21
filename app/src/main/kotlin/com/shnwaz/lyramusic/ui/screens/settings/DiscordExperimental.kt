@@ -190,7 +190,7 @@ fun DiscordExperimental(
                     val (button2CustomUrl, onButton2CustomUrlChange) =
                         rememberPreference(
                             key = DiscordActivityButton2CustomUrlKey,
-                            defaultValue = "https://github.com/shnwaz/lyramusic"
+                            defaultValue = "https://github.com/lyraMusicApp/lyraMusic"
                         )
 
                     PreferenceEntry(

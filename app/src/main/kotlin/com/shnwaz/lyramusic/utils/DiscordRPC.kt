@@ -30,7 +30,7 @@ class DiscordRPC(
         private const val PAUSE_IMAGE_URL =
             "https://raw.githubusercontent.com/koiverse/ArchiveTune/main/fastlane/metadata/android/en-US/images/RPC/pause_icon.png"
         private const val APP_ICON_URL = 
-            "https://raw.githubusercontent.com/shnwaz/lyramusic/master/fastlane/metadata/android/en-US/images/icon.png"
+            "https://raw.githubusercontent.com/lyraMusicApp/lyraMusic/lyra/fastlane/metadata/android/en-US/images/icon.png"
         private const val logtag = "DiscordRPC"
     }
 
@@ -188,7 +188,7 @@ class DiscordRPC(
         val button1UrlSource = context.dataStore[DiscordActivityButton1UrlSourceKey] ?: "songurl"
         val button1CustomUrl = context.dataStore[DiscordActivityButton1CustomUrlKey] ?: ""
         val button2UrlSource = context.dataStore[DiscordActivityButton2UrlSourceKey] ?: "custom"
-        val button2CustomUrl = context.dataStore[DiscordActivityButton2CustomUrlKey] ?: "https://github.com/shnwaz/lyramusic"
+        val button2CustomUrl = context.dataStore[DiscordActivityButton2CustomUrlKey] ?: "https://github.com/lyraMusicApp/lyraMusic"
 
         val resolvedButton1Url = resolveUrl(button1UrlSource, song, button1CustomUrl)
         val resolvedButton2Url = resolveUrl(button2UrlSource, song, button2CustomUrl)

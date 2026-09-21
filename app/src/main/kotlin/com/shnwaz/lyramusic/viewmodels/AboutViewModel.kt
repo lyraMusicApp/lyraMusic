@@ -47,7 +47,7 @@ class AboutViewModel : ViewModel() {
 
             val result = withContext(Dispatchers.IO) {
                 try {
-                    val url = URL("https://api.github.com/repos/shnwaz/lyramusic/contributors")
+                    val url = URL("https://api.github.com/repos/lyraMusicApp/lyraMusic/contributors")
                     val connection = url.openConnection() as HttpURLConnection
                     connection.requestMethod = "GET"
                     connection.connectTimeout = 5000
