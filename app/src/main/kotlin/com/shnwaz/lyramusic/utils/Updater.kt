@@ -464,7 +464,7 @@ object Updater {
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    suspend fun getCommitHistory(count: Int = 20, branch: String = "master"): Result<List<GitCommit>> =
+    suspend fun getCommitHistory(count: Int = 20, branch: String = "lyra"): Result<List<GitCommit>> =
         runCatching {
             val response =
                 client.get("https://api.github.com/repos/$LYRA_REPOSITORY/commits?sha=$branch&per_page=$count") {
