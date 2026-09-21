@@ -119,6 +119,7 @@ fun FloatingNavigationToolbar(
                     showSelectedLabel = showSelectedLabels,
                     pureBlack = pureBlack,
                     liquidGlass = liquidGlass,
+                    style = style,
                     onClick = { onItemClick(screen, selected) },
                 )
             }
@@ -318,13 +319,14 @@ private fun FloatingNavigationToolbarItem(
     showSelectedLabel: Boolean,
     pureBlack: Boolean,
     liquidGlass: Boolean,
+    style: NavigationBarStyle,
     onClick: () -> Unit,
 ) {
     val shape = CircleShape
     val containerColor by animateColorAsState(
         targetValue =
             when {
-                selected -> MaterialTheme.colorScheme.primary
+                selected -> navigationBarSelectedColor(style)
                 else -> Color.Transparent
             },
         label = "tabContainer",
@@ -332,7 +334,7 @@ private fun FloatingNavigationToolbarItem(
     val contentColor by animateColorAsState(
         targetValue =
             when {
-                selected -> MaterialTheme.colorScheme.onPrimary
+                selected -> navigationBarSelectedContentColor(style)
                 else -> Color.White.copy(alpha = 0.82f)
             },
         label = "tabContent",
@@ -422,6 +424,27 @@ private fun navigationBarBorderColor(style: NavigationBarStyle): Color = when (s
     NavigationBarStyle.NEON -> Color(0xFFB16CFF).copy(alpha = 0.65f)
     NavigationBarStyle.NEW_CLASSIC -> Color.White.copy(alpha = 0.18f)
     NavigationBarStyle.MATERIAL -> Color.Transparent
+}
+
+@Composable
+private fun navigationBarSelectedColor(style: NavigationBarStyle): Color = when (style) {
+    NavigationBarStyle.LIQUID_GLASS -> Color.White.copy(alpha = 0.24f)
+    NavigationBarStyle.SPOTIFY -> Color(0xFF1DB954)
+    NavigationBarStyle.APPLE -> Color(0xFF4A4A58)
+    NavigationBarStyle.NEON -> Color(0xFF7C3AED)
+    NavigationBarStyle.NEW_CLASSIC -> Color(0xFF4F5D78)
+    NavigationBarStyle.MATERIAL -> MaterialTheme.colorScheme.primary
+}
+
+@Composable
+private fun navigationBarSelectedContentColor(style: NavigationBarStyle): Color = when (style) {
+    NavigationBarStyle.LIQUID_GLASS,
+    NavigationBarStyle.SPOTIFY,
+    NavigationBarStyle.NEON,
+    NavigationBarStyle.NEW_CLASSIC,
+    NavigationBarStyle.MATERIAL,
+    -> Color.White
+    NavigationBarStyle.APPLE -> Color.White
 }
 
 

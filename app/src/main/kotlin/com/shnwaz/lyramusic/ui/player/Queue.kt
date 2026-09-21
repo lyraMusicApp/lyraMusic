@@ -83,7 +83,9 @@ import com.shnwaz.lyramusic.LocalPlayerConnection
 import com.shnwaz.lyramusic.R
 import com.shnwaz.lyramusic.constants.ListItemHeight
 import com.shnwaz.lyramusic.constants.PlayerDesignStyle
-import com.shnwaz.lyramusic.constants.PlayerDesignStyleKey
+import com.shnwaz.lyramusic.constants.PlayerScreenStyle
+import com.shnwaz.lyramusic.constants.PlayerScreenStyleKey
+import com.shnwaz.lyramusic.constants.toPlayerDesignStyle
 import com.shnwaz.lyramusic.constants.QueueEditLockKey
 import com.shnwaz.lyramusic.constants.AutoLoadMoreKey
 import com.shnwaz.lyramusic.extensions.metadata
@@ -160,10 +162,11 @@ fun Queue(
                 (togetherSessionState as com.shnwaz.lyramusic.together.TogetherSessionState.Joined).role is com.shnwaz.lyramusic.together.TogetherRole.Guest
     val effectiveLocked = locked || togetherForcesLock
 
-    val playerDesignStyle by rememberEnumPreference(
-        key = PlayerDesignStyleKey,
-        defaultValue = PlayerDesignStyle.V4
+    val playerScreenStyle by rememberEnumPreference(
+        key = PlayerScreenStyleKey,
+        defaultValue = PlayerScreenStyle.IOS_STYLED,
     )
+    val playerDesignStyle = playerScreenStyle.toPlayerDesignStyle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var dismissJob: Job? by remember { mutableStateOf(null) }

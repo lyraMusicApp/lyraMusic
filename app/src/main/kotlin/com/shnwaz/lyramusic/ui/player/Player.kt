@@ -121,7 +121,9 @@ import com.shnwaz.lyramusic.LocalDownloadUtil
 import com.shnwaz.lyramusic.LocalPlayerConnection
 import com.shnwaz.lyramusic.constants.DarkModeKey
 import com.shnwaz.lyramusic.constants.PlayerDesignStyle
-import com.shnwaz.lyramusic.constants.PlayerDesignStyleKey
+import com.shnwaz.lyramusic.constants.PlayerScreenStyle
+import com.shnwaz.lyramusic.constants.PlayerScreenStyleKey
+import com.shnwaz.lyramusic.constants.toPlayerDesignStyle
 import com.shnwaz.lyramusic.constants.UseNewMiniPlayerDesignKey
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyle
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyleKey
@@ -184,10 +186,11 @@ fun BottomSheetPlayer(
 
     val playerConnection = LocalPlayerConnection.current ?: return
 
-    val playerDesignStyle by rememberEnumPreference(
-        key = PlayerDesignStyleKey,
-        defaultValue = PlayerDesignStyle.V4
+    val playerScreenStyle by rememberEnumPreference(
+        key = PlayerScreenStyleKey,
+        defaultValue = PlayerScreenStyle.IOS_STYLED,
     )
+    val playerDesignStyle = playerScreenStyle.toPlayerDesignStyle()
 
     val playerBackground by rememberEnumPreference(
         key = PlayerBackgroundStyleKey,

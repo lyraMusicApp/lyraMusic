@@ -65,8 +65,6 @@ import com.shnwaz.lyramusic.constants.LibraryFilter
 import com.shnwaz.lyramusic.constants.LyricsClickKey
 import com.shnwaz.lyramusic.constants.LyricsScrollKey
 import com.shnwaz.lyramusic.constants.LyricsTextPositionKey
-import com.shnwaz.lyramusic.constants.PlayerDesignStyle
-import com.shnwaz.lyramusic.constants.PlayerDesignStyleKey
 import com.shnwaz.lyramusic.constants.PlayerScreenStyle
 import com.shnwaz.lyramusic.constants.PlayerScreenStyleKey
 import com.shnwaz.lyramusic.constants.HomeScreenStyle
@@ -149,10 +147,6 @@ fun AppearanceSettings(
     val (navigationBarStyle, onNavigationBarStyleChange) = rememberEnumPreference(
         NavigationBarStyleKey,
         defaultValue = NavigationBarStyle.APPLE,
-    )
-    val (playerDesignStyle, onPlayerDesignStyleChange) = rememberEnumPreference(
-        PlayerDesignStyleKey,
-        defaultValue = PlayerDesignStyle.V4
     )
     val (miniPlayerBackgroundStyle, onMiniPlayerBackgroundStyleChange) = rememberEnumPreference(
         MiniPlayerBackgroundStyleKey,
@@ -463,10 +457,7 @@ fun AppearanceSettings(
             title = { Text(stringResource(R.string.player_screen_style)) },
             icon = { Icon(painterResource(R.drawable.palette), null) },
             selectedValue = playerScreenStyle,
-            onValueSelected = { style ->
-                onPlayerScreenStyleChange(style)
-                onPlayerDesignStyleChange(style.toPlayerDesignStyle())
-            },
+            onValueSelected = onPlayerScreenStyleChange,
             valueText = {
                 when (it) {
                     PlayerScreenStyle.MATERIAL -> "Material"

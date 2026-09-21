@@ -147,11 +147,57 @@ fun HomeScreen(
         forgottenFavoritesLazyGridState.scrollToItem(0)
     }
 
-    val color1 = MaterialTheme.colorScheme.primary
-    val color2 = MaterialTheme.colorScheme.secondary
-    val color3 = MaterialTheme.colorScheme.tertiary
-    val color4 = MaterialTheme.colorScheme.primaryContainer
-    val color5 = MaterialTheme.colorScheme.secondaryContainer
+    val homePalette = when (homeScreenStyle) {
+        HomeScreenStyle.CLASSIC,
+        HomeScreenStyle.MATERIAL,
+        -> listOf(
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.secondary,
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.secondaryContainer,
+        )
+        HomeScreenStyle.PLAYFUL -> listOf(
+            Color(0xFFFF5DB1),
+            Color(0xFFFF9A62),
+            Color(0xFFB16CFF),
+            Color(0xFFFFD3E8),
+            Color(0xFFFFE2D3),
+        )
+        HomeScreenStyle.NEON -> listOf(
+            Color(0xFF9B5CFF),
+            Color(0xFF25D9FF),
+            Color(0xFFFF4FD8),
+            Color(0xFF3B1D68),
+            Color(0xFF163D57),
+        )
+        HomeScreenStyle.SPOTIFY -> listOf(
+            Color(0xFF1DB954),
+            Color(0xFF80D66B),
+            Color(0xFFB8E986),
+            Color(0xFF164B2A),
+            Color(0xFF214C31),
+        )
+        HomeScreenStyle.APPLE -> listOf(
+            Color(0xFF8E8E93),
+            Color(0xFF5E5CE6),
+            Color(0xFF0A84FF),
+            Color(0xFF30303A),
+            Color(0xFF34343E),
+        )
+        HomeScreenStyle.NEW_CLASSIC -> listOf(
+            Color(0xFFE38B62),
+            Color(0xFFCA6B8E),
+            Color(0xFF6D7BC7),
+            Color(0xFF573A3A),
+            Color(0xFF453C5F),
+        )
+    }
+    val color1 = homePalette[0]
+    val color2 = homePalette[1]
+    val color3 = homePalette[2]
+    val color4 = homePalette[3]
+    val color5 = homePalette[4]
     val surfaceColor = MaterialTheme.colorScheme.surface
 
     Box(
