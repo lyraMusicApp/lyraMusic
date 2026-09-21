@@ -1236,7 +1236,7 @@ class MainActivity : ComponentActivity() {
                                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                                             // app icon
                                                             Icon(
-                                                                painter = painterResource(R.drawable.opentune),
+                                                                painter = painterResource(R.drawable.app_logo),
                                                                 contentDescription = null,
                                                                 modifier = Modifier
                                                                     .size(35.dp)

@@ -208,7 +208,7 @@ private fun HeroCard(shimmerBrush: Brush) {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Image(
-                        painter = painterResource(R.drawable.opentune_monochrome),
+                        painter = painterResource(R.drawable.app_logo_monochrome),
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(
                             MaterialTheme.colorScheme.onPrimaryContainer,

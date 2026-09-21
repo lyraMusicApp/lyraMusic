@@ -388,7 +388,7 @@ private fun MiniPlayerArtwork(
                 )
             } else {
                 Image(
-                    painter = painterResource(R.drawable.opentune),
+                    painter = painterResource(R.drawable.app_logo),
                     contentDescription = null,
                     modifier = Modifier.size(22.dp)
                 )
