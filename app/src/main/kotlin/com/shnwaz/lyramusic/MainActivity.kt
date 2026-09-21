@@ -170,6 +170,8 @@ import com.shnwaz.lyramusic.constants.MiniPlayerBottomSpacing
 import com.shnwaz.lyramusic.constants.MiniPlayerHeight
 import com.shnwaz.lyramusic.constants.MiniPlayerLastAnchorKey
 import com.shnwaz.lyramusic.constants.NavigationBarAnimationSpec
+import com.shnwaz.lyramusic.constants.NavigationBarStyle
+import com.shnwaz.lyramusic.constants.NavigationBarStyleKey
 import com.shnwaz.lyramusic.constants.PauseSearchHistoryKey
 import com.shnwaz.lyramusic.constants.PureBlackKey
 import com.shnwaz.lyramusic.constants.RemindAfterKey
@@ -703,6 +705,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     val (slimNav) = rememberPreference(SlimNavBarKey, defaultValue = false)
+                    val (navigationBarStyle) = rememberEnumPreference(
+                        NavigationBarStyleKey,
+                        NavigationBarStyle.APPLE,
+                    )
                     val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                     val (savedMiniPlayerAnchor, setSavedMiniPlayerAnchor) = rememberPreference(
                         MiniPlayerLastAnchorKey,
@@ -1494,6 +1500,7 @@ class MainActivity : ComponentActivity() {
                                                 items = navigationItems,
                                                 pureBlack = pureBlack,
                                                 liquidGlass = liquidGlassNavBar,
+                                                style = navigationBarStyle,
                                                 modifier = Modifier
                                                     .align(Alignment.BottomCenter)
                                                     .padding(

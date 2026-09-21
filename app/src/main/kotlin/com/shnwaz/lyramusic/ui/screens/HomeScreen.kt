@@ -11,6 +11,8 @@ package com.shnwaz.lyramusic.ui.screens
 import com.shnwaz.lyramusic.constants.QuickPicksDisplayMode
 import com.shnwaz.lyramusic.utils.rememberEnumPreference
 import com.shnwaz.lyramusic.constants.QuickPicksDisplayModeKey
+import com.shnwaz.lyramusic.constants.HomeScreenStyle
+import com.shnwaz.lyramusic.constants.HomeScreenStyleKey
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -99,6 +101,7 @@ fun HomeScreen(
     val innerTubeCookie by rememberPreference(InnerTubeCookieKey, "")
     val (disableBlur) = rememberPreference(DisableBlurKey, true)
     val (showHomeCategoryChips) = rememberPreference(ShowHomeCategoryChipsKey, true)
+    val (homeScreenStyle) = rememberEnumPreference(HomeScreenStyleKey, HomeScreenStyle.CLASSIC)
     val isLoggedIn = remember(innerTubeCookie) {
         "SAPISID" in parseCookieString(innerTubeCookie)
     }
@@ -246,7 +249,8 @@ fun HomeScreen(
                     HomeModernHeader(
                         accountName = accountName,
                         accountImageUrl = url,
-                        navController = navController
+                        navController = navController,
+                        homeScreenStyle = homeScreenStyle,
                     )
                 }
 

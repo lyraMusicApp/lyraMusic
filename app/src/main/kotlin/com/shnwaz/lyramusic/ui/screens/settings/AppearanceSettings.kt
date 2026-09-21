@@ -67,6 +67,13 @@ import com.shnwaz.lyramusic.constants.LyricsScrollKey
 import com.shnwaz.lyramusic.constants.LyricsTextPositionKey
 import com.shnwaz.lyramusic.constants.PlayerDesignStyle
 import com.shnwaz.lyramusic.constants.PlayerDesignStyleKey
+import com.shnwaz.lyramusic.constants.PlayerScreenStyle
+import com.shnwaz.lyramusic.constants.PlayerScreenStyleKey
+import com.shnwaz.lyramusic.constants.HomeScreenStyle
+import com.shnwaz.lyramusic.constants.HomeScreenStyleKey
+import com.shnwaz.lyramusic.constants.NavigationBarStyle
+import com.shnwaz.lyramusic.constants.NavigationBarStyleKey
+import com.shnwaz.lyramusic.constants.toPlayerDesignStyle
 import com.shnwaz.lyramusic.constants.UseNewMiniPlayerDesignKey
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyle
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyleKey
@@ -130,6 +137,18 @@ fun AppearanceSettings(
     val (darkMode, onDarkModeChange) = rememberEnumPreference(
         DarkModeKey,
         defaultValue = DarkMode.AUTO
+    )
+    val (playerScreenStyle, onPlayerScreenStyleChange) = rememberEnumPreference(
+        PlayerScreenStyleKey,
+        defaultValue = PlayerScreenStyle.IOS_STYLED,
+    )
+    val (homeScreenStyle, onHomeScreenStyleChange) = rememberEnumPreference(
+        HomeScreenStyleKey,
+        defaultValue = HomeScreenStyle.CLASSIC,
+    )
+    val (navigationBarStyle, onNavigationBarStyleChange) = rememberEnumPreference(
+        NavigationBarStyleKey,
+        defaultValue = NavigationBarStyle.APPLE,
     )
     val (playerDesignStyle, onPlayerDesignStyleChange) = rememberEnumPreference(
         PlayerDesignStyleKey,
@@ -401,25 +420,71 @@ fun AppearanceSettings(
             onCheckedChange = onUseSystemFontChange,
         )
 
+        EnumListPreference(
+            title = { Text(stringResource(R.string.home_screen_style)) },
+            icon = { Icon(painterResource(R.drawable.home_outlined), null) },
+            selectedValue = homeScreenStyle,
+            onValueSelected = onHomeScreenStyleChange,
+            valueText = {
+                when (it) {
+                    HomeScreenStyle.CLASSIC -> "Classic"
+                    HomeScreenStyle.PLAYFUL -> "Playful"
+                    HomeScreenStyle.NEON -> "Neon"
+                    HomeScreenStyle.SPOTIFY -> "Spotify"
+                    HomeScreenStyle.APPLE -> "Apple"
+                    HomeScreenStyle.NEW_CLASSIC -> "New Classic"
+                    HomeScreenStyle.MATERIAL -> "Material"
+                }
+            },
+        )
+
+        EnumListPreference(
+            title = { Text(stringResource(R.string.navigation_bar_style)) },
+            icon = { Icon(painterResource(R.drawable.nav_bar), null) },
+            selectedValue = navigationBarStyle,
+            onValueSelected = onNavigationBarStyleChange,
+            valueText = {
+                when (it) {
+                    NavigationBarStyle.LIQUID_GLASS -> "Liquid Glass"
+                    NavigationBarStyle.SPOTIFY -> "Spotify"
+                    NavigationBarStyle.APPLE -> "Apple"
+                    NavigationBarStyle.NEON -> "Neon"
+                    NavigationBarStyle.NEW_CLASSIC -> "New Classic"
+                    NavigationBarStyle.MATERIAL -> "Material"
+                }
+            },
+        )
+
         PreferenceGroupTitle(
             title = stringResource(R.string.player),
         )
 
         EnumListPreference(
-            title = { Text(stringResource(R.string.player_design_style)) },
+            title = { Text(stringResource(R.string.player_screen_style)) },
             icon = { Icon(painterResource(R.drawable.palette), null) },
-            selectedValue = playerDesignStyle,
-            onValueSelected = onPlayerDesignStyleChange,
+            selectedValue = playerScreenStyle,
+            onValueSelected = { style ->
+                onPlayerScreenStyleChange(style)
+                onPlayerDesignStyleChange(style.toPlayerDesignStyle())
+            },
             valueText = {
                 when (it) {
-                    PlayerDesignStyle.V1 -> stringResource(R.string.player_design_v1)
-                    PlayerDesignStyle.V2 -> stringResource(R.string.player_design_v2)
-                    PlayerDesignStyle.V3 -> stringResource(R.string.player_design_v3)
-                    PlayerDesignStyle.V4 -> stringResource(R.string.player_design_v4)
-                    PlayerDesignStyle.V5 -> stringResource(R.string.player_design_v5)
-                    PlayerDesignStyle.V6 -> stringResource(R.string.player_design_v6)
-                    PlayerDesignStyle.V7 -> stringResource(R.string.player_design_v7)
-                    PlayerDesignStyle.V8 -> stringResource(R.string.player_design_v8)
+                    PlayerScreenStyle.MATERIAL -> "Material"
+                    PlayerScreenStyle.IOS_STYLED -> "iOS Styled"
+                    PlayerScreenStyle.MODERN -> "Modern player"
+                    PlayerScreenStyle.SPOTIFY -> "Spotify player"
+                    PlayerScreenStyle.CLASSIC -> "Classic player"
+                    PlayerScreenStyle.APPLE -> "Apple"
+                    PlayerScreenStyle.PAPER -> "Paper player"
+                    PlayerScreenStyle.LIQUID -> "Liquid player"
+                    PlayerScreenStyle.CLOUDGLOW -> "CloudGlow"
+                    PlayerScreenStyle.FROST -> "Frost"
+                    PlayerScreenStyle.FOLD -> "Fold"
+                    PlayerScreenStyle.GROOVE -> "Groove"
+                    PlayerScreenStyle.POPSY -> "Popsy"
+                    PlayerScreenStyle.MINIMAL -> "Minimal"
+                    PlayerScreenStyle.COLOURFULL -> "Colourfull"
+                    PlayerScreenStyle.GALAXY -> "Galaxy"
                 }
             },
         )
