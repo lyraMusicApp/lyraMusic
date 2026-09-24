@@ -35,7 +35,7 @@ A clean, modern, and privacy-focused Android music player built with Jetpack Com
 
 ### Download
 
-Download the latest signed APK release directly from the [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) page. Each release includes `LyraMusic.apk` and a SHA-256 checksum file.
+Download the latest signed FOSS universal APK release directly from the [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) page. Each release includes `LyraMusic-foss-universal-release.apk` and a SHA-256 checksum file.
 
 * **Requirement:** Android 8.0 (API 26) or higher.
 

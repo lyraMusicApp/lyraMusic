@@ -70,16 +70,16 @@ jobs:
           BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)
           "$BUILD_TOOLS/zipalign" -c -P 16 -v 4 "$APK"
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
-          cp "$APK" LyraMusic.apk
-          sha256sum LyraMusic.apk > LyraMusic.apk.sha256
+          cp "$APK" LyraMusic-foss-universal-release.apk
+          sha256sum LyraMusic-foss-universal-release.apk > LyraMusic-foss-universal-release.apk.sha256
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: LyraMusic-${{ env.RELEASE_TAG }}
           path: |
-            LyraMusic.apk
-            LyraMusic.apk.sha256
+            LyraMusic-foss-universal-release.apk
+            LyraMusic-foss-universal-release.apk.sha256
           if-no-files-found: error
           retention-days: 90
 
@@ -93,5 +93,5 @@ jobs:
           prerelease: false
           make_latest: true
           files: |
-            LyraMusic.apk
-            LyraMusic.apk.sha256
+            LyraMusic-foss-universal-release.apk
+            LyraMusic-foss-universal-release.apk.sha256
