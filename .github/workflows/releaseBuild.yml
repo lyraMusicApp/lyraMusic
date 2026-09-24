@@ -62,7 +62,7 @@ jobs:
           test -s "$SIGNING_STORE_FILE"
 
       - name: Build signed release APK
-        run: bash ./gradlew :app:assembleRelease --stacktrace
+        run: bash ./gradlew :app:assembleRelease --no-configuration-cache --stacktrace
 
       - name: Verify signed APK and create checksum
         run: |
