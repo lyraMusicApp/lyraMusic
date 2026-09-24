@@ -27,13 +27,21 @@ plugins {
 rootProject.name = "Lyra Music"
 include(":app")
 include(":innertube")
-include(":lyrics:kugou")
-include(":lyrics:lrclib")
-include(":lyrics:simpmusic")
-include(":lyrics:betterlyrics")
-include(":lyrics:paxsenix")
-include(":lyrics:unison")
-include(":lyrics:youlyplus")
+
+// GitHub's managed CodeQL checkout does not initialize Git submodules. Keep
+// provider modules optional for that partial checkout; normal builds include
+// them whenever the lyric submodule is present.
+fun includeIfPresent(path: String, directory: String) {
+    if (file(directory).isDirectory) include(path)
+}
+
+includeIfPresent(":lyrics:kugou", "lyrics/kugou")
+includeIfPresent(":lyrics:lrclib", "lyrics/lrclib")
+includeIfPresent(":lyrics:simpmusic", "lyrics/simpmusic")
+includeIfPresent(":lyrics:betterlyrics", "lyrics/betterlyrics")
+includeIfPresent(":lyrics:paxsenix", "lyrics/paxsenix")
+includeIfPresent(":lyrics:unison", "lyrics/unison")
+includeIfPresent(":lyrics:youlyplus", "lyrics/youlyplus")
 include(":lastfm")
 include(":kizzy")
 include(":canvas")
