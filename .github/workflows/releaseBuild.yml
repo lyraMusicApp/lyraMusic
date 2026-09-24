@@ -58,8 +58,8 @@ jobs:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
           test -n "$RELEASE_KEYSTORE_BASE64"
-          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "$SIGNING_STORE_FILE"
-          test -s "$SIGNING_STORE_FILE"
+          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "app/$SIGNING_STORE_FILE"
+          test -s "app/$SIGNING_STORE_FILE"
 
       - name: Build signed release APK
         run: bash ./gradlew :app:assembleRelease --no-configuration-cache --stacktrace
