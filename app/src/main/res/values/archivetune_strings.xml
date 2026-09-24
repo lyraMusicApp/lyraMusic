@@ -237,6 +237,11 @@
     <string name="lyrics_background_style">Lyrics background style</string>
     <string name="lyrics_background_default">Default</string>
     <string name="mini_player_background_style">Mini player background style</string>
+    <string name="mini_player_design">Mini player design</string>
+    <string name="classic_mini_player">Classic mini player</string>
+    <string name="apple_mini_player_design">Apple mini player</string>
+    <string name="glow_animated">Animated glow</string>
+    <string name="live_mesh">Live mesh</string>
     <string name="player_design_v7">Immersive</string>
     <string name="player_design_v8">Immersive Extended</string>
     <string name="player_design_v9">Material Extended</string>

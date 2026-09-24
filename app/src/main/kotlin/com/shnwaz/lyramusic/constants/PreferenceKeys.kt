@@ -31,6 +31,7 @@ val PlayerDesignStyleKey = stringPreferencesKey("playerDesignStyle")
 val PlayerScreenStyleKey = stringPreferencesKey("playerScreenStyle")
 val UseNewLibraryDesignKey = booleanPreferencesKey("useNewLibraryDesign")
 val UseNewMiniPlayerDesignKey = booleanPreferencesKey("useNewMiniPlayerDesign")
+val UseAppleMiniPlayerKey = booleanPreferencesKey("useAppleMiniPlayer")
 val HidePlayerThumbnailKey = booleanPreferencesKey("hidePlayerThumbnail")
 val OpenTuneCanvasKey = booleanPreferencesKey("OpenTuneCanvas")
 val ThumbnailCornerRadiusKey = floatPreferencesKey("thumbnailCornerRadius")
@@ -472,6 +473,9 @@ enum class MiniPlayerBackgroundStyle {
     THEME,
     GRADIENT,
     GLOW,
+    BLUR,
+    GLOW_ANIMATED,
+    LIVE_MESH,
 }
 
 val MiniPlayerBackgroundStyleKey = stringPreferencesKey("miniPlayerBackgroundStyle")

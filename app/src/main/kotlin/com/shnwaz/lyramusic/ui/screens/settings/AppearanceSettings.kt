@@ -68,6 +68,7 @@ import com.shnwaz.lyramusic.constants.LyricsTextPositionKey
 import com.shnwaz.lyramusic.constants.PlayerDesignStyle
 import com.shnwaz.lyramusic.constants.PlayerDesignStyleKey
 import com.shnwaz.lyramusic.constants.UseNewMiniPlayerDesignKey
+import com.shnwaz.lyramusic.constants.UseAppleMiniPlayerKey
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyle
 import com.shnwaz.lyramusic.constants.PlayerBackgroundStyleKey
 import com.shnwaz.lyramusic.constants.PureBlackKey
@@ -151,6 +152,17 @@ fun AppearanceSettings(
         UseNewMiniPlayerDesignKey,
         defaultValue = true
     )
+    val (useAppleMiniPlayer, onUseAppleMiniPlayerChange) = rememberPreference(
+        UseAppleMiniPlayerKey,
+        defaultValue = false
+    )
+    val miniPlayerDesign = remember(useNewMiniPlayerDesign, useAppleMiniPlayer) {
+        when {
+            useAppleMiniPlayer -> MiniPlayerDesignOption.APPLE
+            useNewMiniPlayerDesign -> MiniPlayerDesignOption.NEW
+            else -> MiniPlayerDesignOption.CLASSIC
+        }
+    }
     val (useNewLibraryDesign, onUseNewLibraryDesignChange) = rememberPreference(
         key = com.shnwaz.lyramusic.constants.UseNewLibraryDesignKey,
         defaultValue = false
@@ -424,11 +436,21 @@ fun AppearanceSettings(
             },
         )
 
-        SwitchPreference(
-            title = { Text(stringResource(R.string.new_mini_player_design)) },
+        EnumListPreference(
+            title = { Text(stringResource(R.string.mini_player_design)) },
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
-            checked = useNewMiniPlayerDesign,
-            onCheckedChange = onUseNewMiniPlayerDesignChange,
+            selectedValue = miniPlayerDesign,
+            onValueSelected = { selected ->
+                onUseAppleMiniPlayerChange(selected == MiniPlayerDesignOption.APPLE)
+                onUseNewMiniPlayerDesignChange(selected == MiniPlayerDesignOption.NEW)
+            },
+            valueText = {
+                when (it) {
+                    MiniPlayerDesignOption.CLASSIC -> stringResource(R.string.classic_mini_player)
+                    MiniPlayerDesignOption.NEW -> stringResource(R.string.new_mini_player_design)
+                    MiniPlayerDesignOption.APPLE -> stringResource(R.string.apple_mini_player_design)
+                }
+            },
         )
 
         EnumListPreference(
@@ -441,6 +463,9 @@ fun AppearanceSettings(
                     MiniPlayerBackgroundStyle.THEME -> stringResource(R.string.follow_theme)
                     MiniPlayerBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
                     MiniPlayerBackgroundStyle.GLOW -> stringResource(R.string.glow)
+                    MiniPlayerBackgroundStyle.BLUR -> stringResource(R.string.player_background_blur)
+                    MiniPlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
+                    MiniPlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
                 }
             },
         )
@@ -1065,4 +1090,10 @@ enum class LyricsPosition {
 enum class PlayerTextAlignment {
     SIDED,
     CENTER,
+}
+
+private enum class MiniPlayerDesignOption {
+    CLASSIC,
+    NEW,
+    APPLE,
 }
