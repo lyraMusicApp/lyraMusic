@@ -35,6 +35,7 @@ jobs:
       - name: Check out release source
         uses: actions/checkout@v5
         with:
+          submodules: recursive
           ref: ${{ inputs.release_tag || github.ref }}
 
       - name: Check release tag matches app version
