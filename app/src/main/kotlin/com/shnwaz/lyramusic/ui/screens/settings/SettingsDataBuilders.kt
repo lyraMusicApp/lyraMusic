@@ -29,6 +29,12 @@ fun buildQuickActions(
 ): List<SettingsQuickAction> =
     listOf(
         SettingsQuickAction(
+            icon = painterResource(R.drawable.palette),
+            label = stringResource(R.string.appearance),
+            onClick = { resetSearch(); navController.navigate("settings/appearance") },
+            accentColor = MaterialTheme.colorScheme.primary,
+        ),
+        SettingsQuickAction(
             icon = painterResource(R.drawable.play),
             label = stringResource(R.string.player_and_audio),
             onClick = { resetSearch(); navController.navigate("settings/player") },
@@ -71,22 +77,6 @@ fun buildSettingsGroups(
     resetSearch: () -> Unit,
 ): List<SettingsGroup> =
     buildList {
-        add(
-            SettingsGroup(
-                title = stringResource(R.string.settings_section_ui),
-                items = listOf(
-                    SettingsItem(
-                        icon = painterResource(R.drawable.palette),
-                        title = stringResource(R.string.appearance),
-                        subtitle = stringResource(R.string.settings_appearance_subtitle),
-                        accentColor = MaterialTheme.colorScheme.primary,
-                        keywords = listOf("appearance", "theme", "layout", "visual", "home", "navigation", "player"),
-                        onClick = { resetSearch(); navController.navigate("settings/appearance") },
-                    ),
-                ),
-            ),
-        )
-
         add(
             SettingsGroup(
                 title = stringResource(R.string.settings_section_player_content),

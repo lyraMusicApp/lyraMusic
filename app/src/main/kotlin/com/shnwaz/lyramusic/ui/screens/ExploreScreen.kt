@@ -399,9 +399,6 @@ fun ExploreScreen(
                 explorePage?.moodAndGenres?.let { moodAndGenres ->
                     NavigationTitle(
                         title = stringResource(R.string.mood_and_genres),
-                        onClick = {
-                            navController.navigate(Screens.MoodAndGenres.route)
-                        },
                     )
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(4),

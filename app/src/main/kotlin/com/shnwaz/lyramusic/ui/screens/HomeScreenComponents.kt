@@ -1142,10 +1142,7 @@ fun HomePageSectionTitle(
         },
         onClick = section.endpoint?.browseId?.let { browseId ->
             {
-                if (browseId == "FEmusic_moods_and_genres")
-                    navController.navigate(Screens.MoodAndGenres.route)
-                else
-                    navController.navigate("browse/$browseId")
+                navController.navigate("browse/$browseId")
             }
         },
         modifier = modifier

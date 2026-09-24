@@ -48,13 +48,6 @@ sealed class Screens(
         route = "library"
     )
 
-    object MoodAndGenres : Screens(
-        titleId = R.string.mood_and_genres,
-        iconIdInactive = R.drawable.style,
-        iconIdActive = R.drawable.style,
-        route = "mood_and_genres"
-    )
-
     object History : Screens(
         titleId = R.string.history,
         iconIdInactive = R.drawable.history,
