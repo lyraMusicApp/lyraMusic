@@ -52,7 +52,7 @@ jobs:
 
       - name: Compile Android source
         if: matrix.build-mode == 'manual'
-        run: ./gradlew :app:compileDebugKotlin --stacktrace
+        run: bash ./gradlew :app:compileDebugKotlin --stacktrace
 
       - name: Analyze code
         uses: github/codeql-action/analyze@v3
