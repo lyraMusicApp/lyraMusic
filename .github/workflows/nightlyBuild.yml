@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      SIGNING_STORE_FILE: ${{ runner.temp }}/lyra-release.keystore
+      SIGNING_STORE_FILE: lyra-release.keystore
       SIGNING_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
       SIGNING_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
       SIGNING_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
