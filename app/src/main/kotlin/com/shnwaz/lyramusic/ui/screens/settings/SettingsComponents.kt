@@ -9,6 +9,7 @@ package com.shnwaz.lyramusic.ui.screens.settings
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -99,11 +100,12 @@ fun SettingsProfileHeader(modifier: Modifier = Modifier) {
                         ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(R.drawable.app_logo),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(SettingsDimensions.HeroIconInnerSize),
+                        modifier = Modifier
+                            .size(SettingsDimensions.HeroIconInnerSize)
+                            .clip(RoundedCornerShape(12.dp)),
                     )
                 }
 

@@ -29,8 +29,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="false"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/app_logo"
+        android:roundIcon="@drawable/app_logo"
         android:label="@string/app_name"
         android:usesCleartextTraffic="true"
         android:supportsRtl="false"
@@ -195,10 +195,6 @@
             android:theme="@style/Theme.LyraMusic">
         </activity>
 
-        <activity
-            android:name=".ui.screens.settings.PoTokenExtractionActivity"
-            android:exported="false"
-            android:theme="@style/Theme.LyraMusic" />
     </application>
 
 </manifest>

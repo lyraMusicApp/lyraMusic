@@ -248,19 +248,6 @@ fun AccountScreen(
                     )
                 }
 
-                // 4. Advanced PoToken / Web Client Token
-                item {
-                    IntegrationLoginCard(
-                        title = "PO Token Generator",
-                        description = "Generate visitor data and tokens for YouTube playback",
-                        icon = R.drawable.account,
-                        iconBgColor = Color(0xFF00D2C4),
-                        actionText = "Configure",
-                        isConnected = false,
-                        onClick = { navController.navigate("settings/po_token") }
-                    )
-                }
-
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
                 }

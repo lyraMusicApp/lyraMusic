@@ -15,6 +15,43 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
 
+val signingProperties = Properties()
+val signingPropertiesFile = file("keystore/release.properties")
+if (signingPropertiesFile.exists()) {
+    signingProperties.load(signingPropertiesFile.inputStream())
+}
+
+val configuredReleaseKeystore =
+    signingProperties.getProperty("storeFile")
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?.let { configuredPath ->
+            signingPropertiesFile.parentFile.resolve(configuredPath)
+        }
+val releaseKeystore =
+    System.getenv("SIGNING_STORE_FILE")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { file(it) }
+        ?: configuredReleaseKeystore
+        ?: file("keystore/release.keystore")
+val releaseStorePassword =
+    System.getenv("SIGNING_STORE_PASSWORD")
+        ?.takeIf { it.isNotBlank() }
+        ?: signingProperties.getProperty("storePassword")?.takeIf { it.isNotBlank() }
+val releaseKeyAlias =
+    System.getenv("SIGNING_KEY_ALIAS")
+        ?.takeIf { it.isNotBlank() }
+        ?: signingProperties.getProperty("keyAlias")?.takeIf { it.isNotBlank() }
+val releaseKeyPassword =
+    System.getenv("SIGNING_KEY_PASSWORD")
+        ?.takeIf { it.isNotBlank() }
+        ?: signingProperties.getProperty("keyPassword")?.takeIf { it.isNotBlank() }
+val hasReleaseSigning =
+    releaseKeystore.isFile &&
+        !releaseStorePassword.isNullOrBlank() &&
+        !releaseKeyAlias.isNullOrBlank() &&
+        !releaseKeyPassword.isNullOrBlank()
+
 android {
     namespace = "com.shnwaz.lyramusic"
     compileSdk = 36
@@ -23,8 +60,8 @@ android {
         applicationId = "com.shnwaz.lyramusic"
         minSdk = 26
         targetSdk = 34
-        versionCode = 145
-        versionName = "3.0.11"
+        versionCode = 146
+        versionName = "3.0.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -51,14 +88,13 @@ android {
         buildConfigField("String", "ARCHITECTURE", "\"universal\"")
     }
 
-    val releaseKeystore = file("keystore/release.keystore")
     signingConfigs {
         create("release") {
-            if (releaseKeystore.exists()) {
+            if (hasReleaseSigning) {
                 storeFile = releaseKeystore
-                storePassword = System.getenv("STORE_PASSWORD") ?: "lyramusic"
-                keyAlias = System.getenv("KEY_ALIAS") ?: "lyramusic"
-                keyPassword = System.getenv("KEY_PASSWORD") ?: "lyramusic"
+                storePassword = requireNotNull(releaseStorePassword)
+                keyAlias = requireNotNull(releaseKeyAlias)
+                keyPassword = requireNotNull(releaseKeyPassword)
                 enableV1Signing = true
                 enableV2Signing = true
                 enableV3Signing = true
@@ -71,7 +107,7 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
-            if (releaseKeystore.exists()) {
+            if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
             isDebuggable = false
@@ -126,6 +162,16 @@ android {
             excludes += "META-INF/NOTICE.md"
             excludes += "META-INF/CONTRIBUTORS.md"
             excludes += "META-INF/LICENSE.md"
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == "assembleRelease") {
+        doFirst {
+            check(hasReleaseSigning) {
+                "Release signing is required. Set SIGNING_* variables or app/keystore/release.properties."
+            }
         }
     }
 }

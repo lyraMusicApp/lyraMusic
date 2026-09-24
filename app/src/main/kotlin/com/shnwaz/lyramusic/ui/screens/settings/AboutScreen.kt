@@ -49,9 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -208,15 +206,12 @@ private fun HeroCard(shimmerBrush: Brush) {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Image(
-                        painter = painterResource(R.drawable.app_logo_monochrome),
+                        painter = painterResource(R.drawable.app_logo),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(
-                            MaterialTheme.colorScheme.onPrimaryContainer,
-                            BlendMode.SrcIn,
-                        ),
                         modifier = Modifier
                             .size(52.dp)
                             .clip(RoundedCornerShape(10.dp)),
+                        contentScale = ContentScale.Crop,
                     )
                     // Shimmer overlay
                     Box(

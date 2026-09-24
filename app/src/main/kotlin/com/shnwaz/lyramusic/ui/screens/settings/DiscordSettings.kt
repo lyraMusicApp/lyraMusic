@@ -797,35 +797,6 @@ if (smallImageType == "custom") {
                 )
             }
         },
-        actions = {
-            var threeDotMenuExpanded by remember { mutableStateOf(false) }
-
-            IconButton(onClick = { threeDotMenuExpanded = true }) {
-                Icon(
-                    painter = painterResource(R.drawable.more_vert),
-                    contentDescription = null
-                )
-            }
-
-            DropdownMenu(
-                expanded = threeDotMenuExpanded,
-                onDismissRequest = { threeDotMenuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.experiment_settings)) },
-                    onClick = {
-                        threeDotMenuExpanded = false
-                        navController.navigate("settings/discord/experimental")
-                    },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.experiment),
-                            contentDescription = null
-                        )
-                    }
-                )
-            }
-        }
       )
     }
 }

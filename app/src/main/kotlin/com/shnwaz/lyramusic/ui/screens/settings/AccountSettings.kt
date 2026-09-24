@@ -142,7 +142,7 @@ fun AccountSettings(
     var showTokenEditor by remember { mutableStateOf(false) }
     var showPlaylistDialog by remember { mutableStateOf(false) }
 
-    val hasUpdate = !Updater.isSameVersion(latestVersionName, BuildConfig.VERSION_NAME)
+    val hasUpdate = Updater.isNewerVersion(latestVersionName, BuildConfig.VERSION_NAME)
 
     Column(
         modifier = Modifier
@@ -346,11 +346,13 @@ private fun AccountSettingsHeader(onClose: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // App Icon
-                Icon(
+                Image(
                     painter = painterResource(R.drawable.app_logo),
                     contentDescription = null,
                     modifier = Modifier
                         .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop,
                 )
 
                 Text(

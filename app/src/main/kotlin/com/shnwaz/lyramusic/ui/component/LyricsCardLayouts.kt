@@ -23,7 +23,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -101,10 +100,6 @@ internal fun LyricsBrandingRow(
                 painter = painterResource(R.drawable.app_logo),
                 contentDescription = null,
                 modifier = Modifier.size(15.dp),
-                colorFilter = ColorFilter.tint(
-                    if (isDark) Color.Black.copy(alpha = 0.85f)
-                    else Color.White.copy(alpha = 0.9f)
-                ),
             )
         }
         Spacer(Modifier.width(8.dp))

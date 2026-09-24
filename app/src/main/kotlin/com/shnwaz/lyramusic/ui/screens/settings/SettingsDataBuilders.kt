@@ -29,12 +29,6 @@ fun buildQuickActions(
 ): List<SettingsQuickAction> =
     listOf(
         SettingsQuickAction(
-            icon = painterResource(R.drawable.palette),
-            label = stringResource(R.string.appearance),
-            onClick = { resetSearch(); navController.navigate("settings/appearance") },
-            accentColor = MaterialTheme.colorScheme.primary,
-        ),
-        SettingsQuickAction(
             icon = painterResource(R.drawable.play),
             label = stringResource(R.string.player_and_audio),
             onClick = { resetSearch(); navController.navigate("settings/player") },
@@ -79,22 +73,6 @@ fun buildSettingsGroups(
     buildList {
         add(
             SettingsGroup(
-                title = stringResource(R.string.settings_section_ui),
-                items = listOf(
-                    SettingsItem(
-                        icon = painterResource(R.drawable.palette),
-                        title = stringResource(R.string.appearance),
-                        subtitle = stringResource(R.string.dark_theme),
-                        accentColor = MaterialTheme.colorScheme.primary,
-                        keywords = listOf("theme", "palette", "material you", "dynamic color", "font", "ui"),
-                        onClick = { resetSearch(); navController.navigate("settings/appearance") },
-                    ),
-                ),
-            ),
-        )
-
-        add(
-            SettingsGroup(
                 title = stringResource(R.string.settings_section_player_content),
                 items = listOf(
                     SettingsItem(
@@ -112,14 +90,6 @@ fun buildSettingsGroups(
                         accentColor = MaterialTheme.colorScheme.secondary,
                         keywords = listOf("language", "content", "lyrics", "translation", "region"),
                         onClick = { resetSearch(); navController.navigate("settings/content") },
-                    ),
-                    SettingsItem(
-                        icon = painterResource(R.drawable.token),
-                        title = stringResource(R.string.po_token_generation),
-                        subtitle = stringResource(R.string.po_token_generation_subtitle),
-                        accentColor = MaterialTheme.colorScheme.tertiary,
-                        keywords = listOf("po token", "token", "web client", "visitor data", "gvs", "player"),
-                        onClick = { resetSearch(); navController.navigate("settings/po_token") },
                     ),
                 ),
             ),
@@ -212,16 +182,6 @@ fun buildSettingsGroups(
                     }
                     add(
                         SettingsItem(
-                            icon = painterResource(R.drawable.experiment),
-                            title = stringResource(R.string.experiment_settings),
-                            subtitle = stringResource(R.string.misc),
-                            accentColor = MaterialTheme.colorScheme.tertiary,
-                            keywords = listOf("experimental", "debug", "developer", "labs", "internal"),
-                            onClick = { resetSearch(); navController.navigate("settings/misc") },
-                        ),
-                    )
-                    add(
-                        SettingsItem(
                             icon = painterResource(R.drawable.update),
                             title = stringResource(R.string.updates),
                             subtitle = if (hasUpdate) {
@@ -261,44 +221,12 @@ fun buildInternalItems(
 ): List<SettingsItem> =
     listOf(
         SettingsItem(
-            icon = painterResource(R.drawable.palette),
-            title = stringResource(R.string.theme_creator_title),
-            subtitle = stringResource(R.string.theme_creator_subtitle),
-            accentColor = MaterialTheme.colorScheme.primary,
-            keywords = listOf("theme", "creator", "seed", "material", "palette", "import", "export"),
-            onClick = { resetSearch(); navController.navigate("settings/appearance/theme_creator") },
-        ),
-        SettingsItem(
-            icon = painterResource(R.drawable.palette),
-            title = stringResource(R.string.customize_colors),
-            subtitle = stringResource(R.string.appearance),
-            accentColor = MaterialTheme.colorScheme.primary,
-            keywords = listOf("palette", "color", "accent", "tone", "dynamic color"),
-            onClick = { resetSearch(); navController.navigate("settings/appearance/palette_picker") },
-        ),
-        SettingsItem(
-            icon = painterResource(R.drawable.image),
-            title = stringResource(R.string.customize_background_title),
-            subtitle = stringResource(R.string.appearance),
-            accentColor = MaterialTheme.colorScheme.secondary,
-            keywords = listOf("background", "wallpaper", "image", "blur", "gradient"),
-            onClick = { resetSearch(); navController.navigate("customize_background") },
-        ),
-        SettingsItem(
             icon = painterResource(R.drawable.discord),
             title = stringResource(R.string.discord_integration),
             subtitle = stringResource(R.string.integration),
             accentColor = Color(0xFF5865F2),
             keywords = listOf("discord", "rpc", "rich presence", "status", "activity"),
             onClick = { resetSearch(); navController.navigate("settings/discord") },
-        ),
-        SettingsItem(
-            icon = painterResource(R.drawable.experiment),
-            title = stringResource(R.string.experimental_features),
-            subtitle = stringResource(R.string.experimental_features_description),
-            accentColor = MaterialTheme.colorScheme.tertiary,
-            keywords = listOf("experimental", "labs", "advanced", "discord experimental", "internal"),
-            onClick = { resetSearch(); navController.navigate("settings/discord/experimental") },
         ),
         SettingsItem(
             icon = painterResource(R.drawable.integration),

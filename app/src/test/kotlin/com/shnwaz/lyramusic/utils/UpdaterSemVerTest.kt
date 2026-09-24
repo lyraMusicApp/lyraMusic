@@ -63,4 +63,13 @@ class UpdaterSemVerTest {
         assertTrue(Updater.isSameVersion("OpenTune 13.0.0", "13.0.0"))
         assertFalse(Updater.isSameVersion("13.0.1", "13.0.0"))
     }
+
+    @Test
+    fun isNewerVersion_requiresStrictlyHigherSemanticVersion() {
+        assertTrue(Updater.isNewerVersion("v3.0.12", "3.0.11"))
+        assertTrue(Updater.isNewerVersion("3.1.0", "3.0.12"))
+        assertFalse(Updater.isNewerVersion("3.0.10", "3.0.11"))
+        assertFalse(Updater.isNewerVersion("3.0.11", "3.0.11"))
+        assertFalse(Updater.isNewerVersion("latest", "3.0.11"))
+    }
 }

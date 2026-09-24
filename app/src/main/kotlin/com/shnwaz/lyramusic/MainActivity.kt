@@ -23,7 +23,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
@@ -33,6 +34,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -170,8 +172,6 @@ import com.shnwaz.lyramusic.constants.MiniPlayerBottomSpacing
 import com.shnwaz.lyramusic.constants.MiniPlayerHeight
 import com.shnwaz.lyramusic.constants.MiniPlayerLastAnchorKey
 import com.shnwaz.lyramusic.constants.NavigationBarAnimationSpec
-import com.shnwaz.lyramusic.constants.NavigationBarStyle
-import com.shnwaz.lyramusic.constants.NavigationBarStyleKey
 import com.shnwaz.lyramusic.constants.PauseSearchHistoryKey
 import com.shnwaz.lyramusic.constants.PureBlackKey
 import com.shnwaz.lyramusic.constants.RemindAfterKey
@@ -547,7 +547,7 @@ class MainActivity : ComponentActivity() {
 
             // fetch release notes and show sheet when a new version is detected
             LaunchedEffect(latestVersionName) {
-                if (!Updater.isSameVersion(latestVersionName, BuildConfig.VERSION_NAME)) {
+                if (Updater.isNewerVersion(latestVersionName, BuildConfig.VERSION_NAME)) {
                     Updater.getLatestReleaseNotes(forceRefresh = true).onSuccess {
                         releaseNotesState.value = it
                     }.onFailure {
@@ -695,20 +695,10 @@ class MainActivity : ComponentActivity() {
                     val allYtItems by homeViewModel.allYtItems.collectAsState()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val navigationItems = remember { Screens.MainScreens }
-                    var previousTab by rememberSaveable { mutableStateOf("home") }
                     val currentRoute = navBackStackEntry?.destination?.route
                     val isYearInMusicScreen = currentRoute == "year_in_music"
 
-                    LaunchedEffect(currentRoute) {
-                        if (currentRoute != null && navigationItems.fastAny { it.route == currentRoute }) {
-                            previousTab = currentRoute
-                        }
-                    }
                     val (slimNav) = rememberPreference(SlimNavBarKey, defaultValue = false)
-                    val (navigationBarStyle) = rememberEnumPreference(
-                        NavigationBarStyleKey,
-                        NavigationBarStyle.APPLE,
-                    )
                     val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                     val (savedMiniPlayerAnchor, setSavedMiniPlayerAnchor) = rememberPreference(
                         MiniPlayerLastAnchorKey,
@@ -729,7 +719,6 @@ class MainActivity : ComponentActivity() {
                         listOf(
                             Screens.Home.route,
                             Screens.Search.route,
-                            Screens.MoodAndGenres.route,
                             Screens.Library.route,
                             "settings",
                         )
@@ -1194,7 +1183,6 @@ class MainActivity : ComponentActivity() {
                                     if (shouldShowTopBar) {
                                         val shouldUseFloatingTopBar = remember(navBackStackEntry) {
                                             navBackStackEntry?.destination?.route == Screens.Home.route ||
-                                                    navBackStackEntry?.destination?.route == Screens.MoodAndGenres.route ||
                                                     navBackStackEntry?.destination?.route == Screens.Library.route
                                         }
                                         val shouldShowBlurBackground = remember(navBackStackEntry) {
@@ -1241,11 +1229,12 @@ class MainActivity : ComponentActivity() {
                                                     if (navBackStackEntry?.destination?.route != Screens.Library.route) {
                                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                                             // app icon
-                                                            Icon(
+                                                            Image(
                                                                 painter = painterResource(R.drawable.app_logo),
                                                                 contentDescription = null,
                                                                 modifier = Modifier
                                                                     .size(35.dp)
+                                                                    .clip(RoundedCornerShape(8.dp))
                                                                     .padding(end = 3.dp)
                                                             )
 
@@ -1500,7 +1489,6 @@ class MainActivity : ComponentActivity() {
                                                 items = navigationItems,
                                                 pureBlack = pureBlack,
                                                 liquidGlass = liquidGlassNavBar,
-                                                style = navigationBarStyle,
                                                 modifier = Modifier
                                                     .align(Alignment.BottomCenter)
                                                     .padding(
@@ -1591,6 +1579,7 @@ class MainActivity : ComponentActivity() {
                                                             searchBarScrollBehavior.state.resetHeightOffset()
                                                         }
                                                     } else {
+                                                        onActiveChange(false)
                                                         navController.navigate(screen.route) {
                                                             popUpTo(navController.graph.startDestinationId) {
                                                                 saveState = true
@@ -1608,30 +1597,6 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                             ) {
-                                var transitionDirection =
-                                    AnimatedContentTransitionScope.SlideDirection.Left
-
-                                if (navigationItems.fastAny { it.route == navBackStackEntry?.destination?.route }) {
-                                    if (navigationItems.fastAny { it.route == previousTab }) {
-                                        val curIndex = navigationItems.indexOf(
-                                            navigationItems.fastFirstOrNull {
-                                                it.route == navBackStackEntry?.destination?.route
-                                            }
-                                        )
-
-                                        val prevIndex = navigationItems.indexOf(
-                                            navigationItems.fastFirstOrNull {
-                                                it.route == previousTab
-                                            }
-                                        )
-
-                                        if (prevIndex > curIndex)
-                                            AnimatedContentTransitionScope.SlideDirection.Right.also {
-                                                transitionDirection = it
-                                            }
-                                    }
-                                }
-
                                 NavHost(
                                     navController = navController,
                                     startDestination = when (tabOpenedFromShortcut ?: defaultOpenTab) {
@@ -1641,28 +1606,28 @@ class MainActivity : ComponentActivity() {
                                     }.route,
                                     enterTransition = {
                                         if (initialState.destination.route in topLevelScreens && targetState.destination.route in topLevelScreens) {
-                                            fadeIn(tween(250))
+                                            EnterTransition.None
                                         } else {
                                             fadeIn(tween(250)) + slideInHorizontally { it / 2 }
                                         }
                                     },
                                     exitTransition = {
                                         if (initialState.destination.route in topLevelScreens && targetState.destination.route in topLevelScreens) {
-                                            fadeOut(tween(200))
+                                            ExitTransition.None
                                         } else {
                                             fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
                                         }
                                     },
                                     popEnterTransition = {
                                         if ((initialState.destination.route in topLevelScreens || initialState.destination.route?.startsWith("search/") == true) && targetState.destination.route in topLevelScreens) {
-                                            fadeIn(tween(250))
+                                            EnterTransition.None
                                         } else {
                                             fadeIn(tween(250)) + slideInHorizontally { -it / 2 }
                                         }
                                     },
                                     popExitTransition = {
                                         if ((initialState.destination.route in topLevelScreens || initialState.destination.route?.startsWith("search/") == true) && targetState.destination.route in topLevelScreens) {
-                                            fadeOut(tween(200))
+                                            ExitTransition.None
                                         } else {
                                             fadeOut(tween(200)) + slideOutHorizontally { it / 2 }
                                         }

@@ -14,6 +14,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.Orientation
@@ -632,11 +633,11 @@ fun Thumbnail(
                                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Icon(
+                                            Image(
                                                 painter = painterResource(R.drawable.app_logo),
                                                 contentDescription = stringResource(R.string.hide_player_thumbnail),
-                                                tint = textBackgroundColor.copy(alpha = 0.7f),
-                                                modifier = Modifier.size(120.dp)
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.size(120.dp),
                                             )
                                         }
                                     } else {

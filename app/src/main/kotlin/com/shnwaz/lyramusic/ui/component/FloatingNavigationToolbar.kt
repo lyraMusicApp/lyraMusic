@@ -16,7 +16,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,7 +69,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shnwaz.lyramusic.R
-import com.shnwaz.lyramusic.constants.NavigationBarStyle
 import com.shnwaz.lyramusic.ui.screens.Screens
 
 @Composable
@@ -78,7 +76,6 @@ fun FloatingNavigationToolbar(
     items: List<Screens>,
     pureBlack: Boolean,
     liquidGlass: Boolean = false,
-    style: NavigationBarStyle = NavigationBarStyle.APPLE,
     modifier: Modifier = Modifier,
     onFabClick: (() -> Unit)? = null,
     fabIconRes: Int? = null,
@@ -100,17 +97,10 @@ fun FloatingNavigationToolbar(
     ) {
         val showSelectedLabels = maxWidth >= 360.dp
 
-        Surface(
-            shape = RoundedCornerShape(32.dp),
-            color = navigationBarContainerColor(style, pureBlack),
-            border = BorderStroke(1.dp, navigationBarBorderColor(style)),
-            shadowElevation = 0.dp,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
             items.forEach { screen ->
                 val selected = isSelected(screen)
                 FloatingNavigationToolbarItem(
@@ -119,7 +109,6 @@ fun FloatingNavigationToolbar(
                     showSelectedLabel = showSelectedLabels,
                     pureBlack = pureBlack,
                     liquidGlass = liquidGlass,
-                    style = style,
                     onClick = { onItemClick(screen, selected) },
                 )
             }
@@ -142,7 +131,6 @@ fun FloatingNavigationToolbar(
                     iconRes = fabIconRes,
                     contentDescription = fabContentDescription,
                 )
-            }
             }
         }
     }
@@ -319,14 +307,13 @@ private fun FloatingNavigationToolbarItem(
     showSelectedLabel: Boolean,
     pureBlack: Boolean,
     liquidGlass: Boolean,
-    style: NavigationBarStyle,
     onClick: () -> Unit,
 ) {
     val shape = CircleShape
     val containerColor by animateColorAsState(
         targetValue =
             when {
-                selected -> navigationBarSelectedColor(style)
+                selected -> MaterialTheme.colorScheme.primary
                 else -> Color.Transparent
             },
         label = "tabContainer",
@@ -334,7 +321,7 @@ private fun FloatingNavigationToolbarItem(
     val contentColor by animateColorAsState(
         targetValue =
             when {
-                selected -> navigationBarSelectedContentColor(style)
+                selected -> MaterialTheme.colorScheme.onPrimary
                 else -> Color.White.copy(alpha = 0.82f)
             },
         label = "tabContent",
@@ -405,46 +392,6 @@ private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean, liquidGl
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean, liquidGlass: Boolean): Color {
     return Color.White.copy(alpha = 0.82f)
-}
-
-@Composable
-private fun navigationBarContainerColor(style: NavigationBarStyle, pureBlack: Boolean): Color = when (style) {
-    NavigationBarStyle.LIQUID_GLASS -> Color.White.copy(alpha = 0.10f)
-    NavigationBarStyle.SPOTIFY -> Color(0xFF17251D)
-    NavigationBarStyle.APPLE -> Color(0xFF1D1D24)
-    NavigationBarStyle.NEON -> Color(0xFF211333)
-    NavigationBarStyle.NEW_CLASSIC -> Color(0xFF20242D)
-    NavigationBarStyle.MATERIAL -> if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
-}
-
-private fun navigationBarBorderColor(style: NavigationBarStyle): Color = when (style) {
-    NavigationBarStyle.LIQUID_GLASS -> Color.White.copy(alpha = 0.28f)
-    NavigationBarStyle.SPOTIFY -> Color(0xFF1DB954).copy(alpha = 0.45f)
-    NavigationBarStyle.APPLE -> Color.White.copy(alpha = 0.20f)
-    NavigationBarStyle.NEON -> Color(0xFFB16CFF).copy(alpha = 0.65f)
-    NavigationBarStyle.NEW_CLASSIC -> Color.White.copy(alpha = 0.18f)
-    NavigationBarStyle.MATERIAL -> Color.Transparent
-}
-
-@Composable
-private fun navigationBarSelectedColor(style: NavigationBarStyle): Color = when (style) {
-    NavigationBarStyle.LIQUID_GLASS -> Color.White.copy(alpha = 0.24f)
-    NavigationBarStyle.SPOTIFY -> Color(0xFF1DB954)
-    NavigationBarStyle.APPLE -> Color(0xFF4A4A58)
-    NavigationBarStyle.NEON -> Color(0xFF7C3AED)
-    NavigationBarStyle.NEW_CLASSIC -> Color(0xFF4F5D78)
-    NavigationBarStyle.MATERIAL -> MaterialTheme.colorScheme.primary
-}
-
-@Composable
-private fun navigationBarSelectedContentColor(style: NavigationBarStyle): Color = when (style) {
-    NavigationBarStyle.LIQUID_GLASS,
-    NavigationBarStyle.SPOTIFY,
-    NavigationBarStyle.NEON,
-    NavigationBarStyle.NEW_CLASSIC,
-    NavigationBarStyle.MATERIAL,
-    -> Color.White
-    NavigationBarStyle.APPLE -> Color.White
 }
 
 

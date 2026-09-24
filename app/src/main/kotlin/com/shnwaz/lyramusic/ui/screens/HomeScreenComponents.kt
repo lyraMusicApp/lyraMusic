@@ -83,7 +83,6 @@ import coil3.request.crossfade
 import kotlinx.coroutines.CoroutineScope
 import com.shnwaz.lyramusic.R
 import com.shnwaz.lyramusic.constants.GridThumbnailHeight
-import com.shnwaz.lyramusic.constants.HomeScreenStyle
 import com.shnwaz.lyramusic.constants.ListItemHeight
 import com.shnwaz.lyramusic.constants.ListThumbnailSize
 import com.shnwaz.lyramusic.constants.ThumbnailCornerRadius
@@ -1239,19 +1238,10 @@ fun HomeModernHeader(
     accountName: String,
     accountImageUrl: String?,
     navController: NavController,
-    homeScreenStyle: HomeScreenStyle = HomeScreenStyle.CLASSIC,
     modifier: Modifier = Modifier
 ) {
     val openSearch = com.shnwaz.lyramusic.LocalOpenSearch.current
     val openAccountDialog = com.shnwaz.lyramusic.LocalOpenAccountDialog.current
-    val accent = when (homeScreenStyle) {
-        HomeScreenStyle.SPOTIFY -> Color(0xFF1DB954)
-        HomeScreenStyle.APPLE -> Color(0xFFE5E7EB)
-        HomeScreenStyle.NEON -> Color(0xFFB16CFF)
-        HomeScreenStyle.PLAYFUL -> Color(0xFFFF5DB1)
-        HomeScreenStyle.NEW_CLASSIC, HomeScreenStyle.MATERIAL, HomeScreenStyle.CLASSIC ->
-            MaterialTheme.colorScheme.primary
-    }
 
     Column(
         modifier = modifier
@@ -1270,10 +1260,8 @@ fun HomeModernHeader(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(listOf(accent, accent.copy(alpha = 0.62f))),
-                        CircleShape,
-                    )
+                    .background(Color(0xFF2A2D37))
+                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     .clickable { openAccountDialog() },
                 contentAlignment = Alignment.Center
             ) {
@@ -1288,7 +1276,7 @@ fun HomeModernHeader(
                     Icon(
                         painter = painterResource(R.drawable.account),
                         contentDescription = "Profile",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -1337,14 +1325,10 @@ fun HomeModernHeader(
         // Dynamic greeting: Real user name when logged in, or clean welcome when not
         val isLoggedIn = accountName.isNotBlank() && accountName != "Guest"
         Text(
-            text = if (isLoggedIn) "Hi, $accountName" else "Hi, Friend",
+            text = if (isLoggedIn) "Hi, $accountName" else "Welcome to Lyra Music",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = if (homeScreenStyle == HomeScreenStyle.APPLE) {
-                    Color.White
-                } else {
-                    accent
-                }
+                color = Color.White
             )
         )
     }

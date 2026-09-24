@@ -1449,7 +1449,7 @@ private fun SummaryPage(
                         contentAlignment = Alignment.Center,
                     ) {
                         androidx.compose.foundation.Image(
-                            painter = painterResource(R.drawable.app_logo_monochrome),
+                            painter = painterResource(R.drawable.app_logo),
                             contentDescription = null,
                             modifier = Modifier.size(22.dp),
                         )

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/lyra_logo.png" width="108" height="108" alt="Lyra Music Logo">
+<img src="assets/lyra_logo.svg" width="108" height="108" alt="Lyra Music Logo">
 
 # Lyra Music
 
@@ -35,7 +35,7 @@ A clean, modern, and privacy-focused Android music player built with Jetpack Com
 
 ### Download
 
-Download the latest APK release directly from the [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) page.
+Download the latest signed APK release directly from the [Releases](https://github.com/lyraMusicApp/lyraMusic/releases) page. Each release includes `LyraMusic.apk` and a SHA-256 checksum file.
 
 * **Requirement:** Android 8.0 (API 26) or higher.
 
@@ -65,7 +65,8 @@ cd lyraMusic
 # Build debug APK
 ./gradlew :app:assembleDebug
 
-# Build release APK
+# Build a signed release APK
+# Requires local release signing configuration; see app/build.gradle.kts.
 ./gradlew :app:assembleRelease
 ```
 

@@ -194,6 +194,12 @@ object Updater {
         }
     }
 
+    internal fun isNewerVersion(candidate: String, current: String): Boolean {
+        val candidateSemVer = parseSemVerOrNull(candidate) ?: return false
+        val currentSemVer = parseSemVerOrNull(current) ?: return false
+        return candidateSemVer > currentSemVer
+    }
+
     internal fun findLatestRelease(releases: List<ReleaseInfo>): ReleaseInfo? {
         if (releases.isEmpty()) return null
         val parsed =
@@ -397,7 +403,7 @@ object Updater {
             preferredReleaseVersionNameOrNull(latest)
                 ?: latest.name.ifBlank { latest.tagName }
 
-        if (isSameVersion(latestVersionName, currentVersionName)) return null
+        if (!isNewerVersion(latestVersionName, currentVersionName)) return null
 
         val downloadUrl = resolveApkDownloadUrl(latest.tagName)
 

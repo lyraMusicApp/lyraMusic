@@ -29,8 +29,6 @@ val SliderStyleKey = stringPreferencesKey("sliderStyle")
 val SwipeToSongKey = booleanPreferencesKey("SwipeToSong")
 val PlayerDesignStyleKey = stringPreferencesKey("playerDesignStyle")
 val PlayerScreenStyleKey = stringPreferencesKey("playerScreenStyle")
-val HomeScreenStyleKey = stringPreferencesKey("homeScreenStyle")
-val NavigationBarStyleKey = stringPreferencesKey("navBarStyle")
 val UseNewLibraryDesignKey = booleanPreferencesKey("useNewLibraryDesign")
 val UseNewMiniPlayerDesignKey = booleanPreferencesKey("useNewMiniPlayerDesign")
 val HidePlayerThumbnailKey = booleanPreferencesKey("hidePlayerThumbnail")
@@ -51,41 +49,16 @@ enum class SliderStyle {
 }
 
 enum class PlayerScreenStyle {
-    MATERIAL,
-    IOS_STYLED,
+    PAPER,
+    CLASSIC,
     MODERN,
     SPOTIFY,
-    CLASSIC,
-    APPLE,
-    PAPER,
-    LIQUID,
     CLOUDGLOW,
-    FROST,
     FOLD,
-    GROOVE,
     POPSY,
     MINIMAL,
     COLOURFULL,
-    GALAXY,
-}
-
-enum class HomeScreenStyle {
-    CLASSIC,
-    PLAYFUL,
-    NEON,
-    SPOTIFY,
-    APPLE,
-    NEW_CLASSIC,
-    MATERIAL,
-}
-
-enum class NavigationBarStyle {
-    LIQUID_GLASS,
-    SPOTIFY,
-    APPLE,
-    NEON,
-    NEW_CLASSIC,
-    MATERIAL,
+    APPLE
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"
@@ -493,25 +466,6 @@ enum class PlayerDesignStyle {
     V6,
     V7,
     V8,
-}
-
-fun PlayerScreenStyle.toPlayerDesignStyle(): PlayerDesignStyle = when (this) {
-    PlayerScreenStyle.MATERIAL -> PlayerDesignStyle.V4
-    PlayerScreenStyle.IOS_STYLED -> PlayerDesignStyle.V4
-    PlayerScreenStyle.MODERN -> PlayerDesignStyle.V2
-    PlayerScreenStyle.SPOTIFY -> PlayerDesignStyle.V2
-    PlayerScreenStyle.CLASSIC -> PlayerDesignStyle.V1
-    PlayerScreenStyle.APPLE -> PlayerDesignStyle.V2
-    PlayerScreenStyle.PAPER -> PlayerDesignStyle.V1
-    PlayerScreenStyle.LIQUID -> PlayerDesignStyle.V4
-    PlayerScreenStyle.CLOUDGLOW -> PlayerDesignStyle.V6
-    PlayerScreenStyle.FROST -> PlayerDesignStyle.V5
-    PlayerScreenStyle.FOLD -> PlayerDesignStyle.V3
-    PlayerScreenStyle.GROOVE -> PlayerDesignStyle.V2
-    PlayerScreenStyle.POPSY -> PlayerDesignStyle.V6
-    PlayerScreenStyle.MINIMAL -> PlayerDesignStyle.V3
-    PlayerScreenStyle.COLOURFULL -> PlayerDesignStyle.V6
-    PlayerScreenStyle.GALAXY -> PlayerDesignStyle.V7
 }
 
 enum class MiniPlayerBackgroundStyle {
