@@ -73,6 +73,22 @@ fun buildSettingsGroups(
     buildList {
         add(
             SettingsGroup(
+                title = stringResource(R.string.settings_section_ui),
+                items = listOf(
+                    SettingsItem(
+                        icon = painterResource(R.drawable.palette),
+                        title = stringResource(R.string.appearance),
+                        subtitle = stringResource(R.string.settings_appearance_subtitle),
+                        accentColor = MaterialTheme.colorScheme.primary,
+                        keywords = listOf("appearance", "theme", "layout", "visual", "home", "navigation", "player"),
+                        onClick = { resetSearch(); navController.navigate("settings/appearance") },
+                    ),
+                ),
+            ),
+        )
+
+        add(
+            SettingsGroup(
                 title = stringResource(R.string.settings_section_player_content),
                 items = listOf(
                     SettingsItem(

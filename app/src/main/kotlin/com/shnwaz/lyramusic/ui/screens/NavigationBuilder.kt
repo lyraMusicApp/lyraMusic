@@ -66,6 +66,7 @@ import com.shnwaz.lyramusic.ui.screens.playlist.CachePlaylistScreen
 import com.shnwaz.lyramusic.ui.screens.search.OnlineSearchResult
 import com.shnwaz.lyramusic.ui.screens.settings.AboutScreen
 import com.shnwaz.lyramusic.ui.screens.settings.AccountSettings
+import com.shnwaz.lyramusic.ui.screens.settings.AppearanceSettings
 import com.shnwaz.lyramusic.ui.screens.settings.BackupAndRestore
 import com.shnwaz.lyramusic.ui.screens.settings.ChangelogScreen
 import com.shnwaz.lyramusic.ui.screens.settings.ContentSettings
@@ -76,9 +77,11 @@ import com.shnwaz.lyramusic.ui.screens.settings.IntegrationScreen
 import com.shnwaz.lyramusic.ui.screens.settings.LastFMSettings
 import com.shnwaz.lyramusic.ui.screens.settings.MusicTogetherScreen
 import com.shnwaz.lyramusic.ui.screens.settings.PlayerSettings
+import com.shnwaz.lyramusic.ui.screens.settings.PalettePickerScreen
 import com.shnwaz.lyramusic.ui.screens.settings.PrivacySettings
 import com.shnwaz.lyramusic.ui.screens.settings.SettingsScreen
 import com.shnwaz.lyramusic.ui.screens.settings.StorageSettings
+import com.shnwaz.lyramusic.ui.screens.settings.ThemeCreatorScreen
 import com.shnwaz.lyramusic.ui.screens.settings.UpdateScreen
 import com.shnwaz.lyramusic.ui.screens.musicrecognition.MusicRecognitionRoute
 import com.shnwaz.lyramusic.ui.screens.musicrecognition.MusicRecognitionScreen
@@ -328,6 +331,15 @@ fun NavGraphBuilder.navigationBuilder(
     }
     composable("settings/player") {
         PlayerSettings(navController, scrollBehavior)
+    }
+    composable("settings/appearance") {
+        AppearanceSettings(navController, scrollBehavior)
+    }
+    composable("settings/appearance/palette_picker") {
+        PalettePickerScreen(navController)
+    }
+    composable("settings/appearance/theme_creator") {
+        ThemeCreatorScreen(navController)
     }
     composable("settings/storage") {
         StorageSettings(navController, scrollBehavior)

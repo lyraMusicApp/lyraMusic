@@ -8,6 +8,7 @@
 
 package com.shnwaz.lyramusic.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -412,7 +413,9 @@ fun ExploreScreen(
                                 title = it.title,
                                 stripeColor = it.stripeColor,
                                 onClick = {
-                                    navController.navigate("youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}")
+                                    navController.navigate(
+                                        "youtube_browse/${Uri.encode(it.endpoint.browseId)}?params=${Uri.encode(it.endpoint.params)}"
+                                    )
                                 },
                                 modifier = Modifier
                                     .padding(6.dp)

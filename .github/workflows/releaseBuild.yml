@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing version tag to publish, for example v3.0.12
+        description: Existing version tag to publish, for example v3.0.11
         required: true
         type: string
       release_notes:

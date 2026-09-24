@@ -6,6 +6,7 @@
 
 package com.shnwaz.lyramusic.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -113,7 +114,9 @@ fun MoodAndGenresScreen(
                     title = item.title,
                     stripeColor = item.stripeColor,
                     onClick = {
-                        navController.navigate("youtube_browse/${item.endpoint.browseId}?params=${item.endpoint.params}")
+                        navController.navigate(
+                            "youtube_browse/${Uri.encode(item.endpoint.browseId)}?params=${Uri.encode(item.endpoint.params)}"
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -232,4 +235,4 @@ fun MoodAndGenresButton(
     }
 }
 
-val MoodAndGenresButtonHeight = 92.dp
+val MoodAndGenresButtonHeight = 136.dp

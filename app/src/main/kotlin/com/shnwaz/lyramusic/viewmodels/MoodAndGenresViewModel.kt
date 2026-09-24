@@ -26,13 +26,24 @@ constructor() : ViewModel() {
 
     init {
         viewModelScope.launch {
-            YouTube
-                .explore()
-                .onSuccess {
-                    moodAndGenres.value = it.moodAndGenres
-                }.onFailure {
-                    reportException(it)
-                }
+            val result = YouTube.explore()
+            result
+                .map { it.moodAndGenres }
+                .getOrNull()
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { moodAndGenres.value = it }
+
+            if (moodAndGenres.value == null) {
+                YouTube.moodAndGenres()
+                    .onSuccess { sections ->
+                        moodAndGenres.value = sections.flatMap { it.items }
+                    }
+                    .onFailure { reportException(it) }
+            }
+
+            if (moodAndGenres.value == null) {
+                result.exceptionOrNull()?.let(::reportException)
+            }
         }
     }
 }
