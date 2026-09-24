@@ -1,6 +1,6 @@
 [submodule "IconPack"]
 	path = IconPack
-	url = https://github.com/shnwazdeveloper/IconPack.git
+	url = https://github.com/lyraMusicApp/IconPack.git
 [submodule "lyrics"]
 	path = lyrics
-	url = https://github.com/shnwazdeveloper/lyrics.git
+	url = https://github.com/lyraMusicApp/lyrics.git
